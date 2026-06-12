@@ -278,3 +278,52 @@ La deuda técnica conocida es mínima:
 - Ejecución manual de Playwright e2e por Jennifer (recomendado antes de merge, pero no crítico).
 
 El change está listo para producción.
+
+---
+
+## Addendum post-archive — 2026-06-12 — Corrida e2e manual y root-cause fixing
+
+La corrida manual de `pnpm test:e2e` (Jennifer) reveló que el "PASS" de sdd-verify
+era parcial: la auditoría estática no podía atrapar bugs de runtime. Resultado
+inicial: 4/14 tests passing. Sesión de debugging hasta root cause (no parches):
+
+### Bug crítico de producto encontrado
+
+**Middleware validaba sesión con cookie inexistente.** `request.cookies.has("sb-auth-token")`
+— Supabase nunca setea esa cookie; el nombre real es `sb-<project-ref>-auth-token`
+(dinámico, a veces en chunks). `hasSession` era siempre false → toda ruta protegida
+rebotaba a /auth/login con sesión válida. **Habría bloqueado a todos los alumnos
+en producción.** Fix: `updateSession` devuelve `{ response, user }` vía
+`supabase.auth.getUser()`; middleware decide con el user real; el redirect
+preserva cookies refrescadas.
+
+### Otros bugs reales corregidos
+
+1. `redirect()` dentro de try/catch en signIn y changePassword — el catch se comía
+   la excepción NEXT_REDIRECT de Next.js y el redirect nunca ocurría. Movido afuera.
+2. `useFormState` deprecado en React 19 → `useActionState`.
+3. Node 20 sin WebSocket nativo → Supabase Realtime crasheaba el helper admin de
+   Playwright. Fix: `ws` como transport.
+4. GRANTs faltantes en `public.users` para `authenticated` y `service_role`
+   (las tablas creadas vía SQL Editor no obtienen grants automáticos).
+   Agregado ALTER DEFAULT PRIVILEGES para futuras tablas de changes 2+.
+5. Specs compartían el seed user en paralelo y se pisaban `password_changed`
+   → `workers: 1`. TODO change 2: un seed user por spec.
+6. 3 bugs de assertions en los specs (password corto que activaba Zod antes que
+   Supabase, selector de contacto, placeholder buscado dentro del h1).
+
+### Resultado final verificado
+
+- Playwright: **14/14 PASSED** (chromium + Mobile Chrome, 53s)
+- Vitest: 15 passed / 2 skipped
+- Build y lint limpios
+- Commit `2d31e80` pushed a GitHub
+
+### Lecciones para changes 2-8
+
+- **sdd-verify estático no reemplaza la corrida e2e real.** Incorporar
+  `pnpm test:e2e` como gate del verify en los próximos changes.
+- Nunca validar sesión Supabase por nombre de cookie — siempre `auth.getUser()`.
+- `redirect()` de Next.js siempre FUERA de try/catch en Server Actions.
+- Tablas nuevas vía SQL Editor necesitan GRANTs explícitos (ya cubierto con
+  DEFAULT PRIVILEGES para las próximas).
