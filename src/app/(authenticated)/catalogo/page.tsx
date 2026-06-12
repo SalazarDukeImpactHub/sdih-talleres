@@ -47,6 +47,7 @@ async function CatalogGrid() {
       {workshops.map((workshop: Workshop) => (
         <WorkshopCard
           key={workshop.id}
+          id={workshop.id}
           slug={workshop.slug}
           title={workshop.title}
           description={workshop.description}

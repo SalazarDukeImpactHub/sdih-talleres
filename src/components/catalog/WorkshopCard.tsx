@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { StatusBadge } from "./StatusBadge";
+import { AccessKeyModal } from "./AccessKeyModal";
 
 interface WorkshopCardProps {
+  id: string;
   slug: string;
   title: string;
   description: string;
@@ -17,9 +21,11 @@ interface WorkshopCardProps {
 /**
  * WorkshopCard — tarjeta individual de taller en el catálogo.
  * Estructura: cover image + título + descripción + instructor + fecha + badge + botón
- * Estados: desbloqueado (botón "Continuar" disabled) o bloqueado (botón "Ingresar" clickeable)
+ * Estados: desbloqueado (botón "Continuar" disabled) o bloqueado (botón "Ingresar" clickeable + modal)
+ * Client Component para manejar estado del modal y refetch tras canje exitoso.
  */
 export function WorkshopCard({
+  id,
   title,
   description,
   instructor,
@@ -27,8 +33,11 @@ export function WorkshopCard({
   duration_min,
   status,
   cover_image,
-  isUnlocked,
+  isUnlocked: initialIsUnlocked,
 }: WorkshopCardProps) {
+  const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(initialIsUnlocked);
   const formattedDate = date_live
     ? new Date(date_live).toLocaleDateString("es-AR", {
         weekday: "short",
@@ -105,15 +114,29 @@ export function WorkshopCard({
             </button>
           ) : (
             <button
+              onClick={() => setIsModalOpen(true)}
               className="w-full px-3 py-2 rounded text-xs font-semibold bg-cyan text-navy-900 hover:bg-cyan/90 active:bg-cyan/80 transition-colors"
               aria-label={`Ingresar a ${title}`}
             >
-              {/* El modal de clave se conecta en slice 2b — acá solo el trigger visual */}
               Ingresar
             </button>
           )}
         </div>
       </div>
+
+      {/* AccessKeyModal — abre cuando user clickea "Ingresar" */}
+      <AccessKeyModal
+        isOpen={isModalOpen}
+        workshopId={id}
+        workshopTitle={title}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => {
+          // Tras canje exitoso: marcar como desbloqueado + refetch
+          setIsUnlocked(true);
+          // Refetch para garantizar consistencia de datos
+          router.refresh();
+        }}
+      />
     </div>
   );
 }
