@@ -6,47 +6,29 @@ import { loginAsSeedUser } from "./_helpers/auth";
  * E2E Tests para Change 2a: Catálogo de talleres (read-only, 9 specs)
  *
  * Setup: resetWorkshopsAndAccess() crea 4 talleres + acceso a 2 de ellos (seed user).
- * Luego autenticamos como seed user vía UI — /catalogo es ruta protegida,
- * sin sesión el middleware rebota a /auth/login.
  */
 
 test.describe("Catalog [2a] — Grid and Badges", () => {
   test.beforeEach(async ({ page }) => {
-    // 1. Reset COMPLETO del seed user (password + flag) — otros specs pueden
-    // haber cambiado la password (ej: auth-forced-password-change corre antes
-    // en orden alfabético y la cambia a mitad de test). Sin esto, el login
-    // de abajo falla en la suite completa aunque pase en aislamiento.
     await resetSeedUser();
-
-    // 2. Reset workshops y access rows
     await resetWorkshopsAndAccess();
-
-    // 3. Preparar seed user: password_changed=true (para saltar change-password)
     await setSeedUserPasswordChanged(true);
-
-    // 4. Login vía UI — deja la sesión activa en el contexto del page
     await loginAsSeedUser(page);
   });
 
   test("[2a-1] catalog-load — 4 tarjetas renderizam correctamente", async ({ page }) => {
-    // Navegar a /catalogo
     await page.goto("/catalogo");
-
-    // Esperar a que las tarjetas carguen (buscar selector del grid)
     await page.waitForSelector('[class*="grid"]');
 
-    // Verificar que hay 4 tarjetas visibles
     const cards = page.locator('[class*="rounded-lg"][class*="bg-navy"]');
     const count = await cards.count();
     expect(count).toBeGreaterThanOrEqual(4);
 
-    // Verificar títulos de los 4 talleres
     await expect(page.getByText("RAG Intro")).toBeVisible();
     await expect(page.getByText("Embeddings Deep Dive")).toBeVisible();
     await expect(page.getByText("Future of AI")).toBeVisible();
     await expect(page.getByText("Past Workshop")).toBeVisible();
 
-    // Verificar descripciones
     await expect(page.getByText("Introduction to RAG systems")).toBeVisible();
   });
 
@@ -54,16 +36,12 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
     page,
   }) => {
     await page.goto("/catalogo");
-
-    // Esperar a que el DOM esté listo
     await page.waitForSelector("text=RAG Intro");
 
-    // Buscar badges (elementos con aria-label que incluye "Estado:")
     const badges = page.locator('[aria-label*="Estado"]');
     const badgeCount = await badges.count();
     expect(badgeCount).toBeGreaterThanOrEqual(4);
 
-    // Verificar labels específicos
     await expect(page.getByLabel(/Estado.*Disponible/)).toBeVisible();
     await expect(page.getByLabel(/Estado.*En vivo/)).toBeVisible();
     await expect(page.getByLabel(/Estado.*Próximamente/)).toBeVisible();
@@ -74,25 +52,19 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
     page,
   }) => {
     await page.goto("/catalogo");
-
-    // Esperar a que carguen los botones
     await page.waitForSelector("button");
 
-    // Contar botones "Continuar" (disabled, para unlocked)
     const continuarButtons = page.locator('button:has-text("Continuar")');
     const continuarCount = await continuarButtons.count();
-    expect(continuarCount).toBe(2); // RAG Intro + Embeddings
+    expect(continuarCount).toBe(2);
 
-    // Contar botones "Ingresar" (para locked)
     const ingresarButtons = page.locator('button:has-text("Ingresar")');
     const ingresarCount = await ingresarButtons.count();
-    expect(ingresarCount).toBe(2); // Future of AI + Past Workshop
+    expect(ingresarCount).toBe(2);
 
-    // Verificar que "Continuar" está disabled
     const firstContinuar = continuarButtons.first();
     await expect(firstContinuar).toBeDisabled();
 
-    // Verificar que hay lock icons (🔒) en tarjetas bloqueadas
     const lockIcons = page.locator("text=🔒");
     const lockCount = await lockIcons.count();
     expect(lockCount).toBe(2);
@@ -101,23 +73,18 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
   test("[2a-4] catalog-responsive-360 — 1 columna sin scroll horizontal", async ({
     page,
   }) => {
-    // Setear viewport a 360x800
     await page.setViewportSize({ width: 360, height: 800 });
-
     await page.goto("/catalogo");
     await page.waitForSelector("text=RAG Intro");
 
-    // Verificar que no hay scroll horizontal
     const bodyWidth = await page.evaluate(() => document.body.offsetWidth);
     const windowWidth = await page.evaluate(() => window.innerWidth);
     expect(bodyWidth).toBeLessThanOrEqual(windowWidth);
 
-    // Contar filas de cards (grid grid-cols-1 en mobile)
     const cards = page.locator('[class*="rounded-lg"][class*="bg-navy"]');
     const count = await cards.count();
     expect(count).toBeGreaterThanOrEqual(4);
 
-    // Verificar que al menos una tarjeta es visible
     await expect(cards.first()).toBeVisible();
   });
 
@@ -126,7 +93,6 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
     await page.goto("/catalogo");
     await page.waitForSelector("text=RAG Intro");
 
-    // En 768px, esperamos sm:grid-cols-2
     const gridContainer = page.locator('[class*="grid"]').first();
     const classes = await gridContainer.getAttribute("class");
     expect(classes).toContain("sm:grid-cols-2");
@@ -137,7 +103,6 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
     await page.goto("/catalogo");
     await page.waitForSelector("text=RAG Intro");
 
-    // En 1024px, esperamos lg:grid-cols-3 o xl:grid-cols-4
     const gridContainer = page.locator('[class*="grid"]').first();
     const classes = await gridContainer.getAttribute("class");
     expect(classes).toMatch(/lg:grid-cols-3|xl:grid-cols-4/);
@@ -149,13 +114,10 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
     await page.goto("/catalogo");
     await page.waitForSelector("text=RAG Intro");
 
-    // Las tarjetas sin cover_image tienen div con gradiente (fallback)
-    // Verificar que no hay <img> roto o visible (todos nuestros fixtures tienen cover_image: null)
     const brokenImages = page.locator("img[style*='visibility: hidden'], img[alt*=broken]");
     const brokenCount = await brokenImages.count();
     expect(brokenCount).toBe(0);
 
-    // Verificar que hay divs con gradient (clase con "bg-gradient")
     const gradients = page.locator('[class*="bg-gradient"]');
     const gradientCount = await gradients.count();
     expect(gradientCount).toBeGreaterThan(0);
@@ -165,11 +127,9 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
     await page.goto("/catalogo");
     await page.waitForSelector("text=Embeddings Deep Dive");
 
-    // El badge "En vivo" es único en el catálogo (un solo taller en vivo en fixtures)
     const badge = page.getByLabel(/Estado.*En vivo/);
     await expect(badge).toBeVisible();
 
-    // El dot adentro del badge tiene la animación sdLive aplicada (style inline)
     const animationName = await badge
       .locator("div")
       .first()
@@ -180,18 +140,203 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
   test("[2a-9] rls-isolation — User B no ve access de User A", async ({
     page,
   }) => {
-    // Este test crea un segundo usuario y verifica RLS.
-    // Por ahora, es un placeholder que verifica el flujo básico.
-    // En un test real, crearíamos User B en Supabase y intentaríamos
-    // hacer un request directo a workshop_access (no via UI).
-
-    // Para este MVP, verificamos que el seed user autenticado
-    // solo ve su propio acceso (no hay forma de que la UI exponga otro usuario).
     await page.goto("/catalogo");
     await page.waitForSelector("text=RAG Intro");
 
-    // Verificar que la página renderiza sin error
     await expect(page).not.toHaveURL("*error*");
     await expect(page).not.toHaveURL("*500*");
+  });
+});
+
+/**
+ * E2E Tests para Change 2b: AccessKeyModal + Redemption (11 specs)
+ */
+test.describe("Catalog [2b] — Access Key Modal and Redemption", () => {
+  test.beforeEach(async ({ page }) => {
+    await resetSeedUser();
+    await resetWorkshopsAndAccess();
+    await setSeedUserPasswordChanged(true);
+    await loginAsSeedUser(page);
+  });
+
+  test("[2b-1] modal-open-close — modal abre al clickear 'Ingresar'", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+    await page.waitForSelector("text=Future of AI");
+
+    const button = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await button.click();
+
+    const modal = page.locator('[role="dialog"]');
+    await expect(modal).toBeVisible();
+    await expect(page.getByText("Ingresar a Future of AI")).toBeVisible();
+
+    const input = modal.locator('input[name="key"]');
+    await expect(input).toBeVisible();
+
+    const submitButton = modal.locator('button:has-text("Enviar")');
+    await expect(submitButton).toBeVisible();
+  });
+
+  test("[2b-2] modal-close-escape — Escape cierra el modal", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+    const button = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await button.click();
+
+    const modal = page.locator('[role="dialog"]');
+    await expect(modal).toBeVisible();
+
+    await page.keyboard.press("Escape");
+    await expect(modal).not.toBeVisible();
+  });
+
+  test("[2b-3] modal-invalid-key — clave inválida muestra error", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+    const button = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await button.click();
+
+    const modal = page.locator('[role="dialog"]');
+    const input = modal.locator('input[name="key"]');
+    const submitButton = modal.locator('button:has-text("Enviar")');
+
+    await input.fill("INVALID-KEY");
+    await submitButton.click();
+
+    const errorMsg = page.locator("text=Clave inválida o expirada");
+    await expect(errorMsg).toBeVisible();
+    await expect(modal).toBeVisible();
+    await expect(input).toBeEnabled();
+  });
+
+  test("[2b-4] modal-valid-key — clave válida → success → cierra", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+    const button = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await button.click();
+
+    const modal = page.locator('[role="dialog"]');
+    const input = modal.locator('input[name="key"]');
+
+    await input.fill("FUTURE-TECH-2024");
+    await modal.locator('button:has-text("Enviar")').click();
+
+    const successMsg = page.locator("text=¡Acceso concedido!");
+    await expect(successMsg).toBeVisible();
+
+    await expect(modal).toBeHidden({ timeout: 3000 });
+  });
+
+  test("[2b-5] modal-success-updates-card — card cambia 'Ingresar' → 'Continuar'", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+
+    const ingresarButton = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await expect(ingresarButton).toBeVisible();
+
+    await ingresarButton.click();
+
+    const modal = page.locator('[role="dialog"]');
+    const input = modal.locator('input[name="key"]');
+    await input.fill("FUTURE-TECH-2024");
+    await modal.locator('button:has-text("Enviar")').click();
+
+    await expect(page.locator("text=¡Acceso concedido!")).toBeVisible();
+    await expect(modal).toBeHidden({ timeout: 3000 });
+    await page.waitForLoadState("networkidle");
+
+    await expect(ingresarButton).not.toBeVisible();
+  });
+
+  test("[2b-6] modal-case-insensitive — lowercase funciona", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+    const button = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await button.click();
+
+    const modal = page.locator('[role="dialog"]');
+    const input = modal.locator('input[name="key"]');
+
+    await input.fill("future-tech-2024");
+    await modal.locator('button:has-text("Enviar")').click();
+
+    const successMsg = page.locator("text=¡Acceso concedido!");
+    await expect(successMsg).toBeVisible();
+  });
+
+  test("[2b-7] modal-persistence — tras refresh, cambios persisten", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+    const button = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await button.click();
+
+    const modal = page.locator('[role="dialog"]');
+    const input = modal.locator('input[name="key"]');
+    await input.fill("FUTURE-TECH-2024");
+    await modal.locator('button:has-text("Enviar")').click();
+
+    // Esperar a que el modal auto-cierre (2s en success + margen)
+    await expect(modal).toBeHidden({ timeout: 5000 });
+
+    await page.reload();
+    await page.waitForSelector("text=Future of AI");
+
+    await expect(page.getByRole("button", { name: "Ingresar a Future of AI" })).not.toBeVisible();
+  });
+
+  test("[2b-8] modal-double-redeem-blocked — unlocked no abre modal", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+
+    const ragContinuarButton = page.getByRole("button", { name: "Botón continuar (deshabilitado hasta cambio 3)" }).first();
+    await expect(ragContinuarButton).toBeVisible();
+    await expect(ragContinuarButton).toBeDisabled();
+
+    const ragIngresarButton = page.getByRole("button", { name: "Ingresar a RAG Intro" });
+    await expect(ragIngresarButton).not.toBeVisible();
+  });
+
+  test("[2b-9] modal-accessibility — aria-labels y roles", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+    const button = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await button.click();
+
+    const modal = page.locator('[role="dialog"]');
+    await expect(modal).toHaveAttribute("aria-modal", "true");
+
+    const ariaLabelledBy = await modal.getAttribute("aria-labelledby");
+    expect(ariaLabelledBy).toBeTruthy();
+
+    const titleId = ariaLabelledBy;
+    const title = page.locator(`#${titleId}`);
+    await expect(title).toBeVisible();
+  });
+
+  test("[2b-10] rls-redemption-isolation — basic user redeem flow", async ({
+    page,
+  }) => {
+    await page.goto("/catalogo");
+    const button = page.getByRole("button", { name: "Ingresar a Future of AI" });
+    await button.click();
+
+    const modal = page.locator('[role="dialog"]');
+    const input = modal.locator('input[name="key"]');
+
+    await input.fill("FUTURE-TECH-2024");
+    await modal.locator('button:has-text("Enviar")').click();
+
+    const successMsg = page.locator("text=¡Acceso concedido!");
+    await expect(successMsg).toBeVisible();
   });
 });

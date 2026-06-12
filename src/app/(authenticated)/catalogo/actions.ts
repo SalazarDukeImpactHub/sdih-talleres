@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
+import { accessKeySchema } from "@/lib/schemas/workshop";
 
 /**
  * Server Action fetchWorkshops — obtiene todos los talleres con estado de desbloqueo del usuario actual.
@@ -97,6 +98,108 @@ export async function fetchWorkshops() {
 }
 
 /**
- * (2b) Server Action redeemKey — valida y canjea una clave de acceso.
- * Será implementado en bloque 14 (slice 2b).
+ * Server Action redeemKey — valida y canjea una clave de acceso.
+ * Validación Zod + busca workshop_access del usuario actual
+ * RLS filtra automáticamente (authenticated user solo ve sus propias rows)
+ * Chequeos: clave existe, coincide (case-insensitive), no expirada, no canjeada
+ * Response: { success: true } o { success: false, error: "..." }
  */
+export async function redeemKey(
+  input: { key: string; workshopId: string }
+): Promise<{ status: string; error?: string }> {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return {
+        status: "error",
+        error: "Usuario no autenticado",
+      };
+    }
+
+    // 1. Validar schema
+    const parsed = accessKeySchema.safeParse(input);
+    if (!parsed.success) {
+      const errorMsg =
+        parsed.error.issues[0]?.message || "Clave inválida";
+      return {
+        status: "error",
+        error: errorMsg,
+      };
+    }
+
+    const { key, workshopId } = parsed.data;
+    const supabase = await createClient();
+
+    // 2. Buscar workshop_access para este usuario + workshop
+    // RLS filtra automáticamente (authenticated user solo ve sus rows)
+    const { data: accessRow, error: selectError } = await supabase
+      .from("workshop_access")
+      .select("id, access_key, redeemed_at, expires_at")
+      .eq("user_id", user.id)
+      .eq("workshop_id", workshopId)
+      .single();
+
+    if (selectError && selectError.code !== "PGRST116") {
+      // PGRST116 = no rows found (esperado si no existe yet)
+      console.error("[redeemKey] Error en SELECT:", selectError);
+      return {
+        status: "error",
+        error: "Error al verificar acceso",
+      };
+    }
+
+    // 3. Si ya tiene acceso canjeado, rechazar
+    if (accessRow && accessRow.redeemed_at !== null) {
+      return {
+        status: "error",
+        error: "Ya tenés acceso a este taller",
+      };
+    }
+
+    // 4. Si existe pero no canjeado: validar clave + expiración
+    if (accessRow) {
+      const isKeyValid =
+        accessRow.access_key.toUpperCase() === key.toUpperCase();
+      const isExpired = new Date(accessRow.expires_at) < new Date();
+
+      if (!isKeyValid || isExpired) {
+        return {
+          status: "error",
+          error: "Clave inválida o expirada",
+        };
+      }
+
+      // 5. UPDATE: set redeemed_at = now()
+      const { error: updateError } = await supabase
+        .from("workshop_access")
+        .update({ redeemed_at: new Date().toISOString() })
+        .eq("id", accessRow.id)
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        console.error("[redeemKey] Error en UPDATE:", updateError);
+        return {
+          status: "error",
+          error: "Error al canjear acceso",
+        };
+      }
+
+      return {
+        status: "success",
+      };
+    }
+
+    // 6. Si no existe row en absoluto, error
+    return {
+      status: "error",
+      error: "Clave no válida para este taller",
+    };
+  } catch (err) {
+    console.error("[redeemKey] Excepción:", err);
+    return {
+      status: "error",
+      error: "Error al procesar solicitud",
+    };
+  }
+}
