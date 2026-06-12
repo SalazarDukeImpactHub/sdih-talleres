@@ -5,7 +5,7 @@ vi.mock("@/lib/supabase/server");
 vi.mock("next/navigation");
 
 // Después de los mocks, importar
-import { signIn } from "@/app/(auth)/login/actions";
+import { signIn } from "@/app/(auth)/auth/login/actions";
 import { createClient } from "@/lib/supabase/server";
 
 describe("Server Action: signIn", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { changePassword } from "@/app/(auth)/change-password/actions";
+import { changePassword } from "@/app/(auth)/auth/change-password/actions";
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),

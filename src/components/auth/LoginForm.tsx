@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import { signIn } from "@/app/(auth)/login/actions";
+import { signIn } from "@/app/(auth)/auth/login/actions";
 import { AuthCard } from "./AuthCard";
 import { FormError } from "./FormError";
 import { SubmitButton } from "./SubmitButton";
