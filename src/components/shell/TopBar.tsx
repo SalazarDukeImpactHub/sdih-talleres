@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { signOut } from "@/app/(authenticated)/_actions/sign-out";
-import { SubmitButton } from "@/components/auth/SubmitButton";
 
 interface User {
   id: string;
@@ -30,7 +29,7 @@ export function TopBar({ user }: TopBarProps) {
   const displayName = user.name || user.email;
 
   return (
-    <header className="bg-navy-800 border-b border-navy-600 sticky top-0 z-50">
+    <header className="bg-navy-800 border-b border-navy-600 sticky top-0 z-50" data-testid="top-bar">
       <div className="max-w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         <div className="flex items-center justify-between gap-4">
           {/* Logo a la izquierda */}

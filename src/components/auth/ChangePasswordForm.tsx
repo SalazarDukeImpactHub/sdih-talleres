@@ -6,10 +6,6 @@ import { AuthCard } from "./AuthCard";
 import { FormError } from "./FormError";
 import { SubmitButton } from "./SubmitButton";
 
-interface FormState {
-  errors?: Record<string, string | string[]>;
-}
-
 /**
  * Componente ChangePasswordForm — formulario para cambio forzado de contraseña.
  *

@@ -6,10 +6,6 @@ import { AuthCard } from "./AuthCard";
 import { FormError } from "./FormError";
 import { SubmitButton } from "./SubmitButton";
 
-interface FormState {
-  errors?: Record<string, string | string[]>;
-}
-
 /**
  * Componente LoginForm — formulario de login con useFormState de React 19.
  *
