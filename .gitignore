@@ -41,3 +41,6 @@ yarn-error.log*
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/playwright/.cache/
