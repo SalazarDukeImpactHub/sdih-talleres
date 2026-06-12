@@ -1,24 +1,40 @@
-import Image from "next/image";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return (
-    <main className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
-      <Image
-        src="/logo-brain.png"
-        alt="Salazar Duke Impact Hub"
-        width={120}
-        height={120}
-        priority
-      />
-      <h1 className="mt-8 font-[family-name:var(--font-space-grotesk)] text-3xl font-semibold text-text-primary md:text-4xl">
-        SDIH Talleres
-      </h1>
-      <p className="mt-3 max-w-md text-base text-text-secondary">
-        Portal privado de talleres en vivo. Próximamente.
-      </p>
-      <p className="mt-12 font-[family-name:var(--font-space-grotesk)] text-sm uppercase tracking-[0.2em] text-cyan">
-        Inteligencia con alma
-      </p>
-    </main>
-  );
+/**
+ * Página root "/" — Server Component que redirige según sesión y password_changed.
+ *
+ * Lógica:
+ * 1. Si no autenticado → redirect /auth/login
+ * 2. Si autenticado + password_changed = false → redirect /auth/change-password
+ * 3. Si autenticado + password_changed = true → redirect /catalogo
+ *
+ * NO renderiza UI — es solo lógica de redirect.
+ */
+export default async function Home() {
+  const supabase = await createClient();
+
+  // 1. Obtener usuario actual
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // 2. Si no autenticado → ir a login
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  // 3. Si autenticado, leer flag password_changed
+  const { data: userData } = await supabase
+    .from("users")
+    .select("password_changed")
+    .eq("id", user.id)
+    .single();
+
+  // 4. Redirigir según flag
+  if (!userData?.password_changed) {
+    redirect("/auth/change-password");
+  } else {
+    redirect("/catalogo");
+  }
 }
