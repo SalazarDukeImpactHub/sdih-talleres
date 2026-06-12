@@ -1,7 +1,10 @@
 # Coding Standards — SDIH Talleres
 
 Cliente: Jennifer Salazar Duque — Salazar Duke Impact Hub
-Stack: Next.js 15 (App Router) + React 19 + Tailwind 4 + Zod 4 + Supabase + Resend
+Stack: Next.js 16 (App Router) + React 19 + Tailwind 4 + Zod 4 + Supabase + Resend
+
+> **Next.js 16 — leer antes de tocar código**
+> Esta versión trae breaking changes (variable fonts, `params` como Promise, event handlers en Server Components, i18n cookies, middleware). El template del scaffold lo advierte explícitamente. Cuando dudes, leé `node_modules/next/dist/docs/` o invocá el skill `nextjs-app-router` que ya cubre los gotchas de v16.
 
 Este archivo define los estándares de código que GGA (Gentleman Guardian Angel)
 revisa automáticamente en cada commit.

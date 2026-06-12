@@ -47,7 +47,7 @@ Portal privado bajo VPN donde los alumnos de Jennifer Salazar acceden a sus tall
 
 | Capa | Tecnología |
 |------|------------|
-| Frontend | Next.js 15 (App Router) + React 19 |
+| Frontend | Next.js 16 (App Router) + React 19 |
 | Estilos | Tailwind 4 |
 | Validación | Zod 4 (cliente y servidor) |
 | Backend | Next.js API routes + Supabase |
