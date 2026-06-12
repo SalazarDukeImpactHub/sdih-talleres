@@ -107,6 +107,119 @@ export async function getSeedUserState() {
   return data;
 }
 
+/**
+ * resetWorkshopsAndAccess() — reseta tablas de workshops para tests.
+ * Idempotent: elimina todas las filas y recrea 4 fixtures.
+ * Seed user obtiene acceso desbloqueado a 2 talleres.
+ *
+ * Llamá esto en beforeEach para aislar tests entre sí.
+ */
+export async function resetWorkshopsAndAccess() {
+  const admin = createAdminClient();
+
+  try {
+    // 1. Delete all data idempotently (neq check evita match all si tabla está vacía)
+    await admin.from("workshop_access").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    await admin.from("workshops").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+    // 2. Create 4 seed workshops con estados distintos
+    const workshopsToInsert = [
+      {
+        slug: "rag-intro",
+        title: "RAG Intro",
+        description: "Introduction to RAG systems",
+        instructor: "Dr. AI",
+        status: "disponible",
+        date_live: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        duration_min: 120,
+        cover_image: null,
+      },
+      {
+        slug: "embeddings",
+        title: "Embeddings Deep Dive",
+        description: "Advanced embeddings techniques",
+        instructor: "Dr. AI",
+        status: "en vivo",
+        date_live: new Date().toISOString(),
+        duration_min: 150,
+        cover_image: null,
+      },
+      {
+        slug: "future-tech",
+        title: "Future of AI",
+        description: "Speculation and trends",
+        instructor: "Dr. AI",
+        status: "próximamente",
+        date_live: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        duration_min: 120,
+        cover_image: null,
+      },
+      {
+        slug: "completed",
+        title: "Past Workshop",
+        description: "Already happened",
+        instructor: "Dr. AI",
+        status: "completado",
+        date_live: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        duration_min: 100,
+        cover_image: null,
+      },
+    ];
+
+    const { data: workshops, error: workshopsError } = await admin
+      .from("workshops")
+      .insert(workshopsToInsert)
+      .select();
+
+    if (workshopsError) {
+      throw new Error(`Failed to insert workshops: ${workshopsError.message}`);
+    }
+
+    if (!workshops || workshops.length === 0) {
+      throw new Error("No workshops inserted");
+    }
+
+    // 3. Create access rows: seed user unlocked to first 2 workshops (redeemed)
+    const accessToInsert = [
+      {
+        user_id: SEED_USER.uuid,
+        workshop_id: workshops[0].id,
+        access_key: "RAG-STARTER",
+        redeemed_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        user_id: SEED_USER.uuid,
+        workshop_id: workshops[1].id,
+        access_key: "LIVE-2024",
+        redeemed_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+      // 2b: Add unredeemed access for future-tech (para testing canje)
+      {
+        user_id: SEED_USER.uuid,
+        workshop_id: workshops[2].id,
+        access_key: "FUTURE-TECH-2024",
+        redeemed_at: null,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+    ];
+
+    const { error: accessError } = await admin
+      .from("workshop_access")
+      .insert(accessToInsert);
+
+    if (accessError) {
+      throw new Error(`Failed to insert access rows: ${accessError.message}`);
+    }
+
+    return { workshops, seedUserId: SEED_USER.uuid };
+  } catch (err) {
+    console.error("[resetWorkshopsAndAccess] Error:", err);
+    throw err;
+  }
+}
+
 // Re-export para tests que crean admin clients directamente
 export const SUPABASE_URL_FOR_TESTS = SUPABASE_URL;
 export const SERVICE_ROLE_KEY_FOR_TESTS = SERVICE_ROLE_KEY;
