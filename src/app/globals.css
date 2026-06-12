@@ -55,3 +55,18 @@ body {
   color: var(--foreground);
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
 }
+
+/* ============================================================
+   Animaciones — Change 2 (catalog-and-access)
+   ============================================================ */
+
+@keyframes sdLive {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+}
