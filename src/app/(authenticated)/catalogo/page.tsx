@@ -63,6 +63,7 @@ async function CatalogGrid() {
           }
           cover_image={workshop.cover_image}
           isUnlocked={workshop.is_unlocked}
+          isAccessRedeemed={workshop.is_unlocked}
         />
       ))}
     </div>

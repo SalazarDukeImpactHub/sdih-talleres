@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { StatusBadge } from "./StatusBadge";
 import { AccessKeyModal } from "./AccessKeyModal";
@@ -16,6 +17,7 @@ interface WorkshopCardProps {
   status: "disponible" | "en vivo" | "próximamente" | "completado";
   cover_image: string | null;
   isUnlocked: boolean;
+  isAccessRedeemed?: boolean; // true if user has already redeemed access
 }
 
 /**
@@ -26,6 +28,7 @@ interface WorkshopCardProps {
  */
 export function WorkshopCard({
   id,
+  slug,
   title,
   description,
   instructor,
@@ -34,6 +37,7 @@ export function WorkshopCard({
   status,
   cover_image,
   isUnlocked: initialIsUnlocked,
+  isAccessRedeemed = false,
 }: WorkshopCardProps) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,17 +105,16 @@ export function WorkshopCard({
           <StatusBadge status={status} />
         </div>
 
-        {/* Button: Continuar (unlocked) or Ingresar (locked) */}
+        {/* Button: Continuar (access redeemed) or Ingresar (locked) */}
         <div className="mt-auto">
-          {isUnlocked ? (
-            <button
-              disabled={true}
-              className="w-full px-3 py-2 rounded text-xs font-semibold bg-cyan/20 text-cyan border border-cyan/30 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-              title="Disponible próximamente"
-              aria-label="Botón continuar (deshabilitado hasta cambio 3)"
+          {isAccessRedeemed ? (
+            <Link
+              href={`/taller/${slug}`}
+              className="w-full px-3 py-2 rounded text-xs font-semibold bg-cyan text-navy-900 hover:bg-cyan/90 active:bg-cyan/80 transition-colors inline-block text-center"
+              aria-label={`Continuar taller ${title}`}
             >
               Continuar
-            </button>
+            </Link>
           ) : (
             <button
               onClick={() => setIsModalOpen(true)}
