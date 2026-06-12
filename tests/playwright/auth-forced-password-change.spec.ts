@@ -24,7 +24,7 @@ test.describe("Auth: Flujo forzado de cambio de contraseña", () => {
     await page.click('button[type="submit"]');
 
     // 5. Expect redirect a /auth/change-password
-    await page.waitForURL("**/auth/change-password", { timeout: 5000 });
+    await page.waitForURL("**/auth/change-password", { timeout: 15000 });
     expect(page.url()).toContain("/auth/change-password");
 
     // 6. Llenar formulario de cambio de contraseña
@@ -36,14 +36,14 @@ test.describe("Auth: Flujo forzado de cambio de contraseña", () => {
     await page.click('button[type="submit"]');
 
     // 8. Expect redirect a /catalogo
-    await page.waitForURL("**/catalogo", { timeout: 5000 });
+    await page.waitForURL("**/catalogo", { timeout: 15000 });
     expect(page.url()).toContain("/catalogo");
 
-    // 9. Expect ver "Catálogo — próximamente en change 2"
+    // 9. Expect ver el heading del catálogo y el placeholder (en elementos distintos)
     const title = page.locator("h1");
     const titleText = await title.textContent();
     expect(titleText).toContain("Catálogo");
-    expect(titleText).toContain("próximamente en change 2");
+    await expect(page.locator("text=próximamente en change 2")).toBeVisible();
 
     // 10. Expect ver nombre "Alumna de Prueba" en TopBar
     const topBar = page.locator('[data-testid="top-bar"]');

@@ -19,8 +19,10 @@ test.describe("Auth: Restricted page — VPN stub", () => {
     const vpnText = page.locator('text=VPN');
     expect(await vpnText.isVisible()).toBe(true);
 
-    // 5. Expect ver link de contacto (href o botón con acción)
-    const contactLink = page.locator('a[href*="mailto:"], a[href*="contact"], button:has-text("contacto")');
+    // 5. Expect ver link de contacto (WhatsApp wa.me, mailto, contact, o por texto)
+    const contactLink = page.locator(
+      'a[href*="wa.me"], a[href*="mailto:"], a[href*="contact"], a:has-text("Contactar"), button:has-text("Contactar")'
+    );
     expect(await contactLink.isVisible()).toBe(true);
   });
 });

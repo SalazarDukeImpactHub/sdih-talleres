@@ -7,14 +7,11 @@ import { redirect } from "next/navigation";
 /**
  * Server Action signIn — valida credenciales y redirige según password_changed.
  *
- * Flujo:
- * 1. Validar input con Zod (loginSchema)
- * 2. Llamar a supabase.auth.signInWithPassword()
- * 3. Si OK: leer flag password_changed de public.users
- *    - false → redirect /auth/change-password
- *    - true → redirect /catalogo
- * 4. Si falla Zod → devolver errores por campo
- * 5. Si falla Supabase → devolver error genérico "Credenciales inválidas"
+ * IMPORTANTE: redirect() de Next.js tira una excepción NEXT_REDIRECT que el
+ * framework debe interceptar para hacer el redirect real. Si la envolvemos en
+ * try/catch, nuestro catch se la come y el redirect nunca se materializa. Por
+ * eso resolvemos la ruta destino DENTRO del try/catch y llamamos a redirect()
+ * AFUERA.
  */
 export async function signIn(
   _prevState: { errors?: Record<string, string | string[]> },
@@ -32,11 +29,11 @@ export async function signIn(
     };
   }
 
+  let nextRoute: string;
+
   try {
-    // 2. Crear cliente Supabase de servidor
     const supabase = await createClient();
 
-    // 3. Intentar login con Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({
       email: result.data.email,
       password: result.data.password,
@@ -48,7 +45,6 @@ export async function signIn(
       };
     }
 
-    // 4. Login exitoso — leer flag password_changed de public.users
     const { data: userData, error: userError } = await supabase
       .from("users")
       .select("password_changed")
@@ -61,16 +57,16 @@ export async function signIn(
       };
     }
 
-    // 5. Redirigir según flag password_changed
-    if (!userData?.password_changed) {
-      redirect("/auth/change-password");
-    } else {
-      redirect("/catalogo");
-    }
+    nextRoute = userData?.password_changed
+      ? "/catalogo"
+      : "/auth/change-password";
   } catch (err) {
     console.error("[signIn] Error:", err);
     return {
       errors: { submit: "Error al procesar. Intentá de nuevo." },
     };
   }
+
+  // Redirect AFUERA del try/catch para que Next intercepte NEXT_REDIRECT.
+  redirect(nextRoute);
 }

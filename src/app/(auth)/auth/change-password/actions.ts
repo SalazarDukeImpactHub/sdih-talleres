@@ -7,17 +7,9 @@ import { redirect } from "next/navigation";
 /**
  * Server Action changePassword — valida nueva contraseña y actualiza en Supabase.
  *
- * Flujo:
- * 1. Validar input con Zod (changePasswordSchema)
- * 2. Re-verificar password actual (NO confiar solo en sesión)
- * 3. Llamar a supabase.auth.updateUser({ password })
- * 4. UPDATE public.users SET password_changed = true
- * 5. Redirect /catalogo
- *
- * Errores:
- * - Zod validation → fieldErrors
- * - Password actual incorrecta → error currentPassword
- * - Supabase updateUser falla → error genérico
+ * IMPORTANTE: redirect() de Next.js debe quedar FUERA del try/catch (ver nota en
+ * el sibling login/actions.ts). Por eso resolvemos toda la lógica primero,
+ * después llamamos a redirect afuera.
  */
 export async function changePassword(
   _prevState: { errors?: Record<string, string | string[]> },
@@ -86,13 +78,13 @@ export async function changePassword(
         errors: { submit: "Error al actualizar perfil. Intentá de nuevo." },
       };
     }
-
-    // 6. Éxito — redirigir a catálogo
-    redirect("/catalogo");
   } catch (err) {
     console.error("[changePassword] Error:", err);
     return {
       errors: { submit: "Error al procesar. Intentá de nuevo." },
     };
   }
+
+  // 6. Redirect AFUERA del try/catch para que Next intercepte NEXT_REDIRECT.
+  redirect("/catalogo");
 }

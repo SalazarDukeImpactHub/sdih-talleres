@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { signIn } from "@/app/(auth)/auth/login/actions";
 import { AuthCard } from "./AuthCard";
 import { FormError } from "./FormError";
@@ -23,7 +23,7 @@ import { SubmitButton } from "./SubmitButton";
  * - Microanimación sd-rise en el card (entrada fade + slide up)
  */
 export function LoginForm() {
-  const [state, formAction] = useFormState(signIn, {
+  const [state, formAction] = useActionState(signIn, {
     errors: undefined,
   });
 

@@ -8,6 +8,7 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+import ws from "ws";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
@@ -32,7 +33,13 @@ function createAdminClient() {
       "NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY deben estar en .env.local"
     );
   }
-  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { persistSession: false },
+    // Node 20 no tiene WebSocket nativo. Inyectamos ws para evitar el crash
+    // del Realtime client durante el constructor. El helper no usa Realtime,
+    // pero supabase-js lo inicializa siempre.
+    realtime: { transport: ws as unknown as typeof WebSocket },
+  });
 }
 
 /**
@@ -63,6 +70,21 @@ export async function resetSeedUser() {
 
   if (authError) {
     throw new Error(`Failed to reset password: ${authError.message}`);
+  }
+}
+
+/**
+ * Setea password_changed del usuario seed al valor dado.
+ * Útil para tests que necesitan simular un usuario ya onboarded.
+ */
+export async function setSeedUserPasswordChanged(value: boolean) {
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("users")
+    .update({ password_changed: value })
+    .eq("email", SEED_USER.email);
+  if (error) {
+    throw new Error(`Failed to set password_changed=${value}: ${error.message}`);
   }
 }
 

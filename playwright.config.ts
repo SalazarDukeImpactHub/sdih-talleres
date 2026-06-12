@@ -13,10 +13,13 @@ try {
 export default defineConfig({
   testDir: "./tests/playwright",
   testMatch: "**/*.spec.ts",
-  fullyParallel: true,
+  // Los specs comparten el mismo usuario seed en Supabase (alumna@test.com),
+  // entonces no pueden correr en paralelo o se pisan password_changed entre sí.
+  // Diseño correcto a futuro: 1 user seed por spec. Por ahora: serial.
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   reporter: "html",
   use: {
     baseURL: "http://localhost:3000",

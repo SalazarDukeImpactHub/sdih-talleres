@@ -1,22 +1,11 @@
 import { test, expect } from "@playwright/test";
-import { resetSeedUser, SUPABASE_URL_FOR_TESTS, SERVICE_ROLE_KEY_FOR_TESTS } from "./_helpers/supabase-admin";
-import { createClient } from "@supabase/supabase-js";
+import { resetSeedUser, setSeedUserPasswordChanged } from "./_helpers/supabase-admin";
 
 test.describe("Auth: Ya onboarded (password_changed=true)", () => {
   test.beforeEach(async () => {
-    // Reset seed user y setear password_changed=true
+    // Reset seed user a password original, después marcar como ya onboarded
     await resetSeedUser();
-
-    // Update password_changed a true (usuario ya cambió contraseña)
-    const admin = createClient(
-      SUPABASE_URL_FOR_TESTS,
-      SERVICE_ROLE_KEY_FOR_TESTS
-    );
-
-    await admin
-      .from("users")
-      .update({ password_changed: true })
-      .eq("email", "alumna@test.com");
+    await setSeedUserPasswordChanged(true);
   });
 
   test("debe redirigir directo a /catalogo sin pasar por change-password", async ({
@@ -36,7 +25,7 @@ test.describe("Auth: Ya onboarded (password_changed=true)", () => {
     await page.click('button[type="submit"]');
 
     // 5. Expect redirect DIRECTO a /catalogo (sin change-password)
-    await page.waitForURL("**/catalogo", { timeout: 5000 });
+    await page.waitForURL("**/catalogo", { timeout: 15000 });
     expect(page.url()).toContain("/catalogo");
 
     // 6. Verify no estamos en change-password

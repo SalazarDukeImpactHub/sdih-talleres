@@ -30,6 +30,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
@@ -37,6 +38,7 @@
     "playwright": "^1.60.0",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^3.2.6"
+    "vitest": "^3.2.6",
+    "ws": "^8.21.0"
   }
 }

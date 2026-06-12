@@ -39,6 +39,18 @@ CREATE POLICY "Users can update own data" ON public.users
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+-- Permisos de roles de Supabase
+-- Por defecto, las tablas creadas via SQL Editor (como postgres) NO tienen grants
+-- automáticos para los roles de Supabase. Tenemos que otorgarlos explícitamente.
+-- service_role bypasea RLS pero igual necesita el GRANT base de Postgres.
+GRANT SELECT, UPDATE ON public.users TO authenticated;
+GRANT ALL ON public.users TO service_role;
+
+-- Default privileges: futuras tablas en public obtienen los mismos grants
+-- (idempotente, seguro de re-ejecutar)
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO service_role;
+
 -- Comentario descriptivo
 COMMENT ON TABLE public.users IS 'Extension de auth.users con metadatos de aplicación: nombre, rol, flag de password_changed.';
 COMMENT ON COLUMN public.users.password_changed IS 'Flag: true si el usuario ya cambió su contraseña en primer login, false si aún usa contraseña temporal.';

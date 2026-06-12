@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import { changePassword } from "@/app/(auth)/auth/change-password/actions";
 import { AuthCard } from "./AuthCard";
 import { FormError } from "./FormError";
@@ -20,7 +20,7 @@ import { SubmitButton } from "./SubmitButton";
  * - Errores de Supabase mostrados bajo los botones
  */
 export function ChangePasswordForm() {
-  const [state, formAction] = useFormState(changePassword, {
+  const [state, formAction] = useActionState(changePassword, {
     errors: undefined,
   });
 
