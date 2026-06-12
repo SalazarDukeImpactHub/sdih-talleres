@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/sdih-brain.png">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(1200px 700px at 50% -10%, #0b1530 0%, #05080F 55%, #03050B 100%);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:#E8EDF6}
+    ::selection{background:rgba(25,198,230,.3)}
+    .sd-scroll::-webkit-scrollbar{width:10px;height:10px}
+    .sd-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:20px;border:3px solid transparent;background-clip:padding-box}
+    .sd-scroll::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.16);background-clip:padding-box}
+    @keyframes sdPulse{0%,100%{opacity:.2}50%{opacity:.95}}
+    @keyframes sdSpin{to{transform:rotate(360deg)}}
+    @keyframes sdCheck{0%{transform:scale(0)}55%{transform:scale(1.25)}100%{transform:scale(1)}}
+    @keyframes sdToast{from{opacity:0;transform:transl(0,12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes sdLive{0%,100%{box-shadow:0 0 0 0 rgba(217,70,239,.55)}50%{box-shadow:0 0 0 6px rgba(217,70,239,0)}}
+    @keyframes sdRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;padding:26px 22px 60px;display:flex;flex-direction:column;align-items:center;gap:18px">
+
+  <!-- PROTOTYPE NAVIGATOR -->
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:1180px">
+    <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#5E6B82;margin-right:4px">Recorrido</span>
+    <sc-for list="{{ navItems }}" as="nv" hint-placeholder-count="8">
+      <button onClick="{{ nv.go }}" style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:999px;cursor:pointer;border:1px solid {{ nv.border }};background:{{ nv.bg }};color:{{ nv.color }};transition:all .2s ease" style-hover="border-color:rgba(25,198,230,.5);color:#E8EDF6">{{ nv.label }}</button>
+    </sc-for>
+  </div>
+
+  <!-- BROWSER FRAME -->
+  <div style="width:100%;max-width:1180px;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.09);box-shadow:0 40px 120px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.02);background:#0B1220">
+    <!-- chrome -->
+    <div style="display:flex;align-items:center;gap:14px;padding:11px 16px;background:linear-gradient(#0e1626,#0b1320);border-bottom:1px solid rgba(255,255,255,.07)">
+      <div style="display:flex;gap:8px">
+        <span style="width:12px;height:12px;border-radius:50%;background:#FF5F57"></span>
+        <span style="width:12px;height:12px;border-radius:50%;background:#FEBC2E"></span>
+        <span style="width:12px;height:12px;border-radius:50%;background:#28C840"></span>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;gap:9px;max-width:560px;margin:0 auto;background:#070C16;border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:7px 14px;color:#9AA7BD;font-size:13px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span style="color:#5E6B82">https://</span><span style="color:#C7D2E4;font-weight:500">talleres.salazardukeimpacthubteams.com</span><span style="color:#5E6B82">{{ urlPath }}</span>
+      </div>
+      <div style="display:flex;gap:14px;color:#3f4a5e">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+    </div>
+
+    <!-- APP VIEWPORT -->
+    <div class="sd-scroll" style="height:768px;overflow-y:auto;background:#0B1220;position:relative">
+
+      <!-- ============ LOGIN ============ -->
+      <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+        <div style="min-height:768px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:40px 20px">
+          <!-- neural bg -->
+          <svg viewBox="0 0 1180 768" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;opacity:.5">
+            <g stroke-width="1" opacity=".5">
+              <line x1="120" y1="140" x2="300" y2="90" stroke="#19C6E6"/>
+              <line x1="300" y1="90" x2="480" y2="180" stroke="#D946EF"/>
+              <line x1="120" y1="140" x2="220" y2="320" stroke="#A3E635"/>
+              <line x1="480" y1="180" x2="700" y2="120" stroke="#19C6E6"/>
+              <line x1="700" y1="120" x2="930" y2="220" stroke="#FF7A1A"/>
+              <line x1="930" y1="220" x2="1060" y2="420" stroke="#D946EF"/>
+              <line x1="220" y1="320" x2="430" y2="470" stroke="#FACC15"/>
+              <line x1="430" y1="470" x2="700" y2="560" stroke="#A3E635"/>
+              <line x1="700" y1="560" x2="940" y2="640" stroke="#19C6E6"/>
+              <line x1="480" y1="180" x2="430" y2="470" stroke="#19C6E6"/>
+              <line x1="700" y1="120" x2="700" y2="560" stroke="#D946EF"/>
+              <line x1="120" y1="600" x2="430" y2="470" stroke="#FF7A1A"/>
+            </g>
+            <g>
+              <circle cx="120" cy="140" r="3" fill="#19C6E6" style="animation:sdPulse 4s ease-in-out infinite"/>
+              <circle cx="300" cy="90" r="2.5" fill="#D946EF" style="animation:sdPulse 5s ease-in-out .4s infinite"/>
+              <circle cx="480" cy="180" r="4" fill="#19C6E6" style="animation:sdPulse 4.5s ease-in-out .8s infinite"/>
+              <circle cx="700" cy="120" r="3" fill="#FACC15" style="animation:sdPulse 3.6s ease-in-out .2s infinite"/>
+              <circle cx="930" cy="220" r="3.5" fill="#FF7A1A" style="animation:sdPulse 5s ease-in-out 1s infinite"/>
+              <circle cx="1060" cy="420" r="2.5" fill="#D946EF" style="animation:sdPulse 4s ease-in-out .6s infinite"/>
+              <circle cx="220" cy="320" r="3" fill="#A3E635" style="animation:sdPulse 4.8s ease-in-out 1.2s infinite"/>
+              <circle cx="430" cy="470" r="4.5" fill="#19C6E6" style="animation:sdPulse 4s ease-in-out .3s infinite"/>
+              <circle cx="700" cy="560" r="3" fill="#D946EF" style="animation:sdPulse 5.2s ease-in-out .9s infinite"/>
+              <circle cx="940" cy="640" r="2.5" fill="#A3E635" style="animation:sdPulse 4.2s ease-in-out 1.4s infinite"/>
+              <circle cx="120" cy="600" r="3" fill="#FF7A1A" style="animation:sdPulse 4.6s ease-in-out .5s infinite"/>
+            </g>
+          </svg>
+          <div style="position:absolute;inset:0;background:radial-gradient(620px 420px at 50% 42%, rgba(11,18,32,.2), rgba(11,18,32,.86) 70%)"></div>
+
+          <!-- login card -->
+          <div style="position:relative;width:100%;max-width:428px;animation:sdRise .5s ease both">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:26px">
+              <div style="position:relative;width:98px;height:98px;border-radius:26px;overflow:hidden;border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 1px rgba(25,198,230,.12), 0 16px 50px -10px rgba(217,70,239,.4), 0 16px 50px -14px rgba(25,198,230,.45)">
+                <img src="assets/sdih-brain.png" alt="SDIH" style="width:100%;height:100%;object-fit:cover;display:block"/>
+              </div>
+              <div style="text-align:center">
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;letter-spacing:.02em;color:#fff">SALAZAR DUKE</div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:11px;letter-spacing:.42em;color:#19C6E6;padding-left:.42em">IMPACT HUB</div>
+              </div>
+            </div>
+
+            <div style="background:rgba(13,21,37,.72);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:34px 32px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7)">
+              <h1 style="font-family:'Space Grotesk',sans-serif;font-size:25px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em">Portal de Talleres</h1>
+              <p style="margin:0 0 26px;color:#95A2B8;font-size:14px;line-height:1.5">Espacio privado para alumnos. Inicia sesión con tu cuenta para ver tus talleres en vivo.</p>
+
+              <form onSubmit="{{ onLogin }}">
+                <label style="display:block;font-size:12.5px;font-weight:500;color:#AEB9CC;margin:0 0 7px">Email</label>
+                <input type="email" placeholder="tu@email.com" value="jennifer@salazarduke.com" style="width:100%;background:#080E1A;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:13px 15px;color:#E8EDF6;font-size:14px;font-family:'Inter',sans-serif;margin-bottom:16px;outline:none;transition:all .2s" style-focus="border-color:#19C6E6;box-shadow:0 0 0 3px rgba(25,198,230,.18)"/>
+                <label style="display:block;font-size:12.5px;font-weight:500;color:#AEB9CC;margin:0 0 7px">Contraseña</label>
+                <input type="password" placeholder="••••••••••" value="superseguro" style="width:100%;background:#080E1A;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:13px 15px;color:#E8EDF6;font-size:14px;font-family:'Inter',sans-serif;margin-bottom:10px;outline:none;transition:all .2s" style-focus="border-color:#19C6E6;box-shadow:0 0 0 3px rgba(25,198,230,.18)"/>
+                <div style="display:flex;justify-content:flex-end;margin-bottom:20px">
+                  <a href="#" style="font-size:12.5px;color:#19C6E6;text-decoration:none">¿Olvidaste tu contraseña?</a>
+                </div>
+                <button type="submit" style="width:100%;background:#19C6E6;color:#04222B;border:none;border-radius:12px;padding:14px;font-size:14.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .22s ease;box-shadow:0 8px 28px -8px rgba(25,198,230,.7)" style-hover="transform:translateY(-1px);box-shadow:0 12px 34px -8px rgba(25,198,230,.85)">Ingresar al portal</button>
+              </form>
+
+              <div style="display:flex;align-items:center;gap:14px;margin:22px 0">
+                <span style="flex:1;height:1px;background:rgba(255,255,255,.08)"></span>
+                <span style="font-size:11.5px;color:#5E6B82">o continúa con</span>
+                <span style="flex:1;height:1px;background:rgba(255,255,255,.08)"></span>
+              </div>
+
+              <button onClick="{{ onLogin }}" style="width:100%;background:transparent;color:#E8EDF6;border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:13px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s" style-hover="background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.22)">
+                <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+                Continuar con Google
+              </button>
+              <div style="margin-top:8px;text-align:center"><span style="font-size:10.5px;color:#5E6B82;background:rgba(255,255,255,.05);padding:3px 9px;border-radius:999px">Disponible en fase 2</span></div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:22px;color:#5E6B82;font-size:12px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z"/></svg>
+              Acceso protegido por VPN · ¿Problemas para entrar?
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ CATALOGO ============ -->
+      <sc-if value="{{ isCatalogo }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="Catálogo">
+          <!-- top bar -->
+          <div style="position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:16px 36px;background:rgba(11,18,32,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06)">
+            <div style="display:flex;align-items:center;gap:11px">
+              <div style="width:36px;height:36px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.12);flex-shrink:0"><img src="assets/sdih-brain.png" alt="SDIH" style="width:100%;height:100%;object-fit:cover;display:block"/></div>
+              <div style="display:flex;flex-direction:column;line-height:1.2;white-space:nowrap">
+                <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:.01em">SDIH · Talleres</span>
+                <span style="font-size:11px;color:#5E6B82">Portal privado</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <button style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:8px 13px;color:#AEB9CC;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif" style-hover="border-color:rgba(255,255,255,.18);color:#E8EDF6">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Buscar
+              </button>
+              <button style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:10px;color:#AEB9CC;cursor:pointer" style-hover="border-color:rgba(255,255,255,.18);color:#E8EDF6">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              </button>
+              <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#19C6E6,#D946EF);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;color:#04222B;cursor:pointer">J</div>
+            </div>
+          </div>
+
+          <div style="padding:34px 36px 64px;max-width:1060px;margin:0 auto">
+            <!-- greeting -->
+            <div style="margin-bottom:34px">
+              <h1 style="font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:600;margin:0 0 8px;letter-spacing:-.02em">Hola, Jennifer</h1>
+              <p style="margin:0;color:#95A2B8;font-size:15px">Tienes <span style="color:#E8EDF6;font-weight:600">{{ activosCount }} talleres activos</span> · 1 sesión en vivo esta semana. Continúa donde lo dejaste.</p>
+            </div>
+
+            <!-- mis talleres activos -->
+            <sc-if value="{{ hasActivos }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-bottom:40px">
+                <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#19C6E6" stroke-width="2"><path d="m13 2-3 7h5l-3 7"/><circle cx="12" cy="12" r="10" opacity=".35"/></svg>
+                  <h2 style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin:0;letter-spacing:.01em">Mis talleres activos</h2>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px">
+                  <sc-for list="{{ talleresActivos }}" as="t" hint-placeholder-count="2">
+                    <div onClick="{{ t.ingresar }}" style="display:flex;gap:14px;align-items:center;background:#0E1626;border:1px solid rgba(255,255,255,.07);border-radius:15px;padding:14px;cursor:pointer;transition:all .22s ease" style-hover="border-color:rgba(25,198,230,.4);transform:translateY(-2px)">
+                      <div style="position:relative;width:60px;height:60px;flex-shrink:0;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,{{ t.accent }},#0B1220);display:flex;align-items:center;justify-content:center">
+                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9"><circle cx="6" cy="7" r="1.6"/><circle cx="17" cy="5" r="1.6"/><circle cx="12" cy="12" r="2"/><circle cx="7" cy="18" r="1.6"/><circle cx="18" cy="17" r="1.6"/><path d="M7.4 8 11 11M16 6l-3.5 4.5M11 13l-3 4M13 13l4 3" opacity=".6"/></svg>
+                      </div>
+                      <div style="flex:1;min-width:0">
+                        <div style="font-weight:600;font-size:14px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                          <div style="flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden"><div style="height:100%;width:{{ t.progress }}%;background:{{ t.accent }};border-radius:99px"></div></div>
+                          <span style="font-size:11px;color:#95A2B8;font-variant-numeric:tabular-nums">{{ t.progress }}%</span>
+                        </div>
+                      </div>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6B82" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- catalogo -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap">
+              <h2 style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;margin:0;letter-spacing:.01em">Todos los talleres</h2>
+              <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+                <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+                  <button onClick="{{ f.set }}" style="font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:999px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }}" style-hover="border-color:rgba(25,198,230,.4)">{{ f.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(296px,1fr));gap:18px">
+              <sc-for list="{{ talleresGrid }}" as="t" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;background:#0E1626;border:1px solid rgba(255,255,255,.07);border-radius:18px;overflow:hidden;transition:all .25s ease" style-hover="transform:translateY(-4px);border-color:rgba(255,255,255,.14);box-shadow:0 24px 50px -24px rgba(0,0,0,.7)">
+                  <div style="position:relative;height:132px;background:radial-gradient(120px 90px at 78% 25%, {{ t.accent }}55, transparent), linear-gradient(150deg,#101a2e,#0a1322);overflow:hidden">
+                    <svg viewBox="0 0 300 132" style="position:absolute;inset:0;width:100%;height:100%;opacity:.7">
+                      <g stroke="{{ t.accent }}" stroke-width="1" opacity=".5"><line x1="40" y1="40" x2="110" y2="70"/><line x1="110" y1="70" x2="200" y2="38"/><line x1="200" y1="38" x2="255" y2="86"/><line x1="110" y1="70" x2="150" y2="108"/><line x1="40" y1="40" x2="70" y2="96"/></g>
+                      <circle cx="40" cy="40" r="3" fill="{{ t.accent }}"/><circle cx="110" cy="70" r="4.5" fill="{{ t.accent }}"/><circle cx="200" cy="38" r="3" fill="#fff" opacity=".8"/><circle cx="255" cy="86" r="3.5" fill="{{ t.accent }}"/><circle cx="150" cy="108" r="2.5" fill="#fff" opacity=".7"/><circle cx="70" cy="96" r="2.5" fill="{{ t.accent }}"/>
+                    </svg>
+                    <div style="position:absolute;top:13px;left:14px;display:flex;align-items:center;gap:7px;background:rgba(7,12,22,.72);backdrop-filter:blur(6px);border:1px solid {{ t.ss.color }}33;border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;color:{{ t.ss.color }}">
+                      <sc-if value="{{ t.ss.live }}" hint-placeholder-val="{{ true }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ t.ss.dot }};animation:sdLive 1.6s ease-out infinite"></span></sc-if>
+                      <sc-if value="{{ t.notLive }}" hint-placeholder-val="{{ true }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ t.ss.dot }}"></span></sc-if>
+                      {{ t.status }}
+                    </div>
+                    <div style="position:absolute;bottom:12px;right:14px;font-size:11px;color:#8696ad;background:rgba(7,12,22,.6);padding:4px 9px;border-radius:8px">{{ t.tema }}</div>
+                  </div>
+                  <div style="padding:18px 18px 20px;display:flex;flex-direction:column;flex:1">
+                    <h3 style="font-family:'Space Grotesk',sans-serif;font-size:16.5px;font-weight:600;margin:0 0 8px;line-height:1.3;letter-spacing:-.01em">{{ t.title }}</h3>
+                    <p style="margin:0 0 16px;color:#95A2B8;font-size:13px;line-height:1.55;flex:1">{{ t.desc }}</p>
+                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;color:#7C8AA0;font-size:12px">
+                      <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>{{ t.date }}</span>
+                      <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>{{ t.dur }}</span>
+                    </div>
+                    <sc-if value="{{ t.inProgress }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+                        <div style="flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden"><div style="height:100%;width:{{ t.progress }}%;background:{{ t.accent }};border-radius:99px"></div></div>
+                        <span style="font-size:11px;color:#95A2B8;font-variant-numeric:tabular-nums">{{ t.progress }}%</span>
+                      </div>
+                    </sc-if>
+                    <button onClick="{{ t.ingresar }}" disabled="{{ t.ctaDisabled }}" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border-radius:11px;font-size:13.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#E8EDF6;transition:all .2s" style-hover="background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2)">
+                      <sc-if value="{{ t.unlocked }}" hint-placeholder-val="{{ true }}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></sc-if>
+                      <sc-if value="{{ t.locked }}" hint-placeholder-val="{{ true }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></sc-if>
+                      {{ t.ctaLabel }}
+                    </button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ TALLER ============ -->
+      <sc-if value="{{ isTaller }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="Taller" style="display:flex;min-height:768px">
+          <!-- SIDEBAR -->
+          <aside style="width:256px;flex-shrink:0;background:#0A101D;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;position:sticky;top:0;height:768px">
+            <div style="padding:16px 16px 0">
+              <button onClick="{{ backToCatalogo }}" style="display:flex;align-items:center;gap:8px;background:transparent;border:none;color:#95A2B8;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;padding:6px 6px;border-radius:8px;transition:color .2s" style-hover="color:#E8EDF6">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Volver al catálogo
+              </button>
+            </div>
+
+            <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,.06)">
+              <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px">
+                <div style="width:42px;height:42px;border-radius:11px;overflow:hidden;border:1px solid rgba(255,255,255,.12);flex-shrink:0;box-shadow:0 6px 20px -8px rgba(217,70,239,.5)"><img src="assets/sdih-brain.png" alt="SDIH" style="width:100%;height:100%;object-fit:cover;display:block"/></div>
+                <div style="min-width:0">
+                  <div style="font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#FF7A1A;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:3px">Taller en vivo</div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:600;line-height:1.25;color:#E8EDF6">{{ atTitle }}</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#7C8AA0;margin-bottom:7px"><span>Progreso del taller</span><span style="color:#A3E635;font-weight:600;font-variant-numeric:tabular-nums">{{ tallerProgress }}%</span></div>
+              <div style="height:6px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden"><div style="height:100%;width:{{ tallerProgress }}%;background:linear-gradient(90deg,#19C6E6,#A3E635);border-radius:99px;transition:width .4s ease"></div></div>
+            </div>
+
+            <nav style="flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:4px">
+              <button onClick="{{ tabs.inicio.set }}" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;border:1px solid {{ tabs.inicio.border }};background:{{ tabs.inicio.bg }};color:{{ tabs.inicio.color }};box-shadow:{{ tabs.inicio.glow }};cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:500;text-align:left;transition:all .2s" style-hover="background:rgba(255,255,255,.05)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ tabs.inicio.icon }}" stroke-width="1.8"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/><circle cx="12" cy="14" r="1" fill="{{ tabs.inicio.icon }}"/></svg><span style="flex:1">Inicio</span>
+              </button>
+              <button onClick="{{ tabs.aprendizaje.set }}" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;border:1px solid {{ tabs.aprendizaje.border }};background:{{ tabs.aprendizaje.bg }};color:{{ tabs.aprendizaje.color }};box-shadow:{{ tabs.aprendizaje.glow }};cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:500;text-align:left;transition:all .2s" style-hover="background:rgba(255,255,255,.05)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ tabs.aprendizaje.icon }}" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M3 17h18M12 17v4M8 21h8"/><circle cx="8" cy="9.5" r="1.4" fill="{{ tabs.aprendizaje.icon }}"/></svg><span style="flex:1">Aprendizaje</span>
+              </button>
+              <button onClick="{{ tabs.taller.set }}" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;border:1px solid {{ tabs.taller.border }};background:{{ tabs.taller.bg }};color:{{ tabs.taller.color }};box-shadow:{{ tabs.taller.glow }};cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:500;text-align:left;transition:all .2s" style-hover="background:rgba(255,255,255,.05)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ tabs.taller.icon }}" stroke-width="1.8"><path d="M9 3h6M10 3v5l-4.5 8.5A2 2 0 0 0 7.3 20h9.4a2 2 0 0 0 1.8-3L14 8V3"/><path d="M8 14h8"/></svg><span style="flex:1">Taller</span>
+              </button>
+              <button onClick="{{ tabs.instalacion.set }}" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;border:1px solid {{ tabs.instalacion.border }};background:{{ tabs.instalacion.bg }};color:{{ tabs.instalacion.color }};box-shadow:{{ tabs.instalacion.glow }};cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:500;text-align:left;transition:all .2s" style-hover="background:rgba(255,255,255,.05)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ tabs.instalacion.icon }}" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg><span style="flex:1">Instalación</span>
+              </button>
+              <button onClick="{{ tabs.glosario.set }}" style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;border:1px solid {{ tabs.glosario.border }};background:{{ tabs.glosario.bg }};color:{{ tabs.glosario.color }};box-shadow:{{ tabs.glosario.glow }};cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:500;text-align:left;transition:all .2s" style-hover="background:rgba(255,255,255,.05)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ tabs.glosario.icon }}" stroke-width="1.8"><path d="M12 6c-2-1.4-5-1.4-8 0v13c3-1.4 6-1.4 8 0 2-1.4 5-1.4 8 0V6c-3-1.4-6-1.4-8 0z"/><path d="M12 6v13"/></svg><span style="flex:1">Glosario</span>
+              </button>
+            </nav>
+
+            <div style="padding:16px;border-top:1px solid rgba(255,255,255,.06)">
+              <div style="font-size:10.5px;color:#5E6B82;margin-bottom:10px;letter-spacing:.04em">SALAZAR DUKE IMPACT HUB</div>
+              <div style="display:flex;gap:9px">
+                <a href="#" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid rgba(255,255,255,.08);color:#95A2B8;transition:all .2s" style-hover="color:#19C6E6;border-color:rgba(25,198,230,.4)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
+                <a href="#" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid rgba(255,255,255,.08);color:#95A2B8;transition:all .2s" style-hover="color:#19C6E6;border-color:rgba(25,198,230,.4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.2 2H21l-6.6 7.5L22 22h-6l-4.7-6.1L5.9 22H3l7-8L2 2h6.1l4.3 5.7L18.2 2zm-1 18h1.6L7.9 3.7H6.1L17.2 20z"/></svg></a>
+                <a href="#" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid rgba(255,255,255,.08);color:#95A2B8;transition:all .2s" style-hover="color:#19C6E6;border-color:rgba(25,198,230,.4)"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 1 0 3.5a2.5 2.5 0 0 1 4.98 0zM0 8h5v16H0V8zm7.5 0H12v2.2h.07c.63-1.2 2.16-2.5 4.43-2.5 4.74 0 5.5 3.1 5.5 7.2V24h-5v-7.5c0-1.8-.03-4.1-2.5-4.1s-2.9 2-2.9 4V24h-5V8z"/></svg></a>
+                <a href="#" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid rgba(255,255,255,.08);color:#95A2B8;transition:all .2s" style-hover="color:#19C6E6;border-color:rgba(25,198,230,.4)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg></a>
+              </div>
+            </div>
+          </aside>
+
+          <!-- CONTENT -->
+          <div style="flex:1;min-width:0">
+            <sc-if value="{{ secInicio }}" hint-placeholder-val="{{ true }}">
+              <div style="padding:40px 44px 56px;max-width:920px;animation:sdRise .4s ease both">
+                <!-- hero -->
+                <div style="position:relative;border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;background:radial-gradient(420px 200px at 85% 0%, rgba(217,70,239,.22), transparent), linear-gradient(160deg,#111b2e,#0a1322);padding:36px 38px;margin-bottom:36px">
+                  <svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;opacity:.4">
+                    <g stroke="#D946EF" stroke-width="1" opacity=".5"><line x1="280" y1="30" x2="340" y2="70"/><line x1="340" y1="70" x2="390" y2="40"/><line x1="280" y1="30" x2="320" y2="120"/></g>
+                    <circle cx="280" cy="30" r="3" fill="#D946EF"/><circle cx="340" cy="70" r="4" fill="#19C6E6"/><circle cx="390" cy="40" r="2.5" fill="#FACC15"/><circle cx="320" cy="120" r="3" fill="#A3E635"/>
+                  </svg>
+                  <div style="position:relative">
+                    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(217,70,239,.14);border:1px solid rgba(217,70,239,.3);color:#E879F9;border-radius:999px;padding:6px 13px;font-size:12px;font-weight:600;margin-bottom:18px">
+                      <span style="width:7px;height:7px;border-radius:50%;background:#D946EF;animation:sdLive 1.6s ease-out infinite"></span>Práctica en vivo
+                    </div>
+                    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;letter-spacing:-.02em;margin:0 0 12px;line-height:1.12;max-width:620px">{{ atTitle }}</h1>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+                      <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#19C6E6,#D946EF);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;color:#04222B">JS</div>
+                      <span style="color:#C7D2E4;font-size:14px">por <span style="font-weight:600;color:#fff">Jennifer Salazar</span></span>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px">
+                      <span style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 13px;font-size:12.5px;color:#AEB9CC"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#19C6E6" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>{{ atDate }} · {{ atTime }} h</span>
+                      <span style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 13px;font-size:12.5px;color:#AEB9CC"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>{{ atDur }}</span>
+                      <span style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 13px;font-size:12.5px;color:#AEB9CC"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Prerrequisito: nociones de LLMs</span>
+                    </div>
+                    <button onClick="{{ tabs.aprendizaje.set }}" style="display:inline-flex;align-items:center;gap:9px;background:#19C6E6;color:#04222B;border:none;border-radius:12px;padding:13px 24px;font-size:14.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 10px 30px -8px rgba(25,198,230,.6);transition:all .2s" style-hover="transform:translateY(-1px);box-shadow:0 14px 36px -8px rgba(25,198,230,.8)">Empezar el taller<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#04222B" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+                  </div>
+                </div>
+
+                <!-- preview de secciones -->
+                <h2 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin:0 0 4px">Qué vas a recorrer</h2>
+                <p style="margin:0 0 20px;color:#95A2B8;font-size:13.5px">Cinco secciones, de la teoría a la práctica en vivo.</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px">
+                  <div onClick="{{ tabs.aprendizaje.set }}" style="background:#0E1626;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;cursor:pointer;transition:all .22s ease" style-hover="border-color:rgba(25,198,230,.35);transform:translateY(-3px)">
+                    <div style="width:40px;height:40px;border-radius:11px;background:rgba(25,198,230,.12);display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#19C6E6" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="1.5"/><path d="M3 17h18M12 17v4M8 21h8"/></svg></div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;margin-bottom:5px">Aprendizaje</div>
+                    <div style="color:#95A2B8;font-size:12.5px;line-height:1.5">6 diapositivas con el modelo mental de la memoria persistente.</div>
+                  </div>
+                  <div onClick="{{ tabs.taller.set }}" style="background:#0E1626;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;cursor:pointer;transition:all .22s ease" style-hover="border-color:rgba(217,70,239,.35);transform:translateY(-3px)">
+                    <div style="width:40px;height:40px;border-radius:11px;background:rgba(217,70,239,.12);display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D946EF" stroke-width="1.8"><path d="M9 3h6M10 3v5l-4.5 8.5A2 2 0 0 0 7.3 20h9.4a2 2 0 0 0 1.8-3L14 8V3"/><path d="M8 14h8"/></svg></div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;margin-bottom:5px">Taller</div>
+                    <div style="color:#95A2B8;font-size:12.5px;line-height:1.5">4 ejercicios accionables con prompts listos para copiar.</div>
+                  </div>
+                  <div onClick="{{ tabs.instalacion.set }}" style="background:#0E1626;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;cursor:pointer;transition:all .22s ease" style-hover="border-color:rgba(255,122,26,.35);transform:translateY(-3px)">
+                    <div style="width:40px;height:40px;border-radius:11px;background:rgba(255,122,26,.12);display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF7A1A" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg></div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;margin-bottom:5px">Instalación</div>
+                    <div style="color:#95A2B8;font-size:12.5px;line-height:1.5">Checklist paso a paso para dejar Engram corriendo.</div>
+                  </div>
+                  <div onClick="{{ tabs.glosario.set }}" style="background:#0E1626;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;cursor:pointer;transition:all .22s ease" style-hover="border-color:rgba(163,230,53,.35);transform:translateY(-3px)">
+                    <div style="width:40px;height:40px;border-radius:11px;background:rgba(163,230,53,.12);display:flex;align-items:center;justify-content:center;margin-bottom:14px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="1.8"><path d="M12 6c-2-1.4-5-1.4-8 0v13c3-1.4 6-1.4 8 0 2-1.4 5-1.4 8 0V6c-3-1.4-6-1.4-8 0z"/></svg></div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14.5px;margin-bottom:5px">Glosario</div>
+                    <div style="color:#95A2B8;font-size:12.5px;line-height:1.5">12 términos clave en flashcards con búsqueda en vivo.</div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ secAprendizaje }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:34px 40px 50px;animation:sdRise .4s ease both">
+                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap">
+                  <div>
+                    <div style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#19C6E6;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:6px">Aprendizaje</div>
+                    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600;margin:0;letter-spacing:-.01em">El modelo mental de la memoria</h1>
+                  </div>
+                  <div style="display:flex;gap:9px">
+                    <button onClick="{{ toggleNotes }}" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#AEB9CC;border-radius:10px;padding:9px 14px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif" style-hover="color:#E8EDF6;border-color:rgba(255,255,255,.2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Notas</button>
+                    <button onClick="{{ downloadPdf }}" style="display:flex;align-items:center;gap:8px;background:rgba(25,198,230,.1);border:1px solid rgba(25,198,230,.3);color:#7FE9FF;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif" style-hover="background:rgba(25,198,230,.16)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>Descargar PDF</button>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:18px;align-items:stretch">
+                  <!-- slide -->
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+                    <div style="position:relative;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;background:radial-gradient(500px 300px at 80% 110%, rgba(25,198,230,.18), transparent), linear-gradient(155deg,#0f1a2c,#0a1322);aspect-ratio:16/9;display:flex;flex-direction:column;justify-content:center;padding:46px 48px">
+                      <svg viewBox="0 0 600 340" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;opacity:.3"><g stroke="#19C6E6" stroke-width="1" opacity=".5"><line x1="480" y1="40" x2="560" y2="90"/><line x1="40" y1="300" x2="120" y2="260"/></g><circle cx="480" cy="40" r="3" fill="#19C6E6"/><circle cx="560" cy="90" r="2.5" fill="#D946EF"/><circle cx="40" cy="300" r="3" fill="#A3E635"/><circle cx="120" cy="260" r="2.5" fill="#FACC15"/></svg>
+                      <div style="position:relative">
+                        <div style="display:inline-block;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#19C6E6;font-family:'Space Grotesk',sans-serif;font-weight:600;border:1px solid rgba(25,198,230,.3);border-radius:999px;padding:5px 12px;margin-bottom:22px">{{ slide.kicker }}</div>
+                        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:600;letter-spacing:-.02em;line-height:1.15;margin:0 0 18px;max-width:560px">{{ slide.title }}</h2>
+                        <p style="margin:0;color:#C7D2E4;font-size:16px;line-height:1.6;max-width:600px;text-wrap:pretty">{{ slide.body }}</p>
+                      </div>
+                      <div style="position:absolute;bottom:18px;right:22px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#5E6B82">{{ slideNum }} / {{ slideTotal }}</div>
+                    </div>
+                    <!-- controls -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px">
+                      <button onClick="{{ prevSlide }}" disabled="{{ slidePrevDisabled }}" style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#AEB9CC;border-radius:10px;padding:9px 15px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s" style-hover="color:#E8EDF6;border-color:rgba(255,255,255,.2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Anterior</button>
+                      <div style="display:flex;align-items:center;gap:7px">
+                        <sc-for list="{{ slideDots }}" as="d" hint-placeholder-count="6"><button onClick="{{ d.go }}" style="height:7px;width:{{ d.w }};border-radius:99px;border:none;background:{{ d.bg }};cursor:pointer;padding:0;transition:all .25s ease"></button></sc-for>
+                      </div>
+                      <button onClick="{{ nextSlide }}" disabled="{{ slideNextDisabled }}" style="display:flex;align-items:center;gap:7px;background:#19C6E6;border:none;color:#04222B;border-radius:10px;padding:9px 17px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Space Grotesk',sans-serif;transition:all .2s" style-hover="transform:translateY(-1px)">Siguiente<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#04222B" stroke-width="2.2"><path d="m9 18 6-6-6-6"/></svg></button>
+                    </div>
+                  </div>
+
+                  <!-- notas -->
+                  <sc-if value="{{ notesOpen }}" hint-placeholder-val="{{ true }}">
+                    <div style="width:266px;flex-shrink:0;background:#0E1626;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:20px;align-self:stretch">
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                        <div style="display:flex;align-items:center;gap:8px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="1.9"><path d="M14 2v5h5"/><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M8 13h8M8 17h6"/></svg>Notas de Jennifer</div>
+                        <button onClick="{{ toggleNotes }}" style="background:none;border:none;color:#5E6B82;cursor:pointer;padding:2px" style-hover="color:#E8EDF6"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+                      </div>
+                      <p style="margin:0 0 14px;color:#AEB9CC;font-size:12.5px;line-height:1.6">En la sesión en vivo profundizamos esta idea con un ejemplo real de un agente de soporte que recuerda a cada cliente.</p>
+                      <div style="border-left:2px solid rgba(25,198,230,.5);padding-left:12px;margin-bottom:14px"><div style="color:#7FE9FF;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px">Para recordar</div><div style="color:#95A2B8;font-size:12.5px;line-height:1.55">La memoria útil no es la más grande, es la mejor curada.</div></div>
+                      <div style="background:rgba(255,122,26,.08);border:1px solid rgba(255,122,26,.2);border-radius:11px;padding:12px;display:flex;gap:9px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7A1A" stroke-width="1.9" style="flex-shrink:0;margin-top:1px"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z"/></svg><span style="color:#E2B98A;font-size:12px;line-height:1.5">Haz una pausa aquí si vas en vivo: este concepto cae en el primer ejercicio.</span></div>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ secTaller }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:34px 40px 56px;max-width:860px;animation:sdRise .4s ease both">
+                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:8px;flex-wrap:wrap">
+                  <div>
+                    <div style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#D946EF;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:6px">Taller · práctica</div>
+                    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600;margin:0;letter-spacing:-.01em">Ejercicios accionables</h1>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 14px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span style="font-size:13px;color:#AEB9CC"><span style="color:#A3E635;font-weight:600">{{ doneCount }}</span> de {{ exTotal }} completados</span></div>
+                </div>
+                <p style="margin:0 0 24px;color:#95A2B8;font-size:13.5px">Copia el prompt, pruébalo con tu modelo y guarda tu respuesta. Marca cada ejercicio al terminar.</p>
+
+                <div style="display:flex;flex-direction:column;gap:16px">
+                  <sc-for list="{{ exercises }}" as="ex" hint-placeholder-count="4">
+                    <div style="background:#0E1626;border:1px solid {{ ex.cardBorder }};border-radius:18px;padding:22px;transition:border-color .3s ease">
+                      <div style="display:flex;align-items:center;gap:13px;margin-bottom:14px">
+                        <div style="width:34px;height:34px;border-radius:10px;background:{{ ex.numBg }};color:{{ ex.numColor }};display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;flex-shrink:0;transition:all .3s ease">
+                          <sc-if value="{{ ex.done }}" hint-placeholder-val="{{ false }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B1220" stroke-width="3" style="animation:sdCheck .35s ease"><path d="M20 6 9 17l-5-5"/></svg></sc-if>
+                          <sc-if value="{{ ex.notDone }}" hint-placeholder-val="{{ true }}">{{ ex.n }}</sc-if>
+                        </div>
+                        <div style="flex:1;min-width:0">
+                          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px">{{ ex.title }}</div>
+                        </div>
+                        <span style="display:flex;align-items:center;gap:6px;background:{{ ex.statusBg }};color:{{ ex.statusColor }};border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:600;flex-shrink:0"><span style="width:6px;height:6px;border-radius:50%;background:{{ ex.statusColor }}"></span>{{ ex.statusLabel }}</span>
+                      </div>
+
+                      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:16px;color:#AEB9CC;font-size:13.5px;line-height:1.55"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span><span style="color:#E8EDF6;font-weight:600">Objetivo:</span> {{ ex.goal }}</span></div>
+
+                      <div style="position:relative;background:#070C16;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:15px 16px;margin-bottom:14px">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><span style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#5E6B82;font-family:'JetBrains Mono',monospace">Prompt</span>
+                          <button onClick="{{ ex.copyPrompt }}" style="display:flex;align-items:center;gap:6px;background:rgba(25,198,230,.1);border:1px solid rgba(25,198,230,.25);color:#7FE9FF;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s" style-hover="background:rgba(25,198,230,.18)">
+                            <sc-if value="{{ ex.copied }}" hint-placeholder-val="{{ false }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></sc-if>
+                            <sc-if value="{{ ex.notDone }}" hint-placeholder-val="{{ true }}"></sc-if>
+                            {{ ex.copyLabel }}
+                          </button>
+                        </div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65;color:#C7D2E4;white-space:pre-wrap">{{ ex.prompt }}</div>
+                      </div>
+
+                      <textarea placeholder="Escribe o pega aquí tu respuesta…" style="width:100%;min-height:84px;resize:vertical;background:#080E1A;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:13px 15px;color:#E8EDF6;font-size:13.5px;font-family:'Inter',sans-serif;line-height:1.55;outline:none;transition:all .2s;margin-bottom:14px" style-focus="border-color:#19C6E6;box-shadow:0 0 0 3px rgba(25,198,230,.15)"></textarea>
+
+                      <button onClick="{{ ex.toggle }}" style="display:flex;align-items:center;gap:9px;background:{{ ex.btnBg }};color:{{ ex.btnColor }};border:1px solid {{ ex.btnBorder }};border-radius:11px;padding:11px 18px;font-size:13.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .25s ease" style-hover="transform:translateY(-1px)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M20 6 9 17l-5-5"/></svg>{{ ex.btnLabel }}
+                      </button>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ secInstalacion }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:34px 40px 56px;max-width:820px;animation:sdRise .4s ease both">
+                <div style="margin-bottom:6px"><div style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#FF7A1A;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:6px">Instalación</div>
+                <h1 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600;margin:0;letter-spacing:-.01em">Deja Engram corriendo en 5 pasos</h1></div>
+                <p style="margin:10px 0 28px;color:#95A2B8;font-size:13.5px">Sigue el checklist en orden. Copia cada bloque y verifica el resultado antes de avanzar.</p>
+
+                <div style="position:relative">
+                  <div style="position:absolute;left:16px;top:14px;bottom:14px;width:2px;background:linear-gradient(#FF7A1A,rgba(255,122,26,.1))"></div>
+                  <div style="display:flex;flex-direction:column;gap:14px">
+                    <sc-for list="{{ installSteps }}" as="s" hint-placeholder-count="5">
+                      <div style="position:relative;padding-left:46px">
+                        <div style="position:absolute;left:0;top:2px;width:34px;height:34px;border-radius:50%;background:#0B1220;border:2px solid #FF7A1A;color:#FF7A1A;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;z-index:1">{{ s.n }}</div>
+                        <div style="background:#0E1626;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px 20px;">
+                          <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15.5px;margin-bottom:5px">{{ s.title }}</div>
+                          <div style="color:#95A2B8;font-size:13px;line-height:1.55;margin-bottom:15px">{{ s.desc }}</div>
+                          <div style="background:#070C16;border:1px solid rgba(255,255,255,.08);border-radius:12px;overflow:hidden">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)">
+                              <div style="display:flex;align-items:center;gap:8px"><span style="width:9px;height:9px;border-radius:50%;background:#FF5F57"></span><span style="width:9px;height:9px;border-radius:50%;background:#FEBC2E"></span><span style="width:9px;height:9px;border-radius:50%;background:#28C840"></span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5E6B82;margin-left:6px">{{ s.langLabel }}</span></div>
+                              <button onClick="{{ s.copyCode }}" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#AEB9CC;border-radius:7px;padding:4px 10px;font-size:11.5px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s" style-hover="color:#E8EDF6;border-color:rgba(255,255,255,.2)">
+                                <sc-if value="{{ s.copied }}" hint-placeholder-val="{{ false }}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg></sc-if>
+                                <sc-if value="{{ s.copied }}" hint-placeholder-val="{{ true }}"></sc-if>
+                                {{ s.copyLabel }}
+                              </button>
+                            </div>
+                            <div style="padding:14px 16px">{{ s.codeNode }}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div style="margin-top:20px;display:flex;align-items:center;gap:12px;background:rgba(163,230,53,.07);border:1px solid rgba(163,230,53,.22);border-radius:14px;padding:16px 18px">
+                  <div style="width:36px;height:36px;border-radius:10px;background:rgba(163,230,53,.14);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+                  <div><div style="font-weight:600;font-size:13.5px;color:#C7E89A;margin-bottom:2px">¿Viste “recuerdo recuperado” en consola?</div><div style="color:#95A2B8;font-size:12.5px">Listo: Engram quedó instalado. Pasa al Taller para tu primer ejercicio.</div></div>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ secGlosario }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:34px 40px 56px;max-width:880px;animation:sdRise .4s ease both">
+                <div style="margin-bottom:4px"><div style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#A3E635;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:6px">Glosario</div>
+                <h1 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600;margin:0;letter-spacing:-.01em">Términos clave del taller</h1></div>
+                <p style="margin:10px 0 22px;color:#95A2B8;font-size:13.5px">Toca una tarjeta para ver su definición. Busca o filtra por categoría.</p>
+
+                <div style="position:relative;margin-bottom:16px">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5E6B82" stroke-width="2" style="position:absolute;left:15px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+                  <input value="{{ glossarySearch }}" onChange="{{ onGlossarySearch }}" placeholder="Buscar término o definición…" style="width:100%;background:#0E1626;border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:14px 16px 14px 44px;color:#E8EDF6;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:all .2s" style-focus="border-color:#A3E635;box-shadow:0 0 0 3px rgba(163,230,53,.14)"/>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:24px">
+                  <sc-for list="{{ glossaryCats }}" as="c" hint-placeholder-count="5">
+                    <button onClick="{{ c.set }}" style="font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:999px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;background:{{ c.bg }};border:1px solid {{ c.border }};color:{{ c.color }}" style-hover="border-color:rgba(163,230,53,.4)">{{ c.label }}</button>
+                  </sc-for>
+                  <span style="margin-left:auto;font-size:12px;color:#5E6B82">{{ glossaryCount }} términos</span>
+                </div>
+
+                <sc-if value="{{ glossaryEmpty }}" hint-placeholder-val="{{ false }}">
+                  <div style="text-align:center;padding:48px 20px;color:#5E6B82"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#3f4a5e" stroke-width="1.5" style="margin-bottom:12px"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><div style="font-size:14px">No encontramos términos para tu búsqueda.</div></div>
+                </sc-if>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:14px">
+                  <sc-for list="{{ glossaryFiltered }}" as="g" hint-placeholder-count="8">
+                    <div onClick="{{ g.flip }}" style="perspective:1200px;height:168px;cursor:pointer">
+                      <div style="position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;transform:{{ g.transform }}">
+                        <div style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#0E1626;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;display:flex;flex-direction:column;justify-content:space-between">
+                          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                            <span style="font-size:10.5px;font-weight:600;letter-spacing:.04em;color:{{ g.cc }};background:{{ g.ccBg }};border-radius:999px;padding:4px 10px">{{ g.cat }}</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3f4a5e" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+                          </div>
+                          <div><div style="font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:600;letter-spacing:-.01em;color:#fff;margin-bottom:6px">{{ g.term }}</div><div style="font-size:11.5px;color:#5E6B82">Toca para ver la definición</div></div>
+                        </div>
+                        <div style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);background:linear-gradient(155deg,#13203a,#0c1525);border:1px solid {{ g.cc }}55;border-radius:16px;padding:20px;display:flex;flex-direction:column;justify-content:center">
+                          <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:{{ g.cc }};margin-bottom:9px">{{ g.term }}</div>
+                          <div style="font-size:13px;line-height:1.55;color:#C7D2E4;text-wrap:pretty">{{ g.def }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ APLICACIONES ============ -->
+      <sc-if value="{{ isAplicaciones }}" hint-placeholder-val="{{ true }}">
+        <div data-screen-label="Aplicaciones" style="padding:40px 44px 64px;max-width:1000px;margin:0 auto">
+          <div style="margin-bottom:30px">
+            <div style="font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#19C6E6;font-family:'Space Grotesk',sans-serif;font-weight:600;margin-bottom:8px">Aplicaciones</div>
+            <h1 style="font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:600;margin:0 0 8px;letter-spacing:-.02em">Aplicaciones transaccionales</h1>
+            <p style="margin:0;color:#95A2B8;font-size:14px;max-width:560px">Las piezas que viven fuera del portal: correos, certificado y estados del sistema — todas con la misma identidad.</p>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+
+            <!-- EMAIL BIENVENIDA -->
+            <div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:#AEB9CC;margin-bottom:11px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#19C6E6" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email de bienvenida</div>
+              <div style="background:#0E1626;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden">
+                <div style="background:radial-gradient(300px 120px at 80% 0%, rgba(217,70,239,.25), transparent), linear-gradient(160deg,#101a2e,#0a1322);padding:26px 26px 22px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06)">
+                  <div style="width:56px;height:56px;border-radius:15px;overflow:hidden;border:1px solid rgba(255,255,255,.12);margin:0 auto 14px;box-shadow:0 8px 26px -8px rgba(25,198,230,.5)"><img src="assets/sdih-brain.png" style="width:100%;height:100%;object-fit:cover;display:block"/></div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;letter-spacing:.04em">SALAZAR DUKE IMPACT HUB</div>
+                </div>
+                <div style="padding:24px 26px 28px">
+                  <h3 style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;margin:0 0 10px;letter-spacing:-.01em">Te damos la bienvenida, Jennifer</h3>
+                  <p style="margin:0 0 18px;color:#AEB9CC;font-size:13.5px;line-height:1.6">Tu lugar en <strong style="color:#E8EDF6">Memoria Persistente con Engram</strong> está confirmado. Usa esta clave para desbloquear el taller en el portal.</p>
+                  <div style="background:#070C16;border:1px dashed rgba(25,198,230,.4);border-radius:12px;padding:16px;text-align:center;margin-bottom:18px">
+                    <div style="font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:#5E6B82;margin-bottom:8px">Tu clave de acceso</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;letter-spacing:.16em;color:#7FE9FF">ENGRAM-2026</div>
+                  </div>
+                  <a href="#" style="display:block;text-align:center;background:#19C6E6;color:#04222B;text-decoration:none;border-radius:11px;padding:13px;font-size:14px;font-weight:600;font-family:'Space Grotesk',sans-serif;box-shadow:0 8px 24px -8px rgba(25,198,230,.6)">Acceder al taller →</a>
+                  <p style="margin:16px 0 0;color:#5E6B82;font-size:11.5px;line-height:1.5;text-align:center">Recuerda conectarte a la VPN antes de ingresar.<br/>¿No reconoces este correo? Ignóralo.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:20px">
+              <!-- EMAIL RECORDATORIO -->
+              <div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:#AEB9CC;margin-bottom:11px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>Email recordatorio</div>
+                <div style="background:#0E1626;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px 24px">
+                  <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(217,70,239,.14);border:1px solid rgba(217,70,239,.3);color:#E879F9;border-radius:999px;padding:5px 12px;font-size:11.5px;font-weight:600;margin-bottom:14px"><span style="width:6px;height:6px;border-radius:50%;background:#D946EF;animation:sdLive 1.6s ease-out infinite"></span>En vivo mañana</div>
+                  <h3 style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;margin:0 0 8px">Tu taller en vivo empieza pronto</h3>
+                  <p style="margin:0 0 16px;color:#AEB9CC;font-size:13px;line-height:1.55">Nos vemos mañana <strong style="color:#E8EDF6">18 jun · 19:00 h</strong> para la práctica en vivo de Memoria Persistente con Engram.</p>
+                  <div style="display:flex;gap:10px">
+                    <a href="#" style="flex:1;text-align:center;background:#19C6E6;color:#04222B;text-decoration:none;border-radius:10px;padding:11px;font-size:13px;font-weight:600;font-family:'Space Grotesk',sans-serif">Unirme a la sesión</a>
+                    <a href="#" style="text-align:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#AEB9CC;text-decoration:none;border-radius:10px;padding:11px 14px;font-size:13px;font-family:'Inter',sans-serif">Agendar</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FAVICON -->
+              <div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:#AEB9CC;margin-bottom:11px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A3E635" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>Favicon · isotipo</div>
+                <div style="background:#0E1626;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px 22px">
+                  <div style="display:flex;align-items:center;gap:8px;background:#070C16;border:1px solid rgba(255,255,255,.08);border-radius:9px 9px 0 0;padding:8px 12px;max-width:240px;border-bottom:none">
+                    <div style="width:16px;height:16px;border-radius:4px;overflow:hidden;flex-shrink:0"><img src="assets/sdih-brain.png" style="width:100%;height:100%;object-fit:cover;display:block"/></div>
+                    <span style="font-size:11.5px;color:#C7D2E4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">SDIH · Talleres</span>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5E6B82" stroke-width="2" style="margin-left:auto"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </div>
+                  <div style="height:6px;background:#070C16;max-width:240px;border-radius:0 0 0 0"></div>
+                  <div style="display:flex;align-items:flex-end;gap:18px;margin-top:20px">
+                    <div style="text-align:center"><div style="width:48px;height:48px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.1);margin-bottom:7px"><img src="assets/sdih-brain.png" style="width:100%;height:100%;object-fit:cover;display:block"/></div><div style="font-size:10px;color:#5E6B82">48px</div></div>
+                    <div style="text-align:center"><div style="width:32px;height:32px;border-radius:9px;overflow:hidden;border:1px solid rgba(255,255,255,.1);margin-bottom:7px"><img src="assets/sdih-brain.png" style="width:100%;height:100%;object-fit:cover;display:block"/></div><div style="font-size:10px;color:#5E6B82">32px</div></div>
+                    <div style="text-align:center"><div style="width:16px;height:16px;border-radius:5px;overflow:hidden;border:1px solid rgba(255,255,255,.1);margin-bottom:7px"><img src="assets/sdih-brain.png" style="width:100%;height:100%;object-fit:cover;display:block"/></div><div style="font-size:10px;color:#5E6B82">16px</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CERTIFICADO -->
+            <div style="grid-column:1 / -1">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:#AEB9CC;margin-bottom:11px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D946EF" stroke-width="2"><circle cx="12" cy="9" r="6"/><path d="M9 14.5 8 22l4-2 4 2-1-7.5"/></svg>Certificado de finalización</div>
+              <div style="position:relative;border-radius:20px;padding:2px;background:linear-gradient(135deg,#19C6E6,#D946EF,#FF7A1A)">
+                <div style="position:relative;background:radial-gradient(500px 260px at 100% 0%, rgba(217,70,239,.16), transparent), linear-gradient(160deg,#0d1729,#0a1120);border-radius:18px;padding:38px 44px;overflow:hidden">
+                  <svg viewBox="0 0 700 300" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;opacity:.25"><g stroke="#19C6E6" stroke-width="1" opacity=".5"><line x1="560" y1="40" x2="640" y2="90"/><line x1="60" y1="240" x2="140" y2="200"/></g><circle cx="560" cy="40" r="3" fill="#19C6E6"/><circle cx="640" cy="90" r="2.5" fill="#D946EF"/><circle cx="60" cy="240" r="3" fill="#A3E635"/></svg>
+                  <div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start;gap:30px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:280px">
+                      <div style="display:flex;align-items:center;gap:11px;margin-bottom:22px">
+                        <div style="width:40px;height:40px;border-radius:11px;overflow:hidden;border:1px solid rgba(255,255,255,.12)"><img src="assets/sdih-brain.png" style="width:100%;height:100%;object-fit:cover;display:block"/></div>
+                        <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:.05em">SALAZAR DUKE IMPACT HUB</div>
+                      </div>
+                      <div style="font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:#19C6E6;margin-bottom:16px">Certificado de finalización</div>
+                      <div style="color:#95A2B8;font-size:13px;margin-bottom:6px">Otorgado a</div>
+                      <div style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;letter-spacing:-.02em;color:#fff;margin-bottom:14px">Jennifer Salazar</div>
+                      <div style="color:#AEB9CC;font-size:14px;line-height:1.6;max-width:440px">por completar el taller <strong style="color:#E8EDF6">Memoria Persistente con Engram</strong>, una práctica en vivo dictada por Jennifer Salazar Duque.</div>
+                      <div style="display:flex;align-items:flex-end;gap:40px;margin-top:30px">
+                        <div><div style="font-family:'Space Grotesk',sans-serif;font-size:16px;color:#E8EDF6;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:6px;margin-bottom:6px;min-width:180px">Jennifer Salazar Duque</div><div style="font-size:11px;color:#5E6B82">Directora · SDIH</div></div>
+                        <div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;color:#E8EDF6;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:6px;margin-bottom:6px;min-width:120px">18 jun 2026</div><div style="font-size:11px;color:#5E6B82">Fecha de emisión</div></div>
+                      </div>
+                    </div>
+                    <div style="width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 35% 30%, rgba(250,204,21,.3), rgba(217,70,239,.15));border:2px solid rgba(250,204,21,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 30px -8px rgba(250,204,21,.4)">
+                      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="1.8"><circle cx="12" cy="9" r="6"/><path d="M9 14.5 8 22l4-2 4 2-1-7.5"/></svg>
+                      <div style="font-size:9px;color:#FACC15;letter-spacing:.1em;margin-top:4px">VERIFICADO</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;margin-top:14px">
+                <button onClick="{{ downloadCert }}" style="display:inline-flex;align-items:center;gap:9px;background:rgba(217,70,239,.12);border:1px solid rgba(217,70,239,.35);color:#E879F9;border-radius:11px;padding:11px 18px;font-size:13.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .2s" style-hover="background:rgba(217,70,239,.2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>Descargar certificado</button>
+              </div>
+            </div>
+
+            <!-- ACCESO RESTRINGIDO -->
+            <div style="grid-column:1 / -1">
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:#AEB9CC;margin-bottom:11px;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF7A1A" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z"/><path d="M12 9v4M12 16h.01"/></svg>Pantalla de acceso restringido</div>
+              <div style="border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:hidden;background:#0B1220">
+                <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;background:linear-gradient(#0e1626,#0b1320);border-bottom:1px solid rgba(255,255,255,.07)">
+                  <div style="display:flex;gap:6px"><span style="width:10px;height:10px;border-radius:50%;background:#FF5F57"></span><span style="width:10px;height:10px;border-radius:50%;background:#FEBC2E"></span><span style="width:10px;height:10px;border-radius:50%;background:#28C840"></span></div>
+                  <div style="flex:1;display:flex;align-items:center;gap:7px;max-width:380px;margin:0 auto;background:#070C16;border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:5px 12px;color:#9AA7BD;font-size:12px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FF7A1A" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>talleres.salazardukeimpacthubteams.com</div>
+                </div>
+                <div style="padding:56px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;background:radial-gradient(500px 300px at 50% 30%, rgba(255,122,26,.08), transparent)">
+                  <div style="width:72px;height:72px;border-radius:20px;background:rgba(255,122,26,.1);border:1px solid rgba(255,122,26,.3);display:flex;align-items:center;justify-content:center;margin-bottom:22px"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF7A1A" stroke-width="1.8"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z"/><path d="M15 9l-6 6M9 9l6 6"/></svg></div>
+                  <h2 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600;margin:0 0 10px;letter-spacing:-.01em">Acceso restringido</h2>
+                  <p style="margin:0 0 26px;color:#95A2B8;font-size:14px;line-height:1.6;max-width:420px">Este portal es privado. Necesitas estar conectado a la <strong style="color:#E8EDF6">VPN de SDIH</strong> para entrar. Conéctate y vuelve a intentar.</p>
+                  <div style="display:flex;gap:10px">
+                    <button onClick="{{ retryVpn }}" style="display:inline-flex;align-items:center;gap:8px;background:#FF7A1A;color:#1a0d02;border:none;border-radius:11px;padding:12px 20px;font-size:13.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;box-shadow:0 8px 24px -8px rgba(255,122,26,.6);transition:all .2s" style-hover="transform:translateY(-1px)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Reintentar conexión</button>
+                    <a href="#" style="display:inline-flex;align-items:center;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#AEB9CC;text-decoration:none;border-radius:11px;padding:12px 18px;font-size:13.5px;font-family:'Inter',sans-serif">Guía de conexión</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+
+  <!-- MODAL DE CLAVE -->
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(4,7,14,.72);backdrop-filter:blur(8px);animation:sdToast .2s ease">
+      <div style="position:relative;width:100%;max-width:432px;background:#0E1626;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:32px;box-shadow:0 40px 100px -20px rgba(0,0,0,.8);animation:sdRise .3s ease both">
+        <button onClick="{{ closeModal }}" style="position:absolute;top:18px;right:18px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:9px;color:#95A2B8;cursor:pointer" style-hover="color:#E8EDF6;border-color:rgba(255,255,255,.18)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+
+        <div style="width:54px;height:54px;border-radius:15px;background:radial-gradient(circle at 30% 30%, rgba(25,198,230,.3), rgba(217,70,239,.18));border:1px solid rgba(25,198,230,.3);display:flex;align-items:center;justify-content:center;margin-bottom:18px">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#19C6E6" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        </div>
+
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em">Clave de acceso</h3>
+        <p style="margin:0 0 4px;color:#95A2B8;font-size:13.5px;line-height:1.5">Ingresa la clave que recibiste por email para desbloquear</p>
+        <p style="margin:0 0 22px;color:#E8EDF6;font-size:13.5px;font-weight:600">{{ modalTitle }}</p>
+
+        <form onSubmit="{{ submitClaveForm }}">
+          <input autoFocus value="{{ clave }}" onChange="{{ onClaveInput }}" placeholder="XXXXX-XXXX" style="width:100%;background:#070C16;border:1px solid {{ modalInputBorder }};border-radius:13px;padding:16px 18px;color:#E8EDF6;font-family:'JetBrains Mono',monospace;font-size:19px;letter-spacing:.18em;text-align:center;text-transform:uppercase;outline:none;transition:all .2s;box-shadow:{{ modalInputGlow }}"/>
+
+          <div style="min-height:24px;margin:12px 2px 0">
+            <sc-if value="{{ mError }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:7px;color:#FF8A8A;font-size:12.5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Clave incorrecta. Revisa el email de bienvenida.</div>
+            </sc-if>
+            <sc-if value="{{ mSuccess }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:7px;color:#B6E867;font-size:12.5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>Acceso concedido. Entrando al taller…</div>
+            </sc-if>
+            <sc-if value="{{ mIdle }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:7px;color:#5E6B82;font-size:12px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FACC15" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 8.4 8 10 4.6-1.6 8-5 8-10V6l-8-4z"/></svg>Pista de demo: <span style="font-family:'JetBrains Mono',monospace;color:#95A2B8">{{ modalClaveHint }}</span></div>
+            </sc-if>
+          </div>
+
+          <button type="submit" disabled="{{ mValidating }}" style="width:100%;margin-top:16px;background:#19C6E6;color:#04222B;border:none;border-radius:13px;padding:14px;font-size:14.5px;font-weight:600;font-family:'Space Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .2s;box-shadow:0 8px 26px -8px rgba(25,198,230,.6)" style-hover="transform:translateY(-1px)">
+            <sc-if value="{{ mValidating }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#04222B" stroke-width="2.5" style="animation:sdSpin .8s linear infinite"><path d="M12 3a9 9 0 1 0 9 9" stroke-linecap="round"/></svg>Validando…</sc-if>
+            <sc-if value="{{ mIdle }}" hint-placeholder-val="{{ true }}">Desbloquear taller</sc-if>
+            <sc-if value="{{ mError }}" hint-placeholder-val="{{ false }}">Reintentar</sc-if>
+            <sc-if value="{{ mSuccess }}" hint-placeholder-val="{{ false }}">Entrando…</sc-if>
+          </button>
+        </form>
+
+        <div style="text-align:center;margin-top:16px">
+          <a href="#" style="font-size:12.5px;color:#95A2B8;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:1px" style-hover="color:#19C6E6">No tengo mi clave · Contactar soporte</a>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <!-- TOAST MOUNT -->
+  {{ toastNode }}
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'login',
+    section: 'inicio',
+    activeTaller: 'engram',
+    modalOpen: false,
+    modalTaller: null,
+    clave: '',
+    modalState: 'idle',
+    unlocked: ['rag', 'embeddings'],
+    filter: 'todos',
+    exercisesDone: {},
+    glossarySearch: '',
+    copied: '',
+    toast: null,
+    flipped: {},
+    slideIdx: 0,
+    notesOpen: true,
+    glossaryCat: 'Todas',
+    answers: {},
+  };
+
+  talleres = [
+    { id:'engram', title:'Memoria Persistente con Engram', desc:'Diseñá una capa de memoria de largo plazo para agentes que recuerdan entre sesiones.', status:'En vivo', tema:'Memoria', date:'18 jun 2026', time:'19:00', dur:'2h 30m', accent:'#D946EF', clave:'ENGRAM-2026' },
+    { id:'rag', title:'RAG Avanzado para Agentes', desc:'Recuperación aumentada con re-ranking, chunking semántico y citaciones verificables.', status:'Disponible', tema:'Recuperación', date:'04 jun 2026', time:'19:00', dur:'2h 00m', accent:'#19C6E6', clave:'RAG-2026', progress:42 },
+    { id:'embeddings', title:'Embeddings desde Cero', desc:'Representaciones vectoriales, similitud y cómo elegir el modelo correcto.', status:'Completado', tema:'Fundamentos', date:'21 may 2026', time:'19:00', dur:'1h 45m', accent:'#A3E635', clave:'EMB-2026', progress:100 },
+    { id:'vectorstores', title:'Vector Stores en Producción', desc:'Indexado, sharding y latencia en bases vectoriales bajo carga real.', status:'Próximamente', tema:'Infraestructura', date:'02 jul 2026', time:'19:00', dur:'2h 15m', accent:'#FF7A1A', clave:'VEC-2026' },
+    { id:'evals', title:'Evaluación de Agentes con Evals', desc:'Métricas, datasets dorados y loops de evaluación automatizados.', status:'Disponible', tema:'Calidad', date:'25 jun 2026', time:'19:00', dur:'2h 00m', accent:'#FACC15', clave:'EVAL-2026' },
+    { id:'multiagente', title:'Orquestación Multi-Agente', desc:'Coordinación, memoria compartida y handoffs entre agentes especializados.', status:'Próximamente', tema:'Arquitectura', date:'16 jul 2026', time:'19:00', dur:'2h 30m', accent:'#19C6E6', clave:'MULTI-2026' },
+  ];
+
+  slides = [
+    { n:1, kicker:'Fundamento', title:'¿Qué es la memoria persistente?', body:'Un agente sin memoria reinicia su contexto en cada sesión. La memoria persistente le permite recordar hechos, preferencias y decisiones entre conversaciones — la diferencia entre una herramienta y un colaborador.' },
+    { n:2, kicker:'Modelo mental', title:'Memoria de trabajo vs. largo plazo', body:'La ventana de contexto es memoria de trabajo: rápida pero limitada y volátil. Engram añade una capa de largo plazo: una base externa, indexada y recuperable bajo demanda. El arte está en decidir qué mover de una a otra.' },
+    { n:3, kicker:'Arquitectura', title:'Cómo funciona Engram por dentro', body:'Cada recuerdo se convierte en un embedding y se guarda con metadatos. Al razonar, el agente consulta la capa por similitud semántica y reinyecta solo lo relevante. Captura → indexado → recuperación → consolidación.' },
+    { n:4, kicker:'Recuperación', title:'Embeddings y similitud semántica', body:'Los embeddings representan el significado como vectores. Recuperamos por cercanía (similitud coseno), no por coincidencia exacta de palabras — así “mi vuelo a Madrid” encuentra “viaje a España” aunque no compartan términos.' },
+    { n:5, kicker:'Diseño', title:'Esquema de memoria: qué guardar', body:'No todo merece recordarse. Definimos un esquema: identidad del usuario, hechos estables, preferencias, eventos. Guardar ruido degrada la recuperación. Menos memoria, mejor curada, recuerda mejor.' },
+    { n:6, kicker:'Operación', title:'Olvido y consolidación', body:'La memoria útil decae y se consolida. Engram pondera recencia y relevancia, fusiona recuerdos redundantes y deja morir lo irrelevante — igual que un cerebro sano.' },
+  ];
+  exercises = [
+    { id:'e1', n:1, title:'Configura tu primer store de memoria', goal:'Crear una capa de memoria vacía y conectarla a tu agente.', prompt:'Actúa como arquitecto de memoria. Diseña la configuración mínima de un store de memoria persistente para un agente de soporte: define namespace, dimensión del embedding y política de retención. Devuélvelo como un objeto de configuración comentado.' },
+    { id:'e2', n:2, title:'Escribe un esquema de memoria', goal:'Decidir qué información merece persistir y con qué estructura.', prompt:'Diseña un esquema de memoria para un asistente personal. Lista 5 categorías de recuerdos (identidad, preferencias, hechos, eventos, tareas), con un ejemplo y una política de expiración para cada una. Formato tabla.' },
+    { id:'e3', n:3, title:'Construye un prompt de recall', goal:'Recuperar el recuerdo correcto en el momento correcto.', prompt:'Escribe el bloque de instrucciones de sistema que indica a un agente cuándo consultar su memoria de largo plazo, cómo incorporar los recuerdos recuperados y cómo citar de dónde vienen. Máximo 150 palabras.' },
+    { id:'e4', n:4, title:'Prueba la persistencia entre sesiones', goal:'Verificar que el agente recuerda tras reiniciar el contexto.', prompt:'Diseña un guion de prueba de 3 turnos en la sesión A que guarde un dato, y 2 turnos en la sesión B (contexto limpio) que lo recuperen. Indica el resultado esperado de cada turno.' },
+  ];
+  installSteps = [
+    { n:1, title:'Instala el SDK', desc:'Añade el cliente de Engram a tu proyecto con npm o pnpm.', lang:'bash', code:'npm install @engram/sdk\n# o\npnpm add @engram/sdk' },
+    { n:2, title:'Configura tu clave de API', desc:'Guarda tu clave en variables de entorno. Nunca la subas al repositorio.', lang:'bash', code:'# .env\nENGRAM_API_KEY=sk_live_••••••••••••\nENGRAM_NAMESPACE=taller-engram' },
+    { n:3, title:'Inicializa el cliente', desc:'Crea una instancia del cliente apuntando a tu namespace.', lang:'js', code:'import { Engram } from "@engram/sdk";\n\nconst memory = new Engram({\n  apiKey: process.env.ENGRAM_API_KEY,\n  namespace: process.env.ENGRAM_NAMESPACE,\n});' },
+    { n:4, title:'Crea el índice de memoria', desc:'Define la dimensión del embedding y la métrica de similitud.', lang:'js', code:'await memory.createIndex({\n  dimension: 1536,\n  metric: "cosine",\n  ttlDays: 90,\n});' },
+    { n:5, title:'Verifica la instalación', desc:'Guarda y recupera un recuerdo de prueba. Deberías ver el texto recuperado.', lang:'js', code:'await memory.remember("El usuario prefiere respuestas breves.");\nconst hits = await memory.recall("¿cómo responder?");\nconsole.log(hits[0].text); // ✓ recuerdo recuperado' },
+  ];
+  glossary = [
+    { term:'Engram', def:'Huella física de un recuerdo. Aquí, la capa que almacena y recupera la memoria de largo plazo de un agente.', cat:'Fundamentos' },
+    { term:'Embedding', def:'Representación numérica (vector) del significado de un texto, que permite comparar ideas por cercanía.', cat:'Recuperación' },
+    { term:'Vector store', def:'Base de datos optimizada para guardar embeddings y buscar los más similares a gran velocidad.', cat:'Arquitectura' },
+    { term:'RAG', def:'Generación aumentada por recuperación: el agente busca información relevante antes de responder.', cat:'Recuperación' },
+    { term:'Recall', def:'Operación de traer a la memoria de trabajo los recuerdos relevantes para la consulta actual.', cat:'Operación' },
+    { term:'Memoria de trabajo', def:'La ventana de contexto activa del modelo: rápida, pero limitada y volátil.', cat:'Fundamentos' },
+    { term:'Consolidación', def:'Proceso de fusionar, reforzar o descartar recuerdos para mantener la memoria útil y limpia.', cat:'Operación' },
+    { term:'Chunking', def:'Dividir un texto largo en fragmentos coherentes antes de generar sus embeddings.', cat:'Recuperación' },
+    { term:'Esquema de memoria', def:'Definición de qué categorías de información se guardan y cómo se estructuran.', cat:'Arquitectura' },
+    { term:'Persistencia', def:'Capacidad de conservar información entre sesiones, más allá de la ventana de contexto.', cat:'Fundamentos' },
+    { term:'Similitud coseno', def:'Métrica que mide el ángulo entre dos vectores para estimar qué tan parecidos son.', cat:'Recuperación' },
+    { term:'TTL', def:'Time-to-live: tiempo que un recuerdo permanece antes de expirar automáticamente.', cat:'Operación' },
+  ];
+
+  highlightCode(code){
+    const lines = String(code).split('\n');
+    const tokenRe = /("[^"]*"|'[^']*'|\b\d+\b|\b(?:import|from|const|let|var|await|async|new|return|export|function|console|npm|pnpm|add|install)\b)/g;
+    return React.createElement('div', { style:{fontFamily:"'JetBrains Mono',monospace",fontSize:'12.5px',lineHeight:'1.7',color:'#C7D2E4',whiteSpace:'pre',overflowX:'auto'} },
+      lines.map((line, li)=>{
+        if(/^\s*(#|\/\/)/.test(line)) return React.createElement('div',{key:li,style:{color:'#5F7A6B'}}, line||' ');
+        const res=[]; let last=0; let m; tokenRe.lastIndex=0;
+        while((m=tokenRe.exec(line))){
+          if(m.index>last) res.push(line.slice(last,m.index));
+          const tok=m[0]; let color='#C7D2E4';
+          if(/^["'`]/.test(tok)) color='#FFB37A';
+          else if(/^\d+$/.test(tok)) color='#7FE9FF';
+          else color='#E879F9';
+          res.push(React.createElement('span',{key:m.index,style:{color}},tok));
+          last=m.index+tok.length;
+        }
+        if(last<line.length) res.push(line.slice(last));
+        return React.createElement('div',{key:li}, res.length?res:' ');
+      })
+    );
+  }
+
+  statusStyle(s){
+    switch(s){
+      case 'En vivo': return { color:'#D946EF', bg:'rgba(217,70,239,.14)', dot:'#D946EF', live:true };
+      case 'Disponible': return { color:'#A3E635', bg:'rgba(163,230,53,.13)', dot:'#A3E635' };
+      case 'Completado': return { color:'#19C6E6', bg:'rgba(25,198,230,.13)', dot:'#19C6E6' };
+      default: return { color:'#7C8AA0', bg:'rgba(255,255,255,.06)', dot:'#7C8AA0' };
+    }
+  }
+
+  pathFor(st, sec){
+    if(st==='login') return '/acceso';
+    if(st==='catalogo') return '/talleres';
+    if(st==='aplicaciones') return '/recursos';
+    return '/taller/engram/' + (sec||'inicio');
+  }
+
+  logoSvg(size){
+    const s = size||44;
+    return React.createElement('svg',{viewBox:'0 0 48 48',width:s,height:s,style:{filter:'drop-shadow(0 4px 14px rgba(25,198,230,.35))'}},
+      React.createElement('g',{strokeWidth:1.3,opacity:.55,strokeLinecap:'round'},
+        React.createElement('line',{x1:22,y1:9,x2:12,y2:15,stroke:'#19C6E6'}),
+        React.createElement('line',{x1:22,y1:9,x2:32,y2:14,stroke:'#FACC15'}),
+        React.createElement('line',{x1:12,y1:15,x2:9,y2:25,stroke:'#A3E635'}),
+        React.createElement('line',{x1:32,y1:14,x2:35,y2:25,stroke:'#FF7A1A'}),
+        React.createElement('line',{x1:12,y1:15,x2:21,y2:23,stroke:'#19C6E6'}),
+        React.createElement('line',{x1:32,y1:14,x2:21,y2:23,stroke:'#D946EF'}),
+        React.createElement('line',{x1:21,y1:23,x2:9,y2:25,stroke:'#19C6E6'}),
+        React.createElement('line',{x1:21,y1:23,x2:35,y2:25,stroke:'#D946EF'}),
+        React.createElement('line',{x1:21,y1:23,x2:15,y2:33,stroke:'#A3E635'}),
+        React.createElement('line',{x1:21,y1:23,x2:29,y2:34,stroke:'#FF7A1A'}),
+        React.createElement('line',{x1:15,y1:33,x2:23,y2:40,stroke:'#FACC15'}),
+        React.createElement('line',{x1:29,y1:34,x2:23,y2:40,stroke:'#D946EF'}),
+        React.createElement('line',{x1:9,y1:25,x2:15,y2:33,stroke:'#19C6E6'})
+      ),
+      React.createElement('g',null,
+        React.createElement('circle',{cx:22,cy:9,r:2.4,fill:'#FACC15'}),
+        React.createElement('circle',{cx:12,cy:15,r:2.8,fill:'#19C6E6'}),
+        React.createElement('circle',{cx:32,cy:14,r:2.6,fill:'#D946EF'}),
+        React.createElement('circle',{cx:9,cy:25,r:2.3,fill:'#A3E635'}),
+        React.createElement('circle',{cx:21,cy:23,r:3.4,fill:'#19C6E6'}),
+        React.createElement('circle',{cx:35,cy:25,r:2.5,fill:'#FF7A1A'}),
+        React.createElement('circle',{cx:15,cy:33,r:2.6,fill:'#D946EF'}),
+        React.createElement('circle',{cx:29,cy:34,r:2.7,fill:'#A3E635'}),
+        React.createElement('circle',{cx:23,cy:40,r:2.4,fill:'#FACC15'})
+      )
+    );
+  }
+
+  go(screen, section){
+    this.setState({ screen, section: section || this.state.section });
+    const vp = this.base && this.base.querySelector('.sd-scroll[style*="768px"]');
+    if(vp) vp.scrollTop = 0;
+  }
+
+  ingresar(t){
+    if(this.state.unlocked.includes(t.id)){
+      this.enterTaller(t.id);
+    } else {
+      this.setState({ modalOpen:true, modalTaller:t, clave:'', modalState:'idle' });
+    }
+  }
+
+  enterTaller(id){
+    this.setState(s=>({ screen:'taller', activeTaller:id, section:'inicio', modalOpen:false, unlocked: s.unlocked.includes(id)? s.unlocked : [...s.unlocked, id] }));
+    setTimeout(()=>{ const vp=this.base&&this.base.querySelector('.sd-scroll[style*="768px"]'); if(vp)vp.scrollTop=0; },30);
+  }
+
+  submitClave(){
+    const t = this.state.modalTaller; if(!t) return;
+    this.setState({ modalState:'validating' });
+    setTimeout(()=>{
+      if((this.state.clave||'').trim().toUpperCase() === t.clave.toUpperCase()){
+        this.setState({ modalState:'success' });
+        setTimeout(()=> this.enterTaller(t.id), 850);
+      } else {
+        this.setState({ modalState:'error' });
+      }
+    }, 1100);
+  }
+
+  copyText(text, key){
+    try{ navigator.clipboard && navigator.clipboard.writeText(text); }catch(e){}
+    this.setState({ copied:key, toast:'Copiado al portapapeles' });
+    clearTimeout(this._t); this._t = setTimeout(()=> this.setState({ toast:null }), 1900);
+  }
+
+  toggleExercise(id){
+    this.setState(s=>({ exercisesDone: { ...s.exercisesDone, [id]: !s.exercisesDone[id] } }));
+  }
+
+  renderVals(){
+    const st = this.state;
+    const navDef = [
+      { key:'login', label:'Login', screen:'login' },
+      { key:'catalogo', label:'Catálogo', screen:'catalogo' },
+      { key:'inicio', label:'Taller · Inicio', screen:'taller', section:'inicio' },
+      { key:'aprendizaje', label:'Aprendizaje', screen:'taller', section:'aprendizaje' },
+      { key:'taller', label:'Taller', screen:'taller', section:'taller' },
+      { key:'instalacion', label:'Instalación', screen:'taller', section:'instalacion' },
+      { key:'glosario', label:'Glosario', screen:'taller', section:'glosario' },
+      { key:'aplicaciones', label:'Aplicaciones', screen:'aplicaciones' },
+    ];
+    const filters = ['todos','En vivo','Disponible','Completado','Próximamente'];
+    const enrich = (t)=>{
+      const ss = this.statusStyle(t.status);
+      const unlocked = st.unlocked.includes(t.id);
+      const inProgress = t.progress!=null && t.progress>0 && t.progress<100;
+      return { ...t, ss, unlocked, inProgress, notLive: !ss.live, locked: !unlocked && t.status!=='Próximamente',
+        ctaLabel: t.status==='Próximamente' ? 'Próximamente' : (unlocked ? (inProgress?'Continuar': (t.progress===100?'Repasar':'Entrar')) : 'Ingresar'),
+        ctaDisabled: t.status==='Próximamente',
+        ingresar: ()=> this.ingresar(t),
+      };
+    };
+    const enriched = this.talleres.map(enrich);
+    const talleresActivos = enriched.filter(t=> t.unlocked && t.status!=='Próximamente');
+    const grid = st.filter==='todos' ? enriched : enriched.filter(t=> t.status===st.filter);
+    const setFilter = (f)=> this.setState({ filter:f });
+
+    // ---- taller ----
+    const at = this.talleres.find(t=> t.id===st.activeTaller) || this.talleres[0];
+    const sectionDefs = [
+      { k:'inicio', label:'Inicio' },
+      { k:'aprendizaje', label:'Aprendizaje' },
+      { k:'taller', label:'Taller' },
+      { k:'instalacion', label:'Instalación' },
+      { k:'glosario', label:'Glosario' },
+    ];
+    const tabs = {};
+    sectionDefs.forEach(({k,label})=>{
+      const active = st.section===k;
+      tabs[k] = { active, label,
+        bg: active?'rgba(25,198,230,.1)':'transparent',
+        color: active?'#7FE9FF':'#9AA7BD',
+        border: active?'rgba(25,198,230,.3)':'transparent',
+        icon: active?'#19C6E6':'#7C8AA0',
+        glow: active?'0 4px 22px -8px rgba(25,198,230,.6)':'none',
+        dot: active?1:0,
+        set: ()=> this.setState({ section:k }),
+      };
+    });
+    const doneCount = this.exercises.filter(e=> st.exercisesDone[e.id]).length;
+    const tallerProgress = Math.round((doneCount / this.exercises.length) * 100);
+
+    const exercises = this.exercises.map(e=>{
+      const done = !!st.exercisesDone[e.id];
+      return { ...e, done, notDone:!done,
+        statusLabel: done?'Completado':'Pendiente',
+        statusColor: done?'#A3E635':'#7C8AA0',
+        statusBg: done?'rgba(163,230,53,.12)':'rgba(255,255,255,.05)',
+        cardBorder: done?'rgba(163,230,53,.32)':'rgba(255,255,255,.08)',
+        numBg: done?'#A3E635':'rgba(25,198,230,.14)',
+        numColor: done?'#0B1220':'#7FE9FF',
+        btnBg: done?'rgba(163,230,53,.12)':'#19C6E6',
+        btnColor: done?'#A3E635':'#04222B',
+        btnBorder: done?'rgba(163,230,53,.3)':'transparent',
+        btnLabel: done?'Completado':'Marcar como hecho',
+        copyLabel: st.copied===e.id?'Copiado':'Copiar prompt',
+        toggle: ()=> this.toggleExercise(e.id),
+        copyPrompt: ()=> this.copyText(e.prompt, e.id),
+        copied: st.copied===e.id,
+      };
+    });
+
+    const slide = this.slides[st.slideIdx] || this.slides[0];
+    const cats = ['Todas', ...Array.from(new Set(this.glossary.map(g=>g.cat)))];
+    const q = (st.glossarySearch||'').toLowerCase().trim();
+    const glossaryFiltered = this.glossary.filter(g=>{
+      const matchCat = st.glossaryCat==='Todas' || g.cat===st.glossaryCat;
+      const matchQ = !q || g.term.toLowerCase().includes(q) || g.def.toLowerCase().includes(q);
+      return matchCat && matchQ;
+    }).map(g=>{
+      const cc = g.cat==='Fundamentos'?'#19C6E6':g.cat==='Recuperación'?'#D946EF':g.cat==='Arquitectura'?'#FF7A1A':'#A3E635';
+      const flipped = !!st.flipped[g.term];
+      return { ...g, cc, flipped, ccBg: cc+'22',
+        transform: flipped?'rotateY(180deg)':'rotateY(0deg)',
+        flip: ()=> this.setState(s=>({ flipped: { ...s.flipped, [g.term]: !s.flipped[g.term] } })) };
+    });
+
+    const activeNav = st.screen==='taller' ? st.section : st.screen;
+    const navItems = navDef.map(n=>{
+      const active = (n.screen==='taller' ? (st.screen==='taller' && st.section===n.section) : st.screen===n.screen);
+      return {
+        label:n.label,
+        bg: active ? 'rgba(25,198,230,.14)' : 'rgba(255,255,255,.03)',
+        border: active ? 'rgba(25,198,230,.5)' : 'rgba(255,255,255,.08)',
+        color: active ? '#7FE9FF' : '#8A97AD',
+        go: ()=> n.screen==='taller' ? (st.unlocked.includes('engram')? this.go('taller', n.section) : (this.setState({unlocked:[...st.unlocked,'engram']}), this.go('taller', n.section))) : this.go(n.screen),
+      };
+    });
+
+    return {
+      urlPath: this.pathFor(st.screen, st.section),
+      isLogin: st.screen==='login',
+      isCatalogo: st.screen==='catalogo',
+      isTaller: st.screen==='taller',
+      isAplicaciones: st.screen==='aplicaciones',
+      navItems,
+      filters: filters.map(f=>({ label:f, active: st.filter===f, set: ()=> setFilter(f),
+        bg: st.filter===f?'rgba(25,198,230,.14)':'transparent', border: st.filter===f?'rgba(25,198,230,.45)':'rgba(255,255,255,.1)', color: st.filter===f?'#7FE9FF':'#95A2B8' })),
+      talleresActivos, talleresGrid: grid,
+      hasActivos: talleresActivos.length>0,
+      activosCount: talleresActivos.length,
+      // taller shell
+      at, atTitle: at.title, atDesc: at.desc, atDate: at.date, atTime: at.time, atDur: at.dur, atTema: at.tema, atAccent: at.accent,
+      tabs, tallerProgress,
+      backToCatalogo: ()=> this.go('catalogo'),
+      secInicio: st.section==='inicio', secAprendizaje: st.section==='aprendizaje', secTaller: st.section==='taller', secInstalacion: st.section==='instalacion', secGlosario: st.section==='glosario',
+      gotoSection: (k)=> this.setState({ section:k }),
+      // aprendizaje
+      slide, slideNum: st.slideIdx+1, slideTotal: this.slides.length,
+      slideHasPrev: st.slideIdx>0, slideHasNext: st.slideIdx<this.slides.length-1,
+      slidePrevDisabled: st.slideIdx===0, slideNextDisabled: st.slideIdx>=this.slides.length-1,
+      prevSlide: ()=> this.setState(s=>({ slideIdx: Math.max(0, s.slideIdx-1) })),
+      nextSlide: ()=> this.setState(s=>({ slideIdx: Math.min(this.slides.length-1, s.slideIdx+1) })),
+      slideDots: this.slides.map((s,i)=>({ active:i===st.slideIdx, go:()=> this.setState({ slideIdx:i }), bg: i===st.slideIdx?'#19C6E6':'rgba(255,255,255,.18)', w: i===st.slideIdx?'22px':'7px' })),
+      notesOpen: st.notesOpen, toggleNotes: ()=> this.setState(s=>({ notesOpen:!s.notesOpen })),
+      downloadPdf: ()=> this.setState({ toast:'Descarga iniciada · diapositivas.pdf' }, ()=>{ clearTimeout(this._t); this._t=setTimeout(()=>this.setState({toast:null}),1900); }),
+      downloadCert: ()=> this.setState({ toast:'Certificado descargado · certificado.pdf' }, ()=>{ clearTimeout(this._t); this._t=setTimeout(()=>this.setState({toast:null}),1900); }),
+      retryVpn: ()=> this.setState({ toast:'Reintentando conexión a la VPN…' }, ()=>{ clearTimeout(this._t); this._t=setTimeout(()=>this.setState({toast:null}),1900); }),
+      // taller
+      exercises, doneCount, exTotal: this.exercises.length,
+      // instalacion
+      installSteps: this.installSteps.map(s=>({ ...s, codeNode: this.highlightCode(s.code), langLabel: s.lang==='bash'?'Terminal':'engram.js', copyCode: ()=> this.copyText(s.code, 'inst'+s.n), copied: st.copied==='inst'+s.n, copyLabel: st.copied==='inst'+s.n?'Copiado':'Copiar' })),
+      // glosario
+      glossarySearch: st.glossarySearch,
+      onGlossarySearch: (e)=> this.setState({ glossarySearch: e.target.value }),
+      glossaryFiltered, glossaryCount: glossaryFiltered.length,
+      glossaryCats: cats.map(c=>({ label:c, active: st.glossaryCat===c, set:()=> this.setState({ glossaryCat:c }),
+        bg: st.glossaryCat===c?'rgba(25,198,230,.14)':'transparent', border: st.glossaryCat===c?'rgba(25,198,230,.4)':'rgba(255,255,255,.1)', color: st.glossaryCat===c?'#7FE9FF':'#95A2B8' })),
+      glossaryEmpty: glossaryFiltered.length===0,
+      logoSmall: this.logoSvg(30),
+      logoLarge: this.logoSvg(48),
+      onLogin: (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this.go('catalogo'); },
+      modalOpen: st.modalOpen,
+      modalTitle: st.modalTaller ? st.modalTaller.title : '',
+      modalClaveHint: st.modalTaller ? st.modalTaller.clave : '',
+      clave: st.clave,
+      onClaveInput: (e)=> this.setState(s=>({ clave: e.target.value, modalState: s.modalState==='error'?'idle':s.modalState })),
+      submitClaveForm: (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this.submitClave(); },
+      submitClave: ()=> this.submitClave(),
+      closeModal: ()=> this.setState({ modalOpen:false }),
+      mIdle: st.modalState==='idle',
+      mValidating: st.modalState==='validating',
+      mError: st.modalState==='error',
+      mSuccess: st.modalState==='success',
+      modalInputBorder: st.modalState==='error' ? '#FF6B6B' : (st.modalState==='success' ? '#A3E635' : 'rgba(255,255,255,.14)'),
+      modalInputGlow: st.modalState==='error' ? '0 0 0 3px rgba(255,107,107,.16)' : (st.modalState==='success' ? '0 0 0 3px rgba(163,230,53,.18)' : '0 0 0 0 transparent'),
+      toastNode: st.toast ? React.createElement('div',{style:{position:'fixed',bottom:'30px',left:'50%',transform:'translateX(-50%)',background:'#0E1626',border:'1px solid rgba(163,230,53,.4)',color:'#E8EDF6',padding:'12px 20px',borderRadius:'12px',fontSize:'13.5px',fontWeight:500,display:'flex',alignItems:'center',gap:'10px',zIndex:200,boxShadow:'0 18px 50px -12px rgba(0,0,0,.7)',animation:'sdToast .25s ease'}},
+        React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'#A3E635',strokeWidth:2.5},React.createElement('path',{d:'M20 6 9 17l-5-5'})), st.toast) : null,
+    };
+  }
+}
+</script>
+</body>
+</html>

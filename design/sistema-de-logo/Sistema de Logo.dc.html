@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #05070D; }
+  body { -webkit-font-smoothing: antialiased; }
+  @keyframes glowpulse { 0%,100% { opacity:.5; } 50% { opacity:.9; } }
+  @keyframes nodepulse { 0%,100% { transform:scale(1); opacity:.55; } 50% { transform:scale(1.7); opacity:1; } }
+  ::selection { background:#19C6E6; color:#0B1220; }
+  @media print {
+    @page { size: A4 portrait; margin: 0; }
+    body { background:#fff; }
+    .sd-backdrop { padding:0 !important; gap:0 !important; background:#fff !important; }
+    .sd-page { box-shadow:none !important; border-radius:0 !important; border:none !important; break-after:page; page-break-after:always; }
+  }
+</style>
+</helmet>
+<div class="sd-backdrop" style="min-height:100vh;background:#05070D;display:flex;flex-direction:column;align-items:center;gap:46px;padding:56px 24px;font-family:'Inter',sans-serif;">
+
+<!-- ============ PAGE 1 · COVER ============ -->
+<section class="sd-page" data-screen-label="Sistema · Portada" style="position:relative;width:820px;height:1160px;background:radial-gradient(120% 90% at 50% 10%, #101A30 0%, #0B1220 46%, #080D18 100%);border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;box-shadow:0 50px 140px rgba(0,0,0,0.65);flex:none;">
+  <div style="position:absolute;top:-150px;left:-110px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle, rgba(25,198,230,0.30), transparent 65%);filter:blur(20px);animation:glowpulse 7s ease-in-out infinite;"></div>
+  <div style="position:absolute;bottom:-170px;right:-130px;width:540px;height:540px;border-radius:50%;background:radial-gradient(circle, rgba(217,70,239,0.24), transparent 65%);filter:blur(20px);animation:glowpulse 9s ease-in-out infinite;"></div>
+  <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);background-size:34px 34px;opacity:0.5;"></div>
+
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:62px 56px 54px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span style="width:7px;height:7px;border-radius:50%;background:#19C6E6;box-shadow:0 0 12px #19C6E6;"></span>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:12px;letter-spacing:0.4em;color:rgba(255,255,255,0.62);">MANUAL DE MARCA · ANEXO</span>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle, rgba(25,198,230,0.18), rgba(217,70,239,0.10) 50%, transparent 70%);filter:blur(8px);"></div>
+        <img src="assets/logo-lockup.png" alt="Salazar Duke Impact Hub" style="position:relative;width:400px;height:auto;display:block;">
+      </div>
+      <h1 style="margin:28px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:50px;line-height:1.04;letter-spacing:-0.02em;color:#fff;text-align:center;">Sistema de Logo</h1>
+      <p style="margin:18px 0 0;max-width:430px;font-size:15.5px;line-height:1.7;color:rgba(255,255,255,0.6);text-align:center;">Trece variantes de una misma identidad, cada una resuelta para su contexto real de uso.</p>
+      <div style="margin-top:26px;display:flex;gap:10px;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.14em;color:#19C6E6;border:1px solid rgba(25,198,230,0.4);border-radius:20px;padding:7px 16px;">5 PRINCIPALES</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.14em;color:#D946EF;border:1px solid rgba(217,70,239,0.4);border-radius:20px;padding:7px 16px;">5 COMPOSICIONES</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.14em;color:#FF7A1A;border:1px solid rgba(255,122,26,0.4);border-radius:20px;padding:7px 16px;">3 ESPECIALES</span>
+      </div>
+    </div>
+
+    <div style="width:100%;display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid rgba(255,255,255,0.09);padding-top:22px;">
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:14px;color:#fff;">Salazar Duke Impact Hub</span>
+      <span style="font-size:12px;color:rgba(255,255,255,0.5);">V1.0 — 2026</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PAGE 2 · PRINCIPALES ============ -->
+<section class="sd-page" data-screen-label="Principales" style="position:relative;width:820px;height:1160px;background:#0B1220;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;box-shadow:0 50px 140px rgba(0,0,0,0.65);flex:none;">
+  <div style="position:absolute;top:-130px;right:-110px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle, rgba(25,198,230,0.14), transparent 66%);filter:blur(16px);"></div>
+
+  <div style="position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:30px 56px;border-bottom:1px solid rgba(255,255,255,0.07);">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="assets/logo-brain.png" alt="" style="height:26px;width:auto;display:block;">
+      <div style="display:flex;flex-direction:column;line-height:1;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;letter-spacing:0.2em;color:#fff;">SALAZAR DUKE</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:8px;letter-spacing:0.4em;color:#19C6E6;margin-top:3px;">IMPACT HUB</span>
+      </div>
+    </div>
+    <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.32em;color:rgba(255,255,255,0.45);">A · PRINCIPALES</span>
+  </div>
+
+  <div style="position:absolute;top:92px;left:0;right:0;bottom:60px;padding:34px 56px 0;">
+    <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:0.34em;color:#19C6E6;text-transform:uppercase;">Versiones principales</span>
+    <h2 style="margin:12px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-0.02em;color:#fff;">El núcleo de la identidad</h2>
+
+    <div style="margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <!-- 1 color/navy -->
+      <div>
+        <div style="height:188px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:radial-gradient(130% 120% at 75% 12%, #16243E, #0A111F);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);">
+          <div style="position:absolute;top:12px;left:0;right:0;display:flex;justify-content:center;gap:5px;"><span style="width:30px;height:4px;border-radius:3px;background:rgba(255,255,255,0.18);"></span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:9px;">
+            <img src="assets/logo-brain.png" style="width:96px;height:auto;">
+            <div style="display:flex;flex-direction:column;align-items:center;line-height:1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:0.05em;color:#fff;">SALAZAR DUKE</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:6px;letter-spacing:0.4em;color:#19C6E6;margin-top:4px;">IMPACT HUB</span></div>
+          </div>
+        </div>
+        <div style="margin-top:11px;display:flex;align-items:center;gap:8px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">01 · Full color / navy</span><span style="font-size:9px;letter-spacing:0.14em;color:#19C6E6;border:1px solid rgba(25,198,230,0.35);border-radius:12px;padding:2px 8px;">PRINCIPAL</span></div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Pantallas y apps · uso preferente.</p>
+      </div>
+      <!-- 2 color/white -->
+      <div>
+        <div style="height:188px;border-radius:13px;overflow:hidden;border:1px solid rgba(0,0,0,0.06);background:linear-gradient(150deg,#ffffff,#eef1f6);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.8);">
+          <div style="position:absolute;top:16px;left:18px;width:46px;height:3px;border-radius:2px;background:rgba(11,18,32,0.12);"></div>
+          <div style="position:absolute;bottom:16px;left:18px;right:18px;display:flex;flex-direction:column;gap:4px;"><span style="height:2px;background:rgba(11,18,32,0.08);border-radius:2px;width:80%;"></span><span style="height:2px;background:rgba(11,18,32,0.08);border-radius:2px;width:60%;"></span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:9px;">
+            <img src="assets/logo-brain.png" style="width:90px;height:auto;">
+            <div style="display:flex;flex-direction:column;align-items:center;line-height:1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:0.05em;color:#0B1220;">SALAZAR DUKE</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:6px;letter-spacing:0.4em;color:#0B1220;margin-top:4px;">IMPACT HUB</span></div>
+          </div>
+        </div>
+        <div style="margin-top:11px;display:flex;align-items:center;gap:8px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">02 · Full color / blanco</span></div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Papelería y documentos impresos.</p>
+      </div>
+      <!-- 3 mono white/navy -->
+      <div>
+        <div style="height:188px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:#0B1220;display:flex;align-items:center;justify-content:center;position:relative;">
+          <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);background-size:22px 22px;"></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;">
+            <img src="assets/logo-brain-white.png" style="width:90px;height:auto;">
+            <div style="display:flex;flex-direction:column;align-items:center;line-height:1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:0.05em;color:#fff;">SALAZAR DUKE</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:6px;letter-spacing:0.4em;color:rgba(255,255,255,0.7);margin-top:4px;">IMPACT HUB</span></div>
+          </div>
+        </div>
+        <div style="margin-top:11px;display:flex;align-items:center;gap:8px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">03 · Monocromo blanco</span></div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Señalética y fondos oscuros sin color.</p>
+      </div>
+      <!-- 4 mono navy/white -->
+      <div>
+        <div style="height:188px;border-radius:13px;overflow:hidden;border:1px solid rgba(0,0,0,0.06);background:#F4F6FB;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.8);">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:9px;">
+            <img src="assets/logo-brain-navy.png" style="width:90px;height:auto;">
+            <div style="display:flex;flex-direction:column;align-items:center;line-height:1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;letter-spacing:0.05em;color:#0B1220;">SALAZAR DUKE</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:6px;letter-spacing:0.4em;color:#0B1220;margin-top:4px;">IMPACT HUB</span></div>
+          </div>
+        </div>
+        <div style="margin-top:11px;display:flex;align-items:center;gap:8px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">04 · Monocromo navy</span></div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Fondos claros · fax, B/N, oficios.</p>
+      </div>
+      <!-- 5 outline -->
+      <div style="grid-column:1 / -1;">
+        <div style="height:150px;border-radius:13px;overflow:hidden;border:1px solid rgba(0,0,0,0.06);background:linear-gradient(150deg,#EDE7DA,#E2DAC8);display:flex;align-items:center;justify-content:center;gap:34px;position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,0.6);">
+          <div style="position:absolute;right:24px;top:50%;transform:translateY(-50%);opacity:0.5;"><img src="assets/logo-brain-outline-navy.png" style="height:150px;width:auto;"></div>
+          <div style="display:flex;align-items:center;gap:18px;position:relative;">
+            <img src="assets/logo-brain-outline-navy.png" style="height:84px;width:auto;opacity:0.85;">
+            <div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:16px;letter-spacing:0.08em;color:#3A3120;">SALAZAR DUKE</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:7px;letter-spacing:0.4em;color:rgba(58,49,32,0.7);margin-top:5px;">IMPACT HUB</span></div>
+          </div>
+        </div>
+        <div style="margin-top:11px;display:flex;align-items:center;gap:8px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">05 · Outline / línea fina</span></div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Grabados, sellos en seco y marcas de agua a una tinta.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:18px 56px;border-top:1px solid rgba(255,255,255,0.06);">
+    <span style="font-size:10px;letter-spacing:0.22em;color:rgba(255,255,255,0.35);">SISTEMA DE LOGO</span>
+    <span style="font-size:10px;letter-spacing:0.22em;color:rgba(255,255,255,0.35);">01 — 05</span>
+  </div>
+</section>
+
+<!-- ============ PAGE 3 · COMPOSICIONES ============ -->
+<section class="sd-page" data-screen-label="Composiciones" style="position:relative;width:820px;height:1160px;background:#0B1220;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;box-shadow:0 50px 140px rgba(0,0,0,0.65);flex:none;">
+  <div style="position:absolute;bottom:-130px;left:-110px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle, rgba(217,70,239,0.14), transparent 66%);filter:blur(16px);"></div>
+
+  <div style="position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:30px 56px;border-bottom:1px solid rgba(255,255,255,0.07);">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="assets/logo-brain.png" alt="" style="height:26px;width:auto;display:block;">
+      <div style="display:flex;flex-direction:column;line-height:1;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;letter-spacing:0.2em;color:#fff;">SALAZAR DUKE</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:8px;letter-spacing:0.4em;color:#19C6E6;margin-top:3px;">IMPACT HUB</span>
+      </div>
+    </div>
+    <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.32em;color:rgba(255,255,255,0.45);">B · COMPOSICIONES</span>
+  </div>
+
+  <div style="position:absolute;top:92px;left:0;right:0;bottom:60px;padding:34px 56px 0;">
+    <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:0.34em;color:#D946EF;text-transform:uppercase;">Composiciones</span>
+    <h2 style="margin:12px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-0.02em;color:#fff;">Cada lockup, su formato</h2>
+
+    <div style="margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <!-- 6 vertical poster -->
+      <div>
+        <div style="height:340px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:radial-gradient(120% 80% at 50% 18%, #16243E, #090F1B);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;position:relative;">
+          <div style="position:absolute;top:-30px;left:50%;transform:translateX(-50%);width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(25,198,230,0.22),transparent 65%);filter:blur(12px);"></div>
+          <img src="assets/logo-brain.png" style="width:140px;height:auto;position:relative;">
+          <div style="display:flex;flex-direction:column;align-items:center;line-height:1;position:relative;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:19px;letter-spacing:0.05em;color:#fff;">SALAZAR DUKE</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:8px;letter-spacing:0.42em;color:#19C6E6;margin-top:6px;">IMPACT HUB</span></div>
+          <div style="width:40px;height:1px;background:rgba(255,255,255,0.2);position:relative;"></div>
+          <span style="font-family:'Space Grotesk',sans-serif;font-style:normal;font-size:13px;letter-spacing:0.04em;color:rgba(255,255,255,0.7);position:relative;">Inteligencia con alma</span>
+        </div>
+        <div style="margin-top:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">06 · Vertical + tagline</div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Pósters, roll-ups y portadas.</p>
+      </div>
+
+      <!-- right column: 7 header + 8 favicon -->
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div>
+          <div style="height:150px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:#0C1426;display:flex;flex-direction:column;">
+            <div style="flex:none;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
+              <div style="display:flex;align-items:center;gap:9px;"><img src="assets/logo-brain.png" style="height:22px;width:auto;"><div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:10px;letter-spacing:0.08em;color:#fff;">SALAZAR DUKE</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:5px;letter-spacing:0.36em;color:#19C6E6;margin-top:3px;">IMPACT HUB</span></div></div>
+              <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:8px;color:rgba(255,255,255,0.5);">Servicios</span><span style="font-size:8px;color:rgba(255,255,255,0.5);">Impacto</span><span style="font-size:8px;font-weight:600;color:#06121A;background:#19C6E6;border-radius:12px;padding:4px 10px;">Hablemos</span></div>
+            </div>
+            <div style="flex:1;display:flex;align-items:center;padding:0 18px;gap:8px;"><div style="display:flex;flex-direction:column;gap:5px;"><span style="height:6px;width:120px;background:rgba(255,255,255,0.14);border-radius:3px;"></span><span style="height:6px;width:80px;background:rgba(255,255,255,0.08);border-radius:3px;"></span></div></div>
+          </div>
+          <div style="margin-top:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">07 · Horizontal</div>
+          <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Headers web y firmas anchas.</p>
+        </div>
+        <div style="margin-top:18px;">
+          <div style="height:150px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:#11182A;display:flex;align-items:center;justify-content:center;gap:20px;">
+            <div style="width:130px;border-radius:8px;overflow:hidden;background:#0A0F1C;border:1px solid rgba(255,255,255,0.1);">
+              <div style="display:flex;gap:5px;padding:7px 8px;align-items:center;background:#070B14;"><span style="width:6px;height:6px;border-radius:50%;background:#FF7A1A;"></span><span style="width:6px;height:6px;border-radius:50%;background:#FACC15;"></span><span style="width:6px;height:6px;border-radius:50%;background:#A3E635;"></span></div>
+              <div style="display:flex;align-items:center;gap:6px;padding:7px 8px;background:#0F1626;border-top:1px solid rgba(255,255,255,0.06);"><img src="assets/logo-brain.png" style="height:13px;width:auto;"><span style="font-size:8px;color:#fff;">Salazar Duke</span><span style="margin-left:auto;font-size:9px;color:rgba(255,255,255,0.3);">×</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+              <div style="width:52px;height:52px;border-radius:13px;background:radial-gradient(120% 120% at 70% 20%,#16243E,#0A111F);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(0,0,0,0.4);"><img src="assets/logo-brain.png" style="width:40px;height:auto;"></div>
+              <span style="font-size:8px;color:rgba(255,255,255,0.45);">App icon</span>
+            </div>
+          </div>
+          <div style="margin-top:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">08 · Isotipo · favicon</div>
+          <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Favicon, app icon y avatar mínimo.</p>
+        </div>
+      </div>
+
+      <!-- 10 circular avatar -->
+      <div>
+        <div style="height:172px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:#0C1426;display:flex;align-items:center;gap:16px;padding:0 22px;">
+          <div style="position:relative;flex:none;width:96px;height:96px;border-radius:50%;background:radial-gradient(120% 120% at 60% 25%,#16243E,#0A111F);border:2px solid rgba(25,198,230,0.5);display:flex;align-items:center;justify-content:center;box-shadow:0 0 26px rgba(25,198,230,0.3);overflow:hidden;">
+            <img src="assets/logo-brain.png" style="width:78px;height:auto;">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">Salazar Duke Hub</span>
+            <span style="font-size:10px;color:rgba(255,255,255,0.45);">@salazardukehub</span>
+            <span style="font-size:9px;font-weight:600;color:#06121A;background:#19C6E6;border-radius:12px;padding:5px 14px;align-self:flex-start;">Seguir</span>
+          </div>
+        </div>
+        <div style="margin-top:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">10 · Circular</div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Perfiles de redes sociales.</p>
+      </div>
+
+      <!-- 9 logotipo only / signature -->
+      <div>
+        <div style="height:172px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:#F4F6FB;display:flex;align-items:center;padding:0 24px;">
+          <div style="border-left:3px solid #D946EF;padding-left:16px;">
+            <p style="margin:0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;letter-spacing:0.04em;color:#0B1220;">SALAZAR DUKE</p>
+            <p style="margin:5px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:8px;letter-spacing:0.42em;color:#19C6E6;">IMPACT HUB</p>
+            <p style="margin:12px 0 0;font-size:10px;color:rgba(11,18,32,0.55);font-family:'Inter',sans-serif;">Jennifer Salazar Duque · Fundadora<br>hola@salazarduke.com</p>
+          </div>
+        </div>
+        <div style="margin-top:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">09 · Solo logotipo</div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Firmas y textos a una línea.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:18px 56px;border-top:1px solid rgba(255,255,255,0.06);">
+    <span style="font-size:10px;letter-spacing:0.22em;color:rgba(255,255,255,0.35);">SISTEMA DE LOGO</span>
+    <span style="font-size:10px;letter-spacing:0.22em;color:rgba(255,255,255,0.35);">06 — 10</span>
+  </div>
+</section>
+
+<!-- ============ PAGE 4 · USOS ESPECIALES ============ -->
+<section class="sd-page" data-screen-label="Usos especiales" style="position:relative;width:820px;height:1160px;background:#0B1220;border:1px solid rgba(255,255,255,0.07);border-radius:7px;overflow:hidden;box-shadow:0 50px 140px rgba(0,0,0,0.65);flex:none;">
+  <div style="position:absolute;top:-130px;right:-110px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle, rgba(255,122,26,0.13), transparent 66%);filter:blur(16px);"></div>
+
+  <div style="position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:30px 56px;border-bottom:1px solid rgba(255,255,255,0.07);">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <img src="assets/logo-brain.png" alt="" style="height:26px;width:auto;display:block;">
+      <div style="display:flex;flex-direction:column;line-height:1;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;letter-spacing:0.2em;color:#fff;">SALAZAR DUKE</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:8px;letter-spacing:0.4em;color:#19C6E6;margin-top:3px;">IMPACT HUB</span>
+      </div>
+    </div>
+    <span style="font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:0.32em;color:rgba(255,255,255,0.45);">C · USOS ESPECIALES</span>
+  </div>
+
+  <div style="position:absolute;top:92px;left:0;right:0;bottom:60px;padding:34px 56px 0;">
+    <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:0.34em;color:#FF7A1A;text-transform:uppercase;">Usos especiales</span>
+    <h2 style="margin:12px 0 0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-0.02em;color:#fff;">Movimiento, materia y submarcas</h2>
+
+    <!-- 11 animated + lottie specs -->
+    <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="height:222px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:radial-gradient(120% 110% at 50% 30%, #16243E, #090F1B);display:flex;align-items:center;justify-content:center;position:relative;">
+          <div style="position:relative;width:170px;height:auto;">
+            <img src="assets/logo-brain.png" style="width:170px;height:auto;display:block;">
+            <span style="position:absolute;left:56%;top:9%;width:11px;height:11px;border-radius:50%;background:#FACC15;box-shadow:0 0 10px #FACC15;animation:nodepulse 2.4s ease-in-out infinite;"></span>
+            <span style="position:absolute;left:13%;top:24%;width:10px;height:10px;border-radius:50%;background:#19C6E6;box-shadow:0 0 10px #19C6E6;animation:nodepulse 2.4s ease-in-out infinite .3s;"></span>
+            <span style="position:absolute;left:90%;top:30%;width:9px;height:9px;border-radius:50%;background:#D946EF;box-shadow:0 0 10px #D946EF;animation:nodepulse 2.4s ease-in-out infinite .6s;"></span>
+            <span style="position:absolute;left:62%;top:40%;width:10px;height:10px;border-radius:50%;background:#A3E635;box-shadow:0 0 10px #A3E635;animation:nodepulse 2.4s ease-in-out infinite .9s;"></span>
+            <span style="position:absolute;left:24%;top:54%;width:9px;height:9px;border-radius:50%;background:#19C6E6;box-shadow:0 0 10px #19C6E6;animation:nodepulse 2.4s ease-in-out infinite 1.2s;"></span>
+            <span style="position:absolute;left:60%;top:62%;width:12px;height:12px;border-radius:50%;background:#FF7A1A;box-shadow:0 0 12px #FF7A1A;animation:nodepulse 2.4s ease-in-out infinite 1.5s;"></span>
+          </div>
+          <span style="position:absolute;bottom:12px;left:14px;font-family:'Space Grotesk',sans-serif;font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.45);">▶ LOOP · NODOS PULSANDO</span>
+        </div>
+        <div style="margin-top:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">11 · Versión animada</div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Intros, loaders y redes. (Vista previa en vivo.)</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.08);border-radius:13px;padding:18px 20px;height:222px;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:0.2em;color:#19C6E6;">SPECS LOTTIE (.json)</span>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:9px;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:7px;"><span style="color:rgba(255,255,255,0.5);">Duración</span><span style="color:#fff;">2.4 s · loop</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:7px;"><span style="color:rgba(255,255,255,0.5);">Frame rate</span><span style="color:#fff;">30 fps</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:7px;"><span style="color:rgba(255,255,255,0.5);">Easing</span><span style="color:#fff;">easeInOutSine</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:7px;"><span style="color:rgba(255,255,255,0.5);">Animación</span><span style="color:#fff;">scale 1→1.7 · glow</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:7px;"><span style="color:rgba(255,255,255,0.5);">Capas</span><span style="color:#fff;">cerebro + 12 nodos</span></div>
+          <div style="display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:7px;"><span style="color:rgba(255,255,255,0.5);">Secuencia</span><span style="color:#fff;">stagger 0.3 s</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,0.5);">Peso objetivo</span><span style="color:#A3E635;">&lt; 120 KB</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12 embroidery + 13 submarcas -->
+    <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="height:178px;border-radius:13px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);background:repeating-linear-gradient(45deg,#0E1A2E,#0E1A2E 3px,#0C1727 3px,#0C1727 6px);display:flex;align-items:center;justify-content:center;gap:18px;position:relative;box-shadow:inset 0 0 40px rgba(0,0,0,0.4);">
+          <img src="assets/logo-brain-flat-white.png" style="height:96px;width:auto;filter:drop-shadow(0 1px 0 rgba(0,0,0,0.5));">
+          <div style="display:flex;flex-direction:column;line-height:1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:0.06em;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,0.4);">SALAZAR DUKE</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:6px;letter-spacing:0.36em;color:#19C6E6;margin-top:5px;">IMPACT HUB</span></div>
+        </div>
+        <div style="margin-top:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">12 · Bordado / serigrafía</div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+          <span style="display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,0.55);"><span style="width:11px;height:11px;border-radius:3px;background:#0B1220;border:1px solid rgba(255,255,255,0.2);"></span>Navy</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,0.55);"><span style="width:11px;height:11px;border-radius:3px;background:#fff;"></span>Blanco</span>
+          <span style="display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,0.55);"><span style="width:11px;height:11px;border-radius:3px;background:#19C6E6;"></span>Cyan</span>
+          <span style="margin-left:auto;font-size:9.5px;color:#FF7A1A;letter-spacing:0.08em;">MÁX 3 · SIN DEGRADADOS</span>
+        </div>
+      </div>
+      <div>
+        <div style="height:178px;display:flex;flex-direction:column;gap:10px;">
+          <!-- KAIA -->
+          <div style="flex:1;border-radius:11px;border:1px solid rgba(25,198,230,0.3);background:rgba(25,198,230,0.05);display:flex;align-items:center;gap:13px;padding:0 16px;">
+            <img src="assets/logo-brain.png" style="height:30px;width:auto;">
+            <div style="display:flex;align-items:center;gap:11px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#fff;">SDIH</span><span style="width:1px;height:24px;background:rgba(255,255,255,0.2);"></span><div style="display:flex;flex-direction:column;line-height:1.1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#19C6E6;">KAIA</span><span style="font-size:9px;color:rgba(255,255,255,0.5);">Asistente de IA</span></div></div>
+          </div>
+          <!-- Cerebros Únicos -->
+          <div style="flex:1;border-radius:11px;border:1px solid rgba(217,70,239,0.3);background:rgba(217,70,239,0.05);display:flex;align-items:center;gap:13px;padding:0 16px;">
+            <img src="assets/logo-brain.png" style="height:30px;width:auto;">
+            <div style="display:flex;align-items:center;gap:11px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#fff;">SDIH</span><span style="width:1px;height:24px;background:rgba(255,255,255,0.2);"></span><div style="display:flex;flex-direction:column;line-height:1.1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#D946EF;">Cerebros Únicos</span><span style="font-size:9px;color:rgba(255,255,255,0.5);">Neurodivergencia &amp; talento</span></div></div>
+          </div>
+          <!-- Líderes 4.0 -->
+          <div style="flex:1;border-radius:11px;border:1px solid rgba(255,122,26,0.3);background:rgba(255,122,26,0.05);display:flex;align-items:center;gap:13px;padding:0 16px;">
+            <img src="assets/logo-brain.png" style="height:30px;width:auto;">
+            <div style="display:flex;align-items:center;gap:11px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#fff;">SDIH</span><span style="width:1px;height:24px;background:rgba(255,255,255,0.2);"></span><div style="display:flex;flex-direction:column;line-height:1.1;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#FF7A1A;">Líderes 4.0</span><span style="font-size:9px;color:rgba(255,255,255,0.5);">Formación directiva</span></div></div>
+          </div>
+        </div>
+        <div style="margin-top:11px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#fff;">13 · Submarcas</div>
+        <p style="margin:5px 0 0;font-size:11.5px;color:rgba(255,255,255,0.5);">Endoso "SDIH | submarca" con acento propio.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:18px 56px;border-top:1px solid rgba(255,255,255,0.06);">
+    <span style="font-size:10px;letter-spacing:0.22em;color:rgba(255,255,255,0.35);">SISTEMA DE LOGO</span>
+    <span style="font-size:10px;letter-spacing:0.22em;color:rgba(255,255,255,0.35);">11 — 13</span>
+  </div>
+</section>
+
+<!--PAGES_END-->
+</div>
+</x-dc>
+</body>
+</html>
