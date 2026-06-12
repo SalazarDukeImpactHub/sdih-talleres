@@ -62,10 +62,6 @@ async function CatalogGrid() {
           }
           cover_image={workshop.cover_image}
           isUnlocked={workshop.is_unlocked}
-          onEnterClick={() => {
-            // Modal será implementado en bloque 15 (slice 2b)
-            console.log("Modal para:", workshop.title);
-          }}
         />
       ))}
     </div>

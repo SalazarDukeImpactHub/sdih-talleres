@@ -12,7 +12,6 @@ interface WorkshopCardProps {
   status: "disponible" | "en vivo" | "próximamente" | "completado";
   cover_image: string | null;
   isUnlocked: boolean;
-  onEnterClick?: () => void;
 }
 
 /**
@@ -29,7 +28,6 @@ export function WorkshopCard({
   status,
   cover_image,
   isUnlocked,
-  onEnterClick,
 }: WorkshopCardProps) {
   const formattedDate = date_live
     ? new Date(date_live).toLocaleDateString("es-AR", {
@@ -107,10 +105,10 @@ export function WorkshopCard({
             </button>
           ) : (
             <button
-              onClick={onEnterClick}
               className="w-full px-3 py-2 rounded text-xs font-semibold bg-cyan text-navy-900 hover:bg-cyan/90 active:bg-cyan/80 transition-colors"
               aria-label={`Ingresar a ${title}`}
             >
+              {/* El modal de clave se conecta en slice 2b — acá solo el trigger visual */}
               Ingresar
             </button>
           )}

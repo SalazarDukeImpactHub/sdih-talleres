@@ -1,20 +1,31 @@
 import { test, expect } from "@playwright/test";
-import { resetWorkshopsAndAccess, setSeedUserPasswordChanged } from "./_helpers/supabase-admin";
+import { resetSeedUser, resetWorkshopsAndAccess, setSeedUserPasswordChanged } from "./_helpers/supabase-admin";
+import { loginAsSeedUser } from "./_helpers/auth";
 
 /**
  * E2E Tests para Change 2a: Catálogo de talleres (read-only, 9 specs)
  *
  * Setup: resetWorkshopsAndAccess() crea 4 talleres + acceso a 2 de ellos (seed user).
- * Luego autenticamos como seed user y navegamos a /catalogo.
+ * Luego autenticamos como seed user vía UI — /catalogo es ruta protegida,
+ * sin sesión el middleware rebota a /auth/login.
  */
 
 test.describe("Catalog [2a] — Grid and Badges", () => {
-  test.beforeEach(async () => {
-    // 1. Reset workshops y access rows
+  test.beforeEach(async ({ page }) => {
+    // 1. Reset COMPLETO del seed user (password + flag) — otros specs pueden
+    // haber cambiado la password (ej: auth-forced-password-change corre antes
+    // en orden alfabético y la cambia a mitad de test). Sin esto, el login
+    // de abajo falla en la suite completa aunque pase en aislamiento.
+    await resetSeedUser();
+
+    // 2. Reset workshops y access rows
     await resetWorkshopsAndAccess();
 
-    // 2. Preparar seed user: password_changed=true (para saltar change-password)
+    // 3. Preparar seed user: password_changed=true (para saltar change-password)
     await setSeedUserPasswordChanged(true);
+
+    // 4. Login vía UI — deja la sesión activa en el contexto del page
+    await loginAsSeedUser(page);
   });
 
   test("[2a-1] catalog-load — 4 tarjetas renderizam correctamente", async ({ page }) => {
@@ -154,16 +165,16 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
     await page.goto("/catalogo");
     await page.waitForSelector("text=Embeddings Deep Dive");
 
-    // Buscar la tarjeta Embeddings (en vivo)
-    const embeddingsCard = page.locator("text=Embeddings Deep Dive").first().locator("..");
-
-    // Verificar que el elemento existe (si está usando style inline)
-    // O verificar que el badge está presente
-    const badge = embeddingsCard.locator('[aria-label*="En vivo"]');
+    // El badge "En vivo" es único en el catálogo (un solo taller en vivo en fixtures)
+    const badge = page.getByLabel(/Estado.*En vivo/);
     await expect(badge).toBeVisible();
 
-    // Nota: Verificar animation en Playwright es difícil sin JS custom.
-    // Por ahora, simplemente verificamos que el badge está presente.
+    // El dot adentro del badge tiene la animación sdLive aplicada (style inline)
+    const animationName = await badge
+      .locator("div")
+      .first()
+      .evaluate((el) => getComputedStyle(el).animationName);
+    expect(animationName).toBe("sdLive");
   });
 
   test("[2a-9] rls-isolation — User B no ve access de User A", async ({
