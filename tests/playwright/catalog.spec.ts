@@ -48,22 +48,25 @@ test.describe("Catalog [2a] — Grid and Badges", () => {
     await expect(page.getByLabel(/Estado.*Completado/)).toBeVisible();
   });
 
-  test("[2a-3] catalog-unlock-state — 2 'Continuar', 2 'Ingresar' con candado", async ({
+  test("[2a-3] catalog-unlock-state — 2 'Continuar' (links), 2 'Ingresar' con candado", async ({
     page,
   }) => {
     await page.goto("/catalogo");
     await page.waitForSelector("button");
 
-    const continuarButtons = page.locator('button:has-text("Continuar")');
-    const continuarCount = await continuarButtons.count();
+    // Nota (Change 3a): 'Continuar' ahora es <Link> hacia /taller/[slug], no button disabled
+    // Se verifica que exista como enlace interactivo
+    const continuarLinks = page.locator('a:has-text("Continuar")');
+    const continuarCount = await continuarLinks.count();
     expect(continuarCount).toBe(2);
 
     const ingresarButtons = page.locator('button:has-text("Ingresar")');
     const ingresarCount = await ingresarButtons.count();
     expect(ingresarCount).toBe(2);
 
-    const firstContinuar = continuarButtons.first();
-    await expect(firstContinuar).toBeDisabled();
+    // Verify that continuar links are not disabled (they're <a> tags, not buttons)
+    const firstContinuar = continuarLinks.first();
+    await expect(firstContinuar).toBeEnabled();
 
     const lockIcons = page.locator("text=🔒");
     const lockCount = await lockIcons.count();
@@ -292,14 +295,18 @@ test.describe("Catalog [2b] — Access Key Modal and Redemption", () => {
     await expect(page.getByRole("button", { name: "Ingresar a Future of AI" })).not.toBeVisible();
   });
 
-  test("[2b-8] modal-double-redeem-blocked — unlocked no abre modal", async ({
+  test("[2b-8] modal-double-redeem-blocked — unlocked navega a /taller/slug", async ({
     page,
   }) => {
     await page.goto("/catalogo");
 
-    const ragContinuarButton = page.getByRole("button", { name: "Botón continuar (deshabilitado hasta cambio 3)" }).first();
-    await expect(ragContinuarButton).toBeVisible();
-    await expect(ragContinuarButton).toBeDisabled();
+    // Nota (Change 3a): 'Continuar' ahora es <Link> a /taller/[slug], no button disabled
+    const ragContinuarLink = page.locator('a:has-text("Continuar")').first();
+    await expect(ragContinuarLink).toBeVisible();
+
+    // Verify that it's a link (not a button)
+    const href = await ragContinuarLink.getAttribute("href");
+    expect(href).toMatch(/^\/taller\//);
 
     const ragIngresarButton = page.getByRole("button", { name: "Ingresar a RAG Intro" });
     await expect(ragIngresarButton).not.toBeVisible();

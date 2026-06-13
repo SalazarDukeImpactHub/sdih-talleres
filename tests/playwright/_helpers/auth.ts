@@ -14,6 +14,7 @@ export async function loginAsSeedUser(page: Page) {
   await page.fill('input[name="email"]', "alumna@test.com");
   await page.fill('input[name="password"]', "Talleres2026!");
   await page.click('button[type="submit"]');
-  // El round-trip a Supabase sa-east-1 puede tardar; 15s como en los demás specs
-  await page.waitForURL("**/catalogo", { timeout: 15000 });
+  // 30s: cubre el round-trip a Supabase sa-east-1 + la compilación on-demand
+  // de rutas en dev (el primer request tras un restart del server tarda >15s)
+  await page.waitForURL("**/catalogo", { timeout: 30000 });
 }

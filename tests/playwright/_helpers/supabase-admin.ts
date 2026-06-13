@@ -220,6 +220,208 @@ export async function resetWorkshopsAndAccess() {
   }
 }
 
+/**
+ * seedSectionsAndGlossary() — Seed sections and glossary terms for a workshop
+ *
+ * Idempotent: clears existing sections/glossary_terms for the workshop,
+ * then inserts 5 sections (uno por tipo) + 8 glossary terms.
+ *
+ * Usage:
+ *   const { workshopId } = await resetWorkshopsAndAccess();
+ *   await seedSectionsAndGlossary(workshopId);
+ *
+ * Returns: { sections, glossaryTerms } with inserted records
+ */
+export async function seedSectionsAndGlossary(workshopId: string) {
+  const admin = createAdminClient();
+
+  try {
+    // 1. Delete existing sections + glossary_terms idempotently
+    await admin
+      .from("glossary_terms")
+      .delete()
+      .eq("workshop_id", workshopId);
+
+    await admin
+      .from("sections")
+      .delete()
+      .eq("workshop_id", workshopId);
+
+    // 2. Insert 5 sections (one per type)
+    const sections = [
+      {
+        workshop_id: workshopId,
+        type: "inicio",
+        content_json: {
+          type: "inicio",
+          title: "Bienvenido al Taller",
+          description: "Aprende conceptos clave y aplicaciones prácticas.",
+          quick_links: [
+            { label: "Aprendizaje", target_section: "aprendizaje" },
+            { label: "Taller", target_section: "taller" },
+            { label: "Instalación", target_section: "instalacion" },
+            { label: "Glosario", target_section: "glosario" },
+          ],
+        },
+        section_order: 1,
+      },
+      {
+        workshop_id: workshopId,
+        type: "aprendizaje",
+        content_json: {
+          type: "aprendizaje",
+          title: "Módulo de Aprendizaje",
+          slides: [
+            {
+              kicker: "Intro",
+              title: "Concepto Clave 1",
+              body: "Este es el contenido principal del primer slide. Explicamos el concepto con claridad.",
+              notes: "Notas para el instructor: hacer énfasis en tal cosa",
+            },
+            {
+              kicker: "Profundización",
+              title: "Concepto Clave 2",
+              body: "Ampliamos sobre el concepto anterior con ejemplos prácticos.",
+              notes: null,
+            },
+          ],
+          pdf_url: "https://ejemplo.com/slides.pdf",
+        },
+        section_order: 2,
+      },
+      {
+        workshop_id: workshopId,
+        type: "taller",
+        content_json: {
+          type: "taller",
+          title: "Ejercicios",
+          instructions: "Resolvé estos ejercicios siguiendo los pasos indicados.",
+          placeholder: "Los ejercicios estarán disponibles pronto.",
+        },
+        section_order: 3,
+      },
+      {
+        workshop_id: workshopId,
+        type: "instalacion",
+        content_json: {
+          type: "instalacion",
+          title: "Guía de Instalación",
+          steps: [
+            {
+              order: 1,
+              title: "Requisitos",
+              description: "Verificá tener Node.js 18+",
+              code: "node --version",
+              language: "bash",
+            },
+            {
+              order: 2,
+              title: "Instala dependencias",
+              description: "Descarga el paquete necesario",
+              code: "npm install mi-paquete",
+              language: "bash",
+            },
+            {
+              order: 3,
+              title: "Configura",
+              description: "Setea variables de entorno",
+              code: "export API_KEY=sk-...",
+              language: "bash",
+            },
+          ],
+          success_message: "¡Instalación completa!",
+        },
+        section_order: 4,
+      },
+      {
+        workshop_id: workshopId,
+        type: "glosario",
+        content_json: {
+          type: "glosario",
+          title: "Glosario",
+          search_placeholder: "Buscar término...",
+        },
+        section_order: 5,
+      },
+    ];
+
+    const { data: insertedSections, error: sectionsError } = await admin
+      .from("sections")
+      .insert(sections)
+      .select();
+
+    if (sectionsError) {
+      throw new Error(`Failed to insert sections: ${sectionsError.message}`);
+    }
+
+    // 3. Insert glossary terms (8 terms with 3 categories)
+    const glossaryTerms = [
+      {
+        workshop_id: workshopId,
+        term: "Concepto A",
+        definition: "Primera definición de prueba para validar glossary",
+        category: "Fundamentos",
+      },
+      {
+        workshop_id: workshopId,
+        term: "Concepto B",
+        definition: "Segunda definición en la misma categoría",
+        category: "Fundamentos",
+      },
+      {
+        workshop_id: workshopId,
+        term: "Técnica X",
+        definition: "Técnica para resolver problema X de manera eficiente",
+        category: "Técnicas",
+      },
+      {
+        workshop_id: workshopId,
+        term: "Técnica Y",
+        definition: "Técnica avanzada para casos complejos",
+        category: "Técnicas",
+      },
+      {
+        workshop_id: workshopId,
+        term: "Herramienta 1",
+        definition: "Herramienta de soporte para el workflow",
+        category: "Herramientas",
+      },
+      {
+        workshop_id: workshopId,
+        term: "Herramienta 2",
+        definition: "Herramienta complementaria para optimizar",
+        category: "Herramientas",
+      },
+      {
+        workshop_id: workshopId,
+        term: "Patrón Común",
+        definition: "Patrón común en la industria que debes conocer",
+        category: "Patrones",
+      },
+      {
+        workshop_id: workshopId,
+        term: "Anti-patrón",
+        definition: "Patrón a evitar por razones de performance y seguridad",
+        category: "Patrones",
+      },
+    ];
+
+    const { data: insertedGlossary, error: glossaryError } = await admin
+      .from("glossary_terms")
+      .insert(glossaryTerms)
+      .select();
+
+    if (glossaryError) {
+      throw new Error(`Failed to insert glossary terms: ${glossaryError.message}`);
+    }
+
+    return { sections: insertedSections, glossaryTerms: insertedGlossary };
+  } catch (err) {
+    console.error("[seedSectionsAndGlossary] Error:", err);
+    throw err;
+  }
+}
+
 // Re-export para tests que crean admin clients directamente
 export const SUPABASE_URL_FOR_TESTS = SUPABASE_URL;
 export const SERVICE_ROLE_KEY_FOR_TESTS = SERVICE_ROLE_KEY;
