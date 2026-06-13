@@ -36,6 +36,9 @@ export async function recordSectionVisit(sectionId: string): Promise<{
     // Insert visit record; idempotent via UNIQUE constraint
     // If user has already visited this section, the DB constraint prevents duplicate
     // We use upsert to handle the conflict gracefully
+    // ignoreDuplicates: true → ON CONFLICT DO NOTHING. Sin esto, upsert genera
+    // ON CONFLICT DO UPDATE, que exige una policy UPDATE en section_visits
+    // (no existe — solo SELECT/INSERT) y falla con RLS 42501 en re-visitas.
     const { error } = await supabase.from("section_visits").upsert(
       {
         user_id: user.id,
@@ -44,6 +47,7 @@ export async function recordSectionVisit(sectionId: string): Promise<{
       },
       {
         onConflict: "user_id,section_id",
+        ignoreDuplicates: true,
       }
     );
 

@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { redirect } from "next/navigation";
-import { getWorkshopProgress } from "@/lib/actions/workshop-sections";
 import { WorkshopView } from "./WorkshopView";
 
 /**
@@ -90,8 +89,16 @@ export default async function WorkshopPage({ params }: PageProps) {
 
   const glossaryTerms = glossaryData || [];
 
-  // 6. Calculate progress
-  const progressPercent = await getWorkshopProgress(user.id, workshop.id);
+  // 6. Fetch visited section ids — el progreso se computa client-side
+  // (update optimista al visitar secciones, design D-1)
+  const sectionIds = sections.map((s) => s.id);
+  const { data: visitsData } = await supabase
+    .from("section_visits")
+    .select("section_id")
+    .eq("user_id", user.id)
+    .in("section_id", sectionIds.length > 0 ? sectionIds : ["00000000-0000-0000-0000-000000000000"]);
+
+  const visitedSectionIds = (visitsData || []).map((v) => v.section_id);
 
   // 7. Pass to Client wrapper
   return (
@@ -99,7 +106,7 @@ export default async function WorkshopPage({ params }: PageProps) {
       workshop={workshop}
       sections={sections}
       glossaryTerms={glossaryTerms}
-      progressPercent={progressPercent}
+      visitedSectionIds={visitedSectionIds}
     />
   );
 }

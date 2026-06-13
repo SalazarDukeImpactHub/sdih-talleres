@@ -39,23 +39,28 @@ export interface SectionRendererProps {
     category: string;
   }>;
   onSectionChange?: (sectionType: SectionType) => void;
+  onVisitRecorded?: (sectionId: string) => void;
 }
 
 export function SectionRenderer({
   section,
   glossaryTerms = [],
   onSectionChange,
+  onVisitRecorded,
 }: SectionRendererProps) {
-  // Record visit on mount
+  // Record visit on mount + avisar al wrapper para el update optimista del progreso
   useEffect(() => {
     const recordVisit = async () => {
       const result = await recordSectionVisit(section.id);
-      if (!result.success) {
+      if (result.success) {
+        onVisitRecorded?.(section.id);
+      } else {
         console.warn("[SectionRenderer] Failed to record visit:", result.error);
       }
     };
 
     recordVisit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section.id]);
 
   // Parse and validate content

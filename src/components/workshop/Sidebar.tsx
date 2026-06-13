@@ -145,7 +145,7 @@ export function Sidebar({
   const mobileDrawer = (
     <>
       {/* Hamburger button (top-left, visible only on mobile) */}
-      <div className="md:hidden fixed top-0 left-0 z-40 p-4">
+      <div className="md:hidden fixed top-16 left-0 z-40 p-4">
         <button
           onClick={() => setShowDrawer(!showDrawer)}
           className="p-2 rounded-md bg-navy-800 text-cyan hover:bg-navy-700 transition-colors"
@@ -158,7 +158,7 @@ export function Sidebar({
       {/* Drawer overlay */}
       {showDrawer && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          className="fixed inset-0 z-[55] bg-black/50 md:hidden"
           onClick={handleBackdropClick}
           role="presentation"
           aria-hidden="true"
@@ -168,7 +168,7 @@ export function Sidebar({
       {/* Drawer sidebar */}
       {showDrawer && (
         <div
-          className="md:hidden fixed left-0 top-0 h-screen w-64 bg-navy-800 z-40 overflow-y-auto border-r border-navy-700 flex flex-col"
+          className="md:hidden fixed left-0 top-0 h-screen w-64 bg-navy-800 z-[60] overflow-y-auto border-r border-navy-700 flex flex-col"
           role="navigation"
           aria-label="Workshop sections mobile"
         >

@@ -6,6 +6,7 @@ import {
   seedSectionsAndGlossary,
 } from "./_helpers/supabase-admin";
 import { loginAsSeedUser } from "./_helpers/auth";
+import { getWorkshopSidebar } from "./_helpers/workshop";
 
 /**
  * E2E Tests para Change 3a: Aprendizaje Section / Carousel (4 specs)
@@ -20,10 +21,10 @@ import { loginAsSeedUser } from "./_helpers/auth";
 test.describe("Workshop [3a] — Aprendizaje Section (Carousel)", () => {
   test.beforeEach(async ({ page }) => {
     await resetSeedUser();
-    await resetWorkshopsAndAccess();
+    const { workshops } = await resetWorkshopsAndAccess();
     await setSeedUserPasswordChanged(true);
     await loginAsSeedUser(page);
-    await seedSectionsAndGlossary("engram");
+    await seedSectionsAndGlossary(workshops[0].id);
   });
 
   test("[3a-9] aprendizaje-load — slide 1 visible, carousel structure present", async ({
@@ -32,18 +33,18 @@ test.describe("Workshop [3a] — Aprendizaje Section (Carousel)", () => {
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    const sidebar = page.locator('[role="navigation"]').first();
+    const sidebar = await getWorkshopSidebar(page);
     const aprendizajeTab = sidebar.locator('button:has-text("Aprendizaje")');
     await aprendizajeTab.click();
 
     // Verify section title
-    await expect(page.getByText("El modelo mental de la memoria")).toBeVisible();
+    await expect(page.getByText("Módulo de Aprendizaje")).toBeVisible();
 
     // Verify first slide is visible
     await expect(
-      page.getByText("Qué es la memoria persistente")
+      page.getByText("Concepto Clave 1")
     ).toBeVisible();
   });
 
@@ -53,19 +54,19 @@ test.describe("Workshop [3a] — Aprendizaje Section (Carousel)", () => {
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    const sidebar = page.locator('[role="navigation"]').first();
+    const sidebar = await getWorkshopSidebar(page);
     const aprendizajeTab = sidebar.locator('button:has-text("Aprendizaje")');
     await aprendizajeTab.click();
 
     // Find next button (→ or "Siguiente")
-    const nextButton = page.locator('button:has-text("→"), button:has-text("Siguiente")').first();
+    const nextButton = page.locator('button[aria-label="Siguiente diapositiva"]').first();
     await nextButton.click();
 
     // Verify slide 2 content is visible
     await expect(
-      page.getByText("Implementación básica")
+      page.getByText("Concepto Clave 2")
     ).toBeVisible();
   });
 
@@ -75,25 +76,25 @@ test.describe("Workshop [3a] — Aprendizaje Section (Carousel)", () => {
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    const sidebar = page.locator('[role="navigation"]').first();
+    const sidebar = await getWorkshopSidebar(page);
     const aprendizajeTab = sidebar.locator('button:has-text("Aprendizaje")');
     await aprendizajeTab.click();
 
     // Find dot indicators
-    const dots = page.locator('button[aria-label*="slide"], button[class*="dot"]');
+    const dots = page.locator('button[aria-label^="Ir a diapositiva"]');
     const dotCount = await dots.count();
     expect(dotCount).toBeGreaterThan(0);
 
-    // Click 3rd dot
-    if (dotCount >= 3) {
-      const thirdDot = dots.nth(2);
-      await thirdDot.click();
+    // El fixture tiene 2 slides — click en el 2do dot
+    if (dotCount >= 2) {
+      const secondDot = dots.nth(1);
+      await secondDot.click();
 
-      // Verify slide 3 content
+      // Verify slide 2 content
       await expect(
-        page.getByText("Optimizaciones a escala")
+        page.getByText("Concepto Clave 2")
       ).toBeVisible();
     }
   });
@@ -104,35 +105,28 @@ test.describe("Workshop [3a] — Aprendizaje Section (Carousel)", () => {
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    const sidebar = page.locator('[role="navigation"]').first();
+    const sidebar = await getWorkshopSidebar(page);
     const aprendizajeTab = sidebar.locator('button:has-text("Aprendizaje")');
     await aprendizajeTab.click();
 
     // Verify notes are visible initially (or notes toggle button exists)
     const notesToggle = page.locator(
-      'button:has-text("Notas"), button:has-text("Notes")'
+      'button:has-text("Ver notas"), button:has-text("Ocultar notas")'
     ).first();
 
-    if (await notesToggle.isVisible()) {
-      // Notes are visible; click toggle
-      await notesToggle.click();
+    // El toggle arranca cerrado ("Ver notas"). Abrir → notas visibles → cerrar.
+    await expect(notesToggle).toBeVisible();
+    await notesToggle.click();
+    await expect(
+      page.locator('text=Notas para el instructor: hacer énfasis en tal cosa')
+    ).toBeVisible();
 
-      // Verify instructor notes are now hidden
-      const notes = page.locator(
-        'text=En vivo: preguntarles qué tipos de memoria usan'
-      );
-      const notesVisible = await notes.isVisible();
-      expect(notesVisible).toBe(false);
-
-      // Click toggle again to show
-      await notesToggle.click();
-      await expect(
-        page.locator(
-          'text=En vivo: preguntarles qué tipos de memoria usan'
-        )
-      ).toBeVisible();
-    }
+    await notesToggle.click();
+    const notesVisible = await page
+      .locator('text=Notas para el instructor: hacer énfasis en tal cosa')
+      .isVisible();
+    expect(notesVisible).toBe(false);
   });
 });

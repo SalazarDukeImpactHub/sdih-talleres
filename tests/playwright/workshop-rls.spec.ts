@@ -6,6 +6,7 @@ import {
   seedSectionsAndGlossary,
 } from "./_helpers/supabase-admin";
 import { loginAsSeedUser } from "./_helpers/auth";
+import { getWorkshopSidebar } from "./_helpers/workshop";
 
 /**
  * E2E Tests para Change 3a: RLS and Authorization (3 specs)
@@ -17,9 +18,12 @@ import { loginAsSeedUser } from "./_helpers/auth";
  */
 
 test.describe("Workshop [3a] — RLS and Authorization", () => {
+  // Workshops reales del reset (UUIDs generados en runtime, no slugs hardcodeados)
+  let workshops: Awaited<ReturnType<typeof resetWorkshopsAndAccess>>["workshops"];
+
   test.beforeEach(async ({ page }) => {
     await resetSeedUser();
-    await resetWorkshopsAndAccess();
+    ({ workshops } = await resetWorkshopsAndAccess());
     await setSeedUserPasswordChanged(true);
     await loginAsSeedUser(page);
   });
@@ -27,9 +31,9 @@ test.describe("Workshop [3a] — RLS and Authorization", () => {
   test("[3a-13] workshop-access-guard — no access → redirect /catalogo", async ({
     page,
   }) => {
-    // User logged in but has no access to 'engram' workshop
-    // Try to navigate directly to /taller/engram
-    await page.goto("/taller/engram");
+    // workshops[3] (completado) NO tiene fila de workshop_access para el seed user
+    // → el guard de /taller/[slug] debe redirigir a /catalogo
+    await page.goto(`/taller/${workshops[3].slug}`);
 
     // Should be redirected to /catalogo
     await expect(page).toHaveURL("/catalogo");
@@ -39,64 +43,61 @@ test.describe("Workshop [3a] — RLS and Authorization", () => {
     page,
   }) => {
     // Grant access and seed sections
-    await seedSectionsAndGlossary("engram");
+    await seedSectionsAndGlossary(workshops[0].id);
 
     // Navigate to workshop
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    // Get initial progress value (should be 20% = 1 section visited)
-    // Since we land on 'inicio', it's automatically recorded
-    const progressBefore = await page
-      .locator('[class*="progress"]')
-      .first()
-      .getAttribute("style");
+    // En mobile el progressbar vive dentro del drawer (sidebar desktop oculto)
+    // → leerlo desde el sidebar correcto del helper.
+    const sidebar = await getWorkshopSidebar(page);
+    const progressbar = sidebar.getByRole("progressbar");
 
-    // Click to visit 'aprendizaje'
-    const sidebar = page.locator('[role="navigation"]').first();
+    // Aterrizamos en 'inicio' → la visita se registra (Server Action a
+    // sa-east-1, tarda 1-2s) → progreso optimista sube a 20%.
+    await expect(progressbar).toHaveAttribute("aria-valuenow", "20", {
+      timeout: 15000,
+    });
+
+    // Click to visit 'aprendizaje' → 2/5 = 40%
+    // En mobile el click cierra el drawer, así que re-abrimos para releer el valor.
     const aprendizajeTab = sidebar.locator('button:has-text("Aprendizaje")');
     await aprendizajeTab.click();
+    const sidebarAfter = await getWorkshopSidebar(page);
+    await expect(sidebarAfter.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "40",
+      { timeout: 15000 }
+    );
 
-    // Wait for recordSectionVisit to complete
-    await page.waitForTimeout(500);
-
-    // Get progress after visiting second section (should be 40%)
-    const progressAfter = await page
-      .locator('[class*="progress"]')
-      .first()
-      .getAttribute("style");
-
-    // Reload page
+    // Reload — el progreso persiste server-side (section_visits)
     await page.reload();
-    await expect(page).toHaveURL(/\/taller\//);
-
-    // Progress should still be 40%
-    const progressReload = await page
-      .locator('[class*="progress"]')
-      .first()
-      .getAttribute("style");
-
-    // Verify progress values increased and persisted
-    expect(progressAfter).not.toBe(progressBefore);
-    expect(progressReload).toBe(progressAfter);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
+    const sidebarReload = await getWorkshopSidebar(page);
+    await expect(sidebarReload.getByRole("progressbar")).toHaveAttribute(
+      "aria-valuenow",
+      "40",
+      { timeout: 15000 }
+    );
   });
 
   test("[3a-15] workshop-rls-isolation — user can only see own sections/glossary", async ({
     page,
   }) => {
     // Setup: seed 'engram' workshop
-    await seedSectionsAndGlossary("engram");
+    await seedSectionsAndGlossary(workshops[0].id);
 
     // Navigate to workshop and verify sections load
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
     // Sections from 'engram' should be visible
-    const sidebar = page.locator('[role="navigation"]').first();
+    const sidebar = await getWorkshopSidebar(page);
     await expect(sidebar.locator('button:has-text("Inicio")')).toBeVisible();
     await expect(sidebar.locator('button:has-text("Aprendizaje")')).toBeVisible();
     await expect(sidebar.locator('button:has-text("Taller")')).toBeVisible();
@@ -110,6 +111,6 @@ test.describe("Workshop [3a] — RLS and Authorization", () => {
 
     // Glossary content should be visible and belong to this workshop
     // (Content comes from the seed fixture for 'engram')
-    await expect(page.getByText(/Vector Embedding|Recuperación Aumentada/)).toBeVisible();
+    await expect(page.getByText(/Concepto A|Técnica X/).first()).toBeVisible();
   });
 });

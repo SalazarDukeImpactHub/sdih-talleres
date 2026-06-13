@@ -25,7 +25,7 @@ export interface WorkshopViewProps {
     definition: string;
     category: string;
   }>;
-  progressPercent: number;
+  visitedSectionIds: string[];
 }
 
 /**
@@ -44,8 +44,23 @@ export function WorkshopView({
   workshop,
   sections,
   glossaryTerms,
-  progressPercent,
+  visitedSectionIds,
 }: WorkshopViewProps) {
+  // Progreso optimista (design D-1): el server manda las visitas iniciales,
+  // el client suma cada visita nueva sin esperar reload.
+  const [visitedIds, setVisitedIds] = useState<Set<string>>(
+    () => new Set(visitedSectionIds)
+  );
+  const progressPercent = Math.min(100, Math.round((visitedIds.size / 5) * 100));
+
+  const handleVisitRecorded = (sectionId: string) => {
+    setVisitedIds((prev) => {
+      if (prev.has(sectionId)) return prev;
+      const next = new Set(prev);
+      next.add(sectionId);
+      return next;
+    });
+  };
   // Find the first section (should be 'inicio')
   const firstSection = sections[0];
   const [activeSection, setActiveSection] = useState<SectionType>(
@@ -87,6 +102,7 @@ export function WorkshopView({
           section={currentSectionData}
           glossaryTerms={glossaryTerms}
           onSectionChange={setActiveSection}
+          onVisitRecorded={handleVisitRecorded}
         />
       </main>
     </div>

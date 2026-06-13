@@ -16,7 +16,8 @@ const SlideSchema = z.object({
   kicker: z.string().describe("Subtitle or topic label (e.g., 'Enfoque 1')"),
   title: z.string().describe("Slide title"),
   body: z.string().describe("Main content paragraph"),
-  notes: z.string().optional().describe("Optional instructor notes"),
+  // nullable: fixtures y contenido real traen notes: null desde JSONB
+  notes: z.string().nullable().optional().describe("Optional instructor notes"),
 });
 
 const StepSchema = z.object({

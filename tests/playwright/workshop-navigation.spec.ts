@@ -6,6 +6,7 @@ import {
   seedSectionsAndGlossary,
 } from "./_helpers/supabase-admin";
 import { loginAsSeedUser } from "./_helpers/auth";
+import { getWorkshopSidebar } from "./_helpers/workshop";
 
 /**
  * E2E Tests para Change 3a: Workshop Navigation and Layout (5 specs)
@@ -17,12 +18,12 @@ import { loginAsSeedUser } from "./_helpers/auth";
 test.describe("Workshop [3a] — Navigation and Layout", () => {
   test.beforeEach(async ({ page }) => {
     await resetSeedUser();
-    await resetWorkshopsAndAccess();
+    const { workshops } = await resetWorkshopsAndAccess();
     await setSeedUserPasswordChanged(true);
     await loginAsSeedUser(page);
 
-    // Seed the 'engram' workshop with sections and glossary
-    await seedSectionsAndGlossary("engram");
+    // Seed secciones+glosario para el workshop DESBLOQUEADO (rag-intro, UUID real)
+    await seedSectionsAndGlossary(workshops[0].id);
   });
 
   test("[3a-1] workshop-load — /taller/engram carga con sidebar + contenido", async ({
@@ -36,14 +37,14 @@ test.describe("Workshop [3a] — Navigation and Layout", () => {
     await continuarLink.click();
 
     // Should navigate to /taller/engram (or similar slug)
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    // Verify sidebar is visible on desktop
-    const sidebar = page.locator('[role="navigation"]');
+    // Sidebar visible (drawer en mobile, sticky en desktop — el helper resuelve)
+    const sidebar = await getWorkshopSidebar(page);
     await expect(sidebar).toBeVisible();
 
     // Verify main content area
-    const mainContent = page.locator("main");
+    const mainContent = page.locator("main").first();
     await expect(mainContent).toBeVisible();
   });
 
@@ -53,9 +54,9 @@ test.describe("Workshop [3a] — Navigation and Layout", () => {
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    const sidebar = page.locator('[role="navigation"]').first();
+    const sidebar = await getWorkshopSidebar(page);
     await expect(sidebar).toBeVisible();
 
     // Verify all 5 section tabs exist
@@ -64,11 +65,11 @@ test.describe("Workshop [3a] — Navigation and Layout", () => {
     expect(tabCount).toBeGreaterThanOrEqual(5);
 
     // Verify tab labels
-    await expect(page.locator("text=Inicio")).toBeVisible();
-    await expect(page.locator("text=Aprendizaje")).toBeVisible();
-    await expect(page.locator("text=Taller")).toBeVisible();
-    await expect(page.locator("text=Instalación")).toBeVisible();
-    await expect(page.locator("text=Glosario")).toBeVisible();
+    await expect(sidebar.locator("text=Inicio")).toBeVisible();
+    await expect(sidebar.locator("text=Aprendizaje")).toBeVisible();
+    await expect(sidebar.locator("text=Taller")).toBeVisible();
+    await expect(sidebar.locator("text=Instalación")).toBeVisible();
+    await expect(sidebar.locator("text=Glosario")).toBeVisible();
   });
 
   test("[3a-3] workshop-active-tab-glow — tab activo tiene glow y underline", async ({
@@ -77,9 +78,9 @@ test.describe("Workshop [3a] — Navigation and Layout", () => {
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    const sidebar = page.locator('[role="navigation"]').first();
+    const sidebar = await getWorkshopSidebar(page);
     const activeTab = sidebar.locator('button[aria-current="page"]');
     await expect(activeTab).toBeVisible();
 
@@ -97,18 +98,20 @@ test.describe("Workshop [3a] — Navigation and Layout", () => {
     await page.goto("/catalogo");
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    const sidebar = page.locator('[role="navigation"]').first();
+    const sidebar = await getWorkshopSidebar(page);
 
     // Default is 'inicio'; click 'aprendizaje'
     const aprendizajeTab = sidebar.locator('button:has-text("Aprendizaje")');
     await aprendizajeTab.click();
 
-    // Verify active tab changed
-    const activeTab = sidebar.locator('button[aria-current="page"]');
-    const activeLabelEl = activeTab.locator("text=Aprendizaje");
-    await expect(activeLabelEl).toBeVisible();
+    // En mobile el drawer se cierra al clickear un tab (UX esperado).
+    // Verifico por el contenido renderizado en main, no por el aria-current
+    // del sidebar (que puede estar cerrado).
+    await expect(
+      page.locator("main").getByRole("heading", { name: "Módulo de Aprendizaje" })
+    ).toBeVisible({ timeout: 5000 });
   });
 
   test("[3a-5] workshop-mobile-drawer — hamburger toggle drawer on mobile", async ({
@@ -119,23 +122,20 @@ test.describe("Workshop [3a] — Navigation and Layout", () => {
 
     const continuarLink = page.locator('a:has-text("Continuar")').first();
     await continuarLink.click();
-    await expect(page).toHaveURL(/\/taller\//);
+    await expect(page).toHaveURL(/\/taller\//, { timeout: 15000 });
 
-    // Sidebar should NOT be visible in mobile sticky form
-    const desktopSidebar = page.locator('[role="navigation"]');
-    const isVisible = await desktopSidebar.first().isVisible();
+    // Sidebar desktop oculto en mobile (hidden md:flex) — solo el drawer aparece.
+    const desktopSidebar = page.getByRole("navigation", { name: "Workshop sections" });
+    await expect(desktopSidebar).not.toBeVisible();
 
-    // On mobile, hamburger button should be visible
-    const hamburgerButton = page.locator('button[aria-label*="menú"], button[aria-label*="Abrir"]');
-    if (!isVisible) {
-      // If desktop sidebar not visible, expect hamburger
-      await expect(hamburgerButton.first()).toBeVisible();
+    // Drawer móvil arranca cerrado
+    const mobileDrawer = page.getByRole("navigation", { name: "Workshop sections mobile" });
+    await expect(mobileDrawer).not.toBeVisible();
 
-      // Click hamburger
-      await hamburgerButton.first().click();
-
-      // Drawer should open
-      await expect(desktopSidebar.first()).toBeVisible({ timeout: 500 });
-    }
+    // Click hamburger → drawer móvil abierto
+    const hamburgerButton = page.getByRole("button", { name: "Abrir menú" });
+    await expect(hamburgerButton).toBeVisible();
+    await hamburgerButton.click();
+    await expect(mobileDrawer).toBeVisible({ timeout: 2000 });
   });
 });
