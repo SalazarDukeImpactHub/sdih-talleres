@@ -27,19 +27,34 @@ const SEED_USER = {
  * Nota: Si las env vars no están definidas, esto fallará en runtime
  * (solo Playwright tests usan este helper, y corre en Node.js, no en Next.js build).
  */
+// Singleton del admin client.
+// Cada llamada a createClient() de supabase-js instancia un RealtimeClient
+// con su socket WebSocket. Con 110 tests × ~5 helpers cada uno = ~550
+// clientes Realtime levantados durante la suite. Ese churn satura el pool
+// de Supabase, los INSERTs empiezan a fallar silenciosamente o llegar tarde,
+// y los FK constraints rompen porque el workshop "todavía no aterrizó".
+// Una sola instancia compartida resuelve todo eso.
+// any acá es OK: el cliente sin tipos de schema es indistinguible de los
+// callsites de tests (todos usan .from("...") con strings, sin schema gen).
+// Forzar tipo concreto rompía la inferencia de update/insert en cascada.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _adminClient: any = null;
+
 function createAdminClient() {
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
     throw new Error(
       "NEXT_PUBLIC_SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY deben estar en .env.local"
     );
   }
-  return createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  if (_adminClient) return _adminClient;
+  _adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
     // Node 20 no tiene WebSocket nativo. Inyectamos ws para evitar el crash
     // del Realtime client durante el constructor. El helper no usa Realtime,
     // pero supabase-js lo inicializa siempre.
     realtime: { transport: ws as unknown as typeof WebSocket },
   });
+  return _adminClient;
 }
 
 /**
@@ -236,6 +251,29 @@ export async function seedSectionsAndGlossary(workshopId: string) {
   const admin = createAdminClient();
 
   try {
+    // 0. Verify the workshop actually exists in the DB before we try to FK to it.
+    // En suites largas, los DELETEs cascade pueden no haber confirmado todavía
+    // cuando llega el INSERT. Si el workshop no aparece, reintentamos con
+    // backoff hasta 5 veces — diferente a fallar al primer intento.
+    let workshopExists = false;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const { data: ws } = await admin
+        .from("workshops")
+        .select("id")
+        .eq("id", workshopId)
+        .maybeSingle();
+      if (ws) {
+        workshopExists = true;
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+    }
+    if (!workshopExists) {
+      throw new Error(
+        `Workshop ${workshopId} no aparece en la DB tras 5 reintentos — ¿el reset previo falló?`
+      );
+    }
+
     // 1. Delete existing sections + glossary_terms idempotently
     await admin
       .from("glossary_terms")
