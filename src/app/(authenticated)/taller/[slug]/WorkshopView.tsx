@@ -83,7 +83,7 @@ export function WorkshopView({
   }
 
   return (
-    <div className="flex min-h-screen bg-navy-900">
+    <div className="flex min-h-screen bg-navy-900 overflow-x-hidden">
       {/* Sidebar */}
       <Sidebar
         activeSection={activeSection}
@@ -96,8 +96,9 @@ export function WorkshopView({
         }))}
       />
 
-      {/* Main Content */}
-      <main className="flex-1 p-8">
+      {/* Main Content — min-w-0 evita que un hijo flex con texto largo empuje
+          el contenedor en mobile (overflow-x-hidden es defensa adicional) */}
+      <main className="flex-1 p-4 md:p-8 min-w-0 overflow-x-hidden">
         <SectionRenderer
           section={currentSectionData}
           glossaryTerms={glossaryTerms}

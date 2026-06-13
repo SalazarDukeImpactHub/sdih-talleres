@@ -73,8 +73,11 @@ export function Sidebar({
 
   const handleSectionClick = (sectionType: typeof activeSection) => {
     onSectionChange(sectionType);
-    // Close drawer on mobile after selection
-    if (isMobile) {
+    // Cerrar SIEMPRE si está abierto. El antiguo `if (isMobile)` fallaba en
+    // race condition: isMobile se setea en useEffect post-mount y el primer
+    // click puede llegar antes. El drawer sólo existe en mobile (md:hidden),
+    // así que cerrarlo en desktop es no-op pero seguro.
+    if (showDrawer) {
       setShowDrawer(false);
     }
   };
