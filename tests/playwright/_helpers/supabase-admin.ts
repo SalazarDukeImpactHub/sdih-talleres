@@ -253,10 +253,11 @@ export async function seedSectionsAndGlossary(workshopId: string) {
   try {
     // 0. Verify the workshop actually exists in the DB before we try to FK to it.
     // En suites largas, los DELETEs cascade pueden no haber confirmado todavía
-    // cuando llega el INSERT. Si el workshop no aparece, reintentamos con
-    // backoff hasta 5 veces — diferente a fallar al primer intento.
+    // cuando llega el INSERT. Con el change 4 hay 2 tablas más en la cascada
+    // (exercises + exercise_progress) y el delete tarda más — bumpeo de 5 a
+    // 10 intentos con backoff lineal hasta 2s acumulado por intento.
     let workshopExists = false;
-    for (let attempt = 0; attempt < 5; attempt++) {
+    for (let attempt = 0; attempt < 10; attempt++) {
       const { data: ws } = await admin
         .from("workshops")
         .select("id")
@@ -266,11 +267,11 @@ export async function seedSectionsAndGlossary(workshopId: string) {
         workshopExists = true;
         break;
       }
-      await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+      await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
     }
     if (!workshopExists) {
       throw new Error(
-        `Workshop ${workshopId} no aparece en la DB tras 5 reintentos — ¿el reset previo falló?`
+        `Workshop ${workshopId} no aparece en la DB tras 10 reintentos — ¿el reset previo falló?`
       );
     }
 
@@ -488,6 +489,29 @@ export async function seedExercises(
   const admin = createAdminClient();
 
   try {
+    // 0. Mismo patrón de seedSectionsAndGlossary: verificar que el workshop
+    // exista antes del INSERT. Con cascadas más profundas (workshops →
+    // sections → section_visits + exercises → exercise_progress), los
+    // DELETEs pueden no haber confirmado todavía cuando llega el INSERT.
+    let workshopExists = false;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const { data: ws } = await admin
+        .from("workshops")
+        .select("id")
+        .eq("id", workshopId)
+        .maybeSingle();
+      if (ws) {
+        workshopExists = true;
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+    }
+    if (!workshopExists) {
+      throw new Error(
+        `Workshop ${workshopId} no aparece en la DB tras 5 reintentos — ¿el reset previo falló?`
+      );
+    }
+
     // 1. Delete existing exercises for this workshop (idempotent)
     await admin
       .from("exercises")

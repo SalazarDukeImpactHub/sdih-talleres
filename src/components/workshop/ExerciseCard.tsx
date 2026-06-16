@@ -72,7 +72,12 @@ export function ExerciseCard({
   const isDisabled = status === "done";
 
   return (
-    <div className="bg-navy-900 border border-navy-700 rounded-lg p-6 space-y-4">
+    <div
+      className="bg-navy-900 border border-navy-700 rounded-lg p-6 space-y-4"
+      data-testid="exercise-card"
+      data-exercise-id={exercise.id}
+      data-status={status}
+    >
       {/* Header: Number Badge + Title + Status Badge */}
       <div className="flex items-start gap-4">
         <div

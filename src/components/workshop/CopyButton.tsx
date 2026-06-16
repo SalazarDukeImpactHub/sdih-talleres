@@ -51,6 +51,9 @@ export function CopyButton({
     <button
       onClick={handleCopy}
       disabled={isCopied}
+      data-testid="copy-button"
+      data-state={isCopied ? "copied" : "idle"}
+      aria-label={isCopied ? "Prompt copiado" : "Copiar prompt al portapapeles"}
       className={`inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-all ${
         isCopied
           ? "text-lime-400 opacity-75 cursor-default"
