@@ -29,6 +29,12 @@ export interface WorkshopViewProps {
   visitedSectionIds: string[];
   exercises?: Exercise[];
   exerciseProgress?: Record<string, ExerciseProgress>;
+  progressData?: {
+    progressPercent: number;
+    sectionsVisited: number;
+    exercisesDone: number;
+    totalExercises: number;
+  };
 }
 
 /**
@@ -50,13 +56,33 @@ export function WorkshopView({
   visitedSectionIds,
   exercises = [],
   exerciseProgress = {},
+  progressData,
 }: WorkshopViewProps) {
   // Progreso optimista (design D-1): el server manda las visitas iniciales,
   // el client suma cada visita nueva sin esperar reload.
   const [visitedIds, setVisitedIds] = useState<Set<string>>(
     () => new Set(visitedSectionIds)
   );
-  const progressPercent = Math.min(100, Math.round((visitedIds.size / 5) * 100));
+
+  // Optimistic + exercise-aware reconciliation:
+  // - progressData viene del server al render (mountamos con valores ya persistidos)
+  // - visitedIds es local optimistic: sube en cuanto el usuario navega
+  // - El server NO se revalida hasta el siguiente reload, así que sin Math.max
+  //   el progress se queda pegado al valor inicial (typical 0 si recién entró)
+  //   y nunca refleja las visitas optimistic. Bug del slice 4b inicial.
+  // Sin ejercicios: usar el max(server, optimistic) para no perder updates.
+  // Con ejercicios: server-side gana (incluye exercises_done que el client
+  // no puede calcular) — al usuario le toca recargar para ver progress de
+  // ejercicios completados.
+  const optimisticPercent = Math.min(
+    100,
+    Math.round((visitedIds.size / 5) * 100)
+  );
+  const progressPercent = progressData
+    ? progressData.totalExercises === 0
+      ? Math.max(progressData.progressPercent, optimisticPercent)
+      : progressData.progressPercent
+    : optimisticPercent;
 
   const handleVisitRecorded = (sectionId: string) => {
     setVisitedIds((prev) => {

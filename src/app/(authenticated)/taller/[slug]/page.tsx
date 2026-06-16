@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { redirect } from "next/navigation";
+import { getExerciseAwareProgress } from "@/lib/actions/workshop-sections";
 import { WorkshopView } from "./WorkshopView";
 import type { ExerciseProgress } from "@/lib/schemas/exercise";
 
@@ -143,7 +144,10 @@ export default async function WorkshopPage({ params }: PageProps) {
     );
   }
 
-  // 9. Pass to Client wrapper
+  // 9. Calculate exercise-aware progress (change 4b.7)
+  const progressData = await getExerciseAwareProgress(user.id, workshop.id);
+
+  // 10. Pass to Client wrapper
   return (
     <WorkshopView
       workshop={workshop}
@@ -152,6 +156,7 @@ export default async function WorkshopPage({ params }: PageProps) {
       visitedSectionIds={visitedSectionIds}
       exercises={exercises}
       exerciseProgress={exerciseProgress}
+      progressData={progressData}
     />
   );
 }
