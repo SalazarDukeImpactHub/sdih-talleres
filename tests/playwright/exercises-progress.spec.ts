@@ -36,42 +36,27 @@ test.describe("Exercise-Aware Progress [4b-6]", () => {
   test("[4-6] — Visit 2 sections + mark 2 exercises done → progress = 44% ( (2+2) / (5+4) )", async ({
     page,
   }) => {
-    // Get sidebar and navigate to sections
-    const sidebar = await getWorkshopSidebar(page);
+    // Navegar Inicio → Aprendizaje → Taller. En mobile el drawer se cierra al
+    // clickear un tab, así que re-obtenemos el sidebar antes de cada click
+    // (getWorkshopSidebar re-abre el drawer si hace falta).
+    await visitSection(page, "Inicio");
+    await visitSection(page, "Aprendizaje");
+    await visitSection(page, "Taller");
 
-    // Visit Inicio (section 0)
-    const inicioBtn = sidebar.locator('button:has-text("Inicio")');
-    await inicioBtn.click();
-    await page.waitForTimeout(500); // Let section visit record
-
-    // Visit Aprendizaje (section 1)
-    const aprendizajeBtn = sidebar.locator('button:has-text("Aprendizaje")');
-    await aprendizajeBtn.click();
-    await page.waitForTimeout(500);
-
-    // Navigate to Taller section to access exercises
-    const tallerBtn = sidebar.locator('button:has-text("Taller")');
-    await tallerBtn.click();
-
-    // Wait for exercise cards to render
     await page
       .getByTestId("exercise-card")
       .first()
       .waitFor({ state: "visible", timeout: 15000 });
 
-    // Mark 2 exercises as done
+    // Marcar 2 ejercicios — esperar el botón "Reabrir" (señal de save confirmado)
     for (let i = 0; i < 2; i++) {
       const card = page.getByTestId("exercise-card").nth(i);
-      const textarea = card.locator("textarea");
-
-      // Type response
-      await textarea.fill(`Respuesta ${i + 1}`);
-      await page.waitForTimeout(1500); // Autosave
-
-      // Click "Marcar como listo"
+      await card.locator("textarea").fill(`Respuesta ${i + 1}`);
       const doneBtn = card.locator('button:has-text("Marcar como listo")');
       await doneBtn.click();
-      await page.waitForTimeout(1000);
+      await expect(card.locator('button:has-text("Reabrir")')).toBeVisible({
+        timeout: 15000,
+      });
     }
 
     // El server-side no revalida progressData hasta reload. Con
@@ -92,15 +77,9 @@ test.describe("Exercise-Aware Progress [4b-6]", () => {
   test("[4-6b] — Sections visited + 0 done → exercise-aware con denom 5+4 ((2+0)/9 = 22%)", async ({
     page,
   }) => {
-    const sidebar = await getWorkshopSidebar(page);
-
-    const inicioBtn = sidebar.locator('button:has-text("Inicio")');
-    await inicioBtn.click();
-    await page.waitForTimeout(500);
-
-    const aprendizajeBtn = sidebar.locator('button:has-text("Aprendizaje")');
-    await aprendizajeBtn.click();
-    await page.waitForTimeout(500);
+    // Inicio (landing, ya visitado) + Aprendizaje = 2 secciones distintas
+    await visitSection(page, "Inicio");
+    await visitSection(page, "Aprendizaje");
 
     // Reload para que el server-side recompute con visitas ya persistidas.
     // El beforeEach del describe seedea 4 exercises → totalExercises=4,
@@ -117,37 +96,25 @@ test.describe("Exercise-Aware Progress [4b-6]", () => {
   test("[4-6b] — Marcar 3 ejercicios + 3 secciones visitadas → 67% ( (3+3) / (5+4) )", async ({
     page,
   }) => {
-    const sidebar = await getWorkshopSidebar(page);
-
-    // Visit 2 sections
-    const inicioBtn = sidebar.locator('button:has-text("Inicio")');
-    await inicioBtn.click();
-    await page.waitForTimeout(500);
-
-    const aprendizajeBtn = sidebar.locator('button:has-text("Aprendizaje")');
-    await aprendizajeBtn.click();
-    await page.waitForTimeout(500);
-
-    // Navigate to Taller
-    const tallerBtn = sidebar.locator('button:has-text("Taller")');
-    await tallerBtn.click();
+    // Inicio (landing) + Aprendizaje + Taller = 3 secciones
+    await visitSection(page, "Inicio");
+    await visitSection(page, "Aprendizaje");
+    await visitSection(page, "Taller");
 
     await page
       .getByTestId("exercise-card")
       .first()
       .waitFor({ state: "visible", timeout: 15000 });
 
-    // Mark 3 exercises done (not 2, to show progress update)
+    // Marcar 3 ejercicios — esperar la señal "Reabrir"
     for (let i = 0; i < 3; i++) {
       const card = page.getByTestId("exercise-card").nth(i);
-      const textarea = card.locator("textarea");
-
-      await textarea.fill(`Respuesta ${i + 1}`);
-      await page.waitForTimeout(1500);
-
+      await card.locator("textarea").fill(`Respuesta ${i + 1}`);
       const doneBtn = card.locator('button:has-text("Marcar como listo")');
       await doneBtn.click();
-      await page.waitForTimeout(1000);
+      await expect(card.locator('button:has-text("Reabrir")')).toBeVisible({
+        timeout: 15000,
+      });
     }
 
     // Reload para que el server-side recompute (no hay revalidatePath aún)
@@ -161,3 +128,18 @@ test.describe("Exercise-Aware Progress [4b-6]", () => {
     expect(parseInt(ariaValueNow || "0")).toBeLessThanOrEqual(67);
   });
 });
+
+/**
+ * Navega a una sección re-obteniendo el sidebar antes del click. En mobile el
+ * drawer se cierra al clickear un tab, así que reusar una referencia vieja del
+ * sidebar rompe. getWorkshopSidebar re-abre el drawer si está cerrado.
+ */
+async function visitSection(
+  page: import("@playwright/test").Page,
+  sectionName: string
+) {
+  const sidebar = await getWorkshopSidebar(page);
+  await sidebar.locator(`button:has-text("${sectionName}")`).click();
+  // dar tiempo a registrar la visita (Server Action a sa-east-1)
+  await page.waitForTimeout(800);
+}
