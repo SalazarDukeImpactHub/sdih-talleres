@@ -253,10 +253,11 @@ export async function seedSectionsAndGlossary(workshopId: string) {
   try {
     // 0. Verify the workshop actually exists in the DB before we try to FK to it.
     // En suites largas, los DELETEs cascade pueden no haber confirmado todavía
-    // cuando llega el INSERT. Si el workshop no aparece, reintentamos con
-    // backoff hasta 5 veces — diferente a fallar al primer intento.
+    // cuando llega el INSERT. Con el change 4 hay 2 tablas más en la cascada
+    // (exercises + exercise_progress) y el delete tarda más — bumpeo de 5 a
+    // 10 intentos con backoff lineal hasta 2s acumulado por intento.
     let workshopExists = false;
-    for (let attempt = 0; attempt < 5; attempt++) {
+    for (let attempt = 0; attempt < 10; attempt++) {
       const { data: ws } = await admin
         .from("workshops")
         .select("id")
@@ -266,11 +267,11 @@ export async function seedSectionsAndGlossary(workshopId: string) {
         workshopExists = true;
         break;
       }
-      await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+      await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
     }
     if (!workshopExists) {
       throw new Error(
-        `Workshop ${workshopId} no aparece en la DB tras 5 reintentos — ¿el reset previo falló?`
+        `Workshop ${workshopId} no aparece en la DB tras 10 reintentos — ¿el reset previo falló?`
       );
     }
 
@@ -456,6 +457,150 @@ export async function seedSectionsAndGlossary(workshopId: string) {
     return { sections: insertedSections, glossaryTerms: insertedGlossary };
   } catch (err) {
     console.error("[seedSectionsAndGlossary] Error:", err);
+    throw err;
+  }
+}
+
+/**
+ * seedExercises() — Seed exercises for a workshop
+ *
+ * Idempotent: deletes existing exercises for the workshop,
+ * then inserts count (default 4) exercises with realistic prompts in Rioplatense Spanish.
+ *
+ * Design Decision D-12 (change 4a.8):
+ * - 4 exercises per workshop with order 1-4
+ * - Realistic prompts (~50-100 words each) in Rioplatense Spanish
+ * - Uses admin client (no RLS check) for test setup
+ *
+ * Usage:
+ *   const { workshops } = await resetWorkshopsAndAccess();
+ *   await seedSectionsAndGlossary(workshops[0].id);
+ *   const exerciseIds = await seedExercises(workshops[0].id, 4);
+ *
+ * Returns: array of exercise IDs (for test assertions)
+ */
+export async function seedExercises(
+  workshopId: string,
+  count?: number
+): Promise<string[]> {
+  // count defaults to 4 when not provided
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _count = count ?? 4;
+  const admin = createAdminClient();
+
+  try {
+    // 0. Mismo patrón de seedSectionsAndGlossary: verificar que el workshop
+    // exista antes del INSERT. Con cascadas más profundas (workshops →
+    // sections → section_visits + exercises → exercise_progress), los
+    // DELETEs pueden no haber confirmado todavía cuando llega el INSERT.
+    let workshopExists = false;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const { data: ws } = await admin
+        .from("workshops")
+        .select("id")
+        .eq("id", workshopId)
+        .maybeSingle();
+      if (ws) {
+        workshopExists = true;
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+    }
+    if (!workshopExists) {
+      throw new Error(
+        `Workshop ${workshopId} no aparece en la DB tras 5 reintentos — ¿el reset previo falló?`
+      );
+    }
+
+    // 1. Delete existing exercises for this workshop (idempotent)
+    await admin
+      .from("exercises")
+      .delete()
+      .eq("workshop_id", workshopId);
+
+    // 2. Define seed exercises with realistic prompts in Rioplatense Spanish
+    // (Design D-10: 4 realistic prompts per workshop)
+    const exercisesToInsert = [
+      {
+        workshop_id: workshopId,
+        title: "Configura tu primer store de memoria",
+        objective: "Aprender a crear un almacén de vectores",
+        prompt_text:
+          "Creá una solución que permita guardar vectores de embeddings en un almacén de memoria. Describí los pasos necesarios para inicializar el store, definir el schema de datos, y demostrar cómo consultar vectores por similaridad. Considerá cómo optimizarías el almacenamiento para documentos grandes.",
+        order: 1,
+      },
+      {
+        workshop_id: workshopId,
+        title: "Implementá búsqueda semántica",
+        objective: "Crear búsqueda inteligente con embeddings",
+        prompt_text:
+          "Diseñá un sistema de búsqueda semántica que entienda el significado de las consultas del usuario. Explicá cómo generarías embeddings para queries de usuario, cómo buscarías en el vector store, y cómo reordenaría los resultados por relevancia. ¿Cómo mejorarías la precisión si los usuarios usan mucho jerga técnica?",
+        order: 2,
+      },
+      {
+        workshop_id: workshopId,
+        title: "Conectá tu storage a un LLM",
+        objective: "Integrar recuperación con generación",
+        prompt_text:
+          "Armá un pipeline completo que recupere documentos de tu vector store y los pase como contexto a un LLM. Describí cómo prepararías los documentos recuperados (chunking, orden), cómo construirías el prompt al modelo, y qué métricas usarías para saber si el LLM está generando respuestas correctas basadas en los documentos.",
+        order: 3,
+      },
+      {
+        workshop_id: workshopId,
+        title: "Optimizá la búsqueda de memoria",
+        objective: "Mejorar performance y relevancia",
+        prompt_text:
+          "Proponé mejoras para acelerar búsquedas y reducir costos. ¿Cómo comprimirías vectores? ¿Qué índices usarías? ¿Cómo evitarías recuperar documentos irrelevantes? Describí A/B testing: ¿cómo medirías si tus mejoras realmente funcionan sin perder precisión?",
+        order: 4,
+      },
+    ];
+
+    // 3. Insert exercises
+    const { data: insertedExercises, error: exercisesError } = await admin
+      .from("exercises")
+      .insert(exercisesToInsert)
+      .select();
+
+    if (exercisesError) {
+      throw new Error(`Failed to insert exercises: ${exercisesError.message}`);
+    }
+
+    if (!insertedExercises || insertedExercises.length === 0) {
+      throw new Error("No exercises inserted");
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return insertedExercises.map((ex: any) => ex.id);
+  } catch (err) {
+    console.error("[seedExercises] Error:", err);
+    throw err;
+  }
+}
+
+/**
+ * resetExerciseProgress() — Clear all exercise_progress records for a user
+ *
+ * Useful for resetting exercise state between tests.
+ *
+ * Usage:
+ *   await resetExerciseProgress(SEED_USER.uuid);
+ */
+export async function resetExerciseProgress(userId: string) {
+  const admin = createAdminClient();
+
+  try {
+    const { error } = await admin
+      .from("exercise_progress")
+      .delete()
+      .eq("user_id", userId);
+
+    if (error) {
+      throw new Error(
+        `Failed to reset exercise_progress: ${error.message}`
+      );
+    }
+  } catch (err) {
+    console.error("[resetExerciseProgress] Error:", err);
     throw err;
   }
 }

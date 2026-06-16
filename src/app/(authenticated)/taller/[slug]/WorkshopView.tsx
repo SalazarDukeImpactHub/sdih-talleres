@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Sidebar } from "@/components/workshop/Sidebar";
 import { SectionRenderer } from "@/components/workshop/SectionRenderer";
+import { Exercise, ExerciseProgress } from "@/lib/schemas/exercise";
 
 type SectionType = "inicio" | "aprendizaje" | "taller" | "instalacion" | "glosario";
 
@@ -26,6 +27,8 @@ export interface WorkshopViewProps {
     category: string;
   }>;
   visitedSectionIds: string[];
+  exercises?: Exercise[];
+  exerciseProgress?: Record<string, ExerciseProgress>;
 }
 
 /**
@@ -45,6 +48,8 @@ export function WorkshopView({
   sections,
   glossaryTerms,
   visitedSectionIds,
+  exercises = [],
+  exerciseProgress = {},
 }: WorkshopViewProps) {
   // Progreso optimista (design D-1): el server manda las visitas iniciales,
   // el client suma cada visita nueva sin esperar reload.
@@ -104,6 +109,8 @@ export function WorkshopView({
           glossaryTerms={glossaryTerms}
           onSectionChange={setActiveSection}
           onVisitRecorded={handleVisitRecorded}
+          exercises={exercises}
+          exerciseProgress={exerciseProgress}
         />
       </main>
     </div>
