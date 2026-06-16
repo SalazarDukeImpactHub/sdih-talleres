@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { recordSectionVisit } from "@/lib/actions/workshop-sections";
 import { SectionContentSchema } from "@/lib/schemas/section-content";
+import { Exercise, ExerciseProgress } from "@/lib/schemas/exercise";
 import { InicioSection } from "./sections/InicioSection";
 import { AprendizajeSection } from "./sections/AprendizajeSection";
 import { TallerSection } from "./sections/TallerSection";
@@ -40,6 +41,8 @@ export interface SectionRendererProps {
   }>;
   onSectionChange?: (sectionType: SectionType) => void;
   onVisitRecorded?: (sectionId: string) => void;
+  exercises?: Exercise[];
+  exerciseProgress?: Record<string, ExerciseProgress>;
 }
 
 export function SectionRenderer({
@@ -47,6 +50,8 @@ export function SectionRenderer({
   glossaryTerms = [],
   onSectionChange,
   onVisitRecorded,
+  exercises = [],
+  exerciseProgress = {},
 }: SectionRendererProps) {
   // Record visit on mount + avisar al wrapper para el update optimista del progreso
   useEffect(() => {
@@ -104,7 +109,13 @@ export function SectionRenderer({
       return <AprendizajeSection content={content} />;
 
     case "taller":
-      return <TallerSection content={content} />;
+      return (
+        <TallerSection
+          content={content}
+          exercises={exercises}
+          exerciseProgress={exerciseProgress}
+        />
+      );
 
     case "instalacion":
       return <InstalacionSection content={content} />;

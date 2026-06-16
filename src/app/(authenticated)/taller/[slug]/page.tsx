@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { redirect } from "next/navigation";
 import { WorkshopView } from "./WorkshopView";
+import type { ExerciseProgress } from "@/lib/schemas/exercise";
 
 /**
  * Workshop Detail Page — /taller/[slug]
@@ -100,13 +101,57 @@ export default async function WorkshopPage({ params }: PageProps) {
 
   const visitedSectionIds = (visitsData || []).map((v) => v.section_id);
 
-  // 7. Pass to Client wrapper
+  // 7. Fetch exercises for this workshop (change 4a.7)
+  const { data: exercisesData, error: exercisesError } = await supabase
+    .from("exercises")
+    .select("id, workshop_id, title, objective, prompt_text, order, created_at, updated_at")
+    .eq("workshop_id", workshop.id)
+    .order("order", { ascending: true });
+
+  if (exercisesError) {
+    console.error("[WorkshopPage] Error fetching exercises:", exercisesError);
+    // Don't redirect — exercises are optional (4a gate allows missing exercises)
+  }
+
+  const exercises = exercisesData || [];
+
+  // 8. Fetch exercise_progress for this user + workshop (change 4a.7).
+  // Tipo importado del schema Zod para coincidir con el prop de WorkshopView —
+  // si declarás un type local con status: string, TS rechaza la asignación
+  // contra el union estricto del schema. El CHECK constraint de la DB ya
+  // garantiza que status sea uno de los 3 valores válidos.
+  let exerciseProgress: Record<string, ExerciseProgress> = {};
+  if (exercises.length > 0) {
+    const exerciseIds = exercises.map((e) => e.id);
+    const { data: progressData, error: progressError } = await supabase
+      .from("exercise_progress")
+      .select("id, user_id, exercise_id, status, user_response_text, updated_at")
+      .eq("user_id", user.id)
+      .in("exercise_id", exerciseIds);
+
+    if (progressError) {
+      console.error("[WorkshopPage] Error fetching exercise_progress:", progressError);
+      // Don't redirect — missing progress is ok (defaults to pending/empty)
+    }
+
+    exerciseProgress = ((progressData || []) as ExerciseProgress[]).reduce(
+      (acc, prog) => {
+        acc[prog.exercise_id] = prog;
+        return acc;
+      },
+      {} as Record<string, ExerciseProgress>
+    );
+  }
+
+  // 9. Pass to Client wrapper
   return (
     <WorkshopView
       workshop={workshop}
       sections={sections}
       glossaryTerms={glossaryTerms}
       visitedSectionIds={visitedSectionIds}
+      exercises={exercises}
+      exerciseProgress={exerciseProgress}
     />
   );
 }
