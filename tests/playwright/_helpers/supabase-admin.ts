@@ -608,3 +608,10 @@ export async function resetExerciseProgress(userId: string) {
 // Re-export para tests que crean admin clients directamente
 export const SUPABASE_URL_FOR_TESTS = SUPABASE_URL;
 export const SERVICE_ROLE_KEY_FOR_TESTS = SERVICE_ROLE_KEY;
+
+/**
+ * Cliente admin compartido para que los specs hagan queries directas a la DB
+ * (verificar persistencia, RLS, etc) SIN instanciar un cliente nuevo cada vez.
+ * Reusa el mismo singleton que los helpers internos — no satura el pool.
+ */
+export const supabaseAdmin = createAdminClient();
