@@ -134,8 +134,20 @@ export async function resetWorkshopsAndAccess() {
 
   try {
     // 1. Delete all data idempotently (neq check evita match all si tabla está vacía)
-    await admin.from("workshop_access").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-    await admin.from("workshops").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    // Con cascades, el delete tarda más. Intentamos 3 veces con delay.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { error: accessError } = await admin.from("workshop_access").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const { error: workshopsError } = await admin.from("workshops").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+
+      if (!accessError && !workshopsError) {
+        // Success — wait a bit for cascade deletes to complete
+        await new Promise(r => setTimeout(r, 500));
+        break;
+      }
+      if (attempt < 2) {
+        await new Promise(r => setTimeout(r, 300 * (attempt + 1)));
+      }
+    }
 
     // 2. Create 4 seed workshops con estados distintos
     const workshopsToInsert = [
@@ -615,3 +627,99 @@ export const SERVICE_ROLE_KEY_FOR_TESTS = SERVICE_ROLE_KEY;
  * Reusa el mismo singleton que los helpers internos — no satura el pool.
  */
 export const supabaseAdmin = createAdminClient();
+
+
+/**
+ * createOrResetAdminUser() — Crea o resetea el usuario admin de prueba.
+ * Idempotent: si existe, resetea su password. Si no existe, lo crea.
+ * Usado en beforeEach de tests admin.
+ *
+ * @returns { id, email, password } del usuario admin
+ */
+export async function createOrResetAdminUser() {
+  const admin = createAdminClient();
+  const ADMIN_EMAIL = "admin@test.local";
+  // Password from env variable SUPABASE_ADMIN_PASSWORD, or fallback for tests
+  const ADMIN_PASSWORD = process.env.SUPABASE_ADMIN_PASSWORD || "AdminTest2026!";
+
+  try {
+    // 1. Attempt to get existing user
+    const { data: existingUsers, error: listError } = await admin.auth.admin.listUsers();
+
+    if (listError) {
+      throw new Error(`Failed to list users: ${listError.message}`);
+    }
+
+    const existingAdmin = existingUsers?.users?.find((u: { email?: string }) => u.email === ADMIN_EMAIL);
+
+    let userId: string;
+
+    if (existingAdmin) {
+      // User exists: reset password
+      userId = existingAdmin.id;
+      const { error: updateError } = await admin.auth.admin.updateUserById(userId, {
+        password: ADMIN_PASSWORD,
+      });
+
+      if (updateError) {
+        throw new Error(`Failed to reset admin password: ${updateError.message}`);
+      }
+    } else {
+      // User doesn't exist: create it
+      const { data: newUser, error: createError } = await admin.auth.admin.createUser({
+        email: ADMIN_EMAIL,
+        password: ADMIN_PASSWORD,
+        email_confirm: true,
+      });
+
+      if (createError) {
+        throw new Error(`Failed to create admin user: ${createError.message}`);
+      }
+
+      userId = newUser.user.id;
+    }
+
+    // 2. Ensure row exists in public.users with role='admin'
+    const { data: existingRow } = await admin
+      .from("users")
+      .select("id")
+      .eq("id", userId)
+      .single();
+
+    if (existingRow) {
+      // Update role, name, and password_changed if needed
+      const { error: updateError } = await admin
+        .from("users")
+        .update({ role: "admin", name: "Test Admin", password_changed: true })
+        .eq("id", userId);
+
+      if (updateError) {
+        throw new Error(`Failed to update admin user row: ${updateError.message}`);
+      }
+    } else {
+      // Insert new row
+      const { error: insertError } = await admin
+        .from("users")
+        .insert({
+          id: userId,
+          email: ADMIN_EMAIL,
+          role: "admin",
+          name: "Test Admin",
+          password_changed: true,
+        });
+
+      if (insertError) {
+        throw new Error(`Failed to insert admin user row: ${insertError.message}`);
+      }
+    }
+
+    return {
+      id: userId,
+      email: ADMIN_EMAIL,
+      password: ADMIN_PASSWORD,
+    };
+  } catch (err) {
+    console.error("[createOrResetAdminUser] Error:", err);
+    throw err;
+  }
+}

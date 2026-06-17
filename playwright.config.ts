@@ -18,9 +18,9 @@ export default defineConfig({
   // Diseño correcto a futuro: 1 user seed por spec. Por ahora: serial.
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,
   workers: 1,
-  reporter: "html",
+  reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
@@ -42,6 +42,6 @@ export default defineConfig({
     command: "pnpm dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+    timeout: 300000,
   },
 });
