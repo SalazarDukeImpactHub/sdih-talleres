@@ -1,9 +1,40 @@
 import { z } from "zod";
 
 /**
- * Schemas Zod para validación de workshops y acceso a claves.
- * Mensajes de error en español Rioplatense.
+ * Schemas Zod para workshop CRUD del admin panel.
+ * Solo metadata. Sections/exercises/glossary viven en tablas relacionales propias
+ * (changes 3 y 4) y se administran en una UI separada (ADR D-15).
  */
+
+export const createWorkshopSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Título es requerido")
+    .max(200, "Título máximo 200 caracteres"),
+  description: z
+    .string()
+    .min(1, "Descripción es requerida"),
+  instructor: z
+    .string()
+    .min(1, "Instructor es requerido"),
+  date_live: z
+    .string()
+    .datetime()
+    .describe("ISO 8601 datetime"),
+  duration: z
+    .number()
+    .int()
+    .min(1, "Duración mínimo 1 minuto"),
+  prerequisites: z
+    .string()
+    .optional(),
+  status: z
+    .enum(["disponible", "en vivo", "próximamente", "completado"]),
+});
+
+export const updateWorkshopSchema = createWorkshopSchema.partial().extend({
+  id: z.string().uuid("Workshop ID inválido"),
+});
 
 export const accessKeySchema = z.object({
   key: z
@@ -19,7 +50,6 @@ export const accessKeySchema = z.object({
   workshopId: z.string().uuid("Workshop ID inválido"),
 });
 
-/**
- * Tipos inferidos de los schemas para uso en componentes y Server Actions.
- */
 export type AccessKeyInput = z.infer<typeof accessKeySchema>;
+export type CreateWorkshopInput = z.infer<typeof createWorkshopSchema>;
+export type UpdateWorkshopInput = z.infer<typeof updateWorkshopSchema>;
