@@ -1,28 +1,26 @@
 /**
  * Social Links Configuration
  *
- * Design Decision D-7:
- * URLs stored in environment variables (prefixed with NEXT_PUBLIC_)
- * Empty strings as placeholders if env var not set
- *
- * Usage: Set in .env.local (not tracked in git)
+ * URLs configurable vía env vars o defaults hardcodeados acá.
+ * Para cambiar las URLs sin tocar el código, definí estas vars en .env.production:
+ *   NEXT_PUBLIC_INSTAGRAM_URL
+ *   NEXT_PUBLIC_LINKEDIN_URL
+ *   NEXT_PUBLIC_TIKTOK_URL
+ *   NEXT_PUBLIC_YOUTUBE_URL
  */
 
+const DEFAULT_HANDLE = "salazardukeimpacthub";
+
 export const SOCIAL_LINKS = {
-  instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "",
-  linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL || "",
-  tiktok: process.env.NEXT_PUBLIC_TIKTOK_URL || "",
-  youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || "",
+  instagram: process.env.NEXT_PUBLIC_INSTAGRAM_URL || `https://www.instagram.com/${DEFAULT_HANDLE}/`,
+  linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL || `https://www.linkedin.com/company/salazar-duke-impact-hub/`,
+  tiktok: process.env.NEXT_PUBLIC_TIKTOK_URL || `https://www.tiktok.com/@${DEFAULT_HANDLE}`,
+  youtube: process.env.NEXT_PUBLIC_YOUTUBE_URL || `https://www.youtube.com/@SalazarDukeImpactHub`,
 } as const;
 
-// Icon mapping
-// For now, using emoji; can be replaced with icon library if needed
-export const SOCIAL_ICONS: Record<
-  keyof typeof SOCIAL_LINKS,
-  { label: string; emoji: string }
-> = {
-  instagram: { label: "Instagram", emoji: "📷" },
-  linkedin: { label: "LinkedIn", emoji: "💼" },
-  tiktok: { label: "TikTok", emoji: "🎬" },
-  youtube: { label: "YouTube", emoji: "▶️" },
+export const SOCIAL_LABELS: Record<keyof typeof SOCIAL_LINKS, string> = {
+  instagram: "Instagram",
+  linkedin: "LinkedIn",
+  tiktok: "TikTok",
+  youtube: "YouTube",
 } as const;
