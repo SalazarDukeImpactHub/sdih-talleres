@@ -7,13 +7,16 @@ FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# pnpm vía corepack (incluido en Node 22, no necesita pnpm install global).
+# pnpm vía corepack (incluido en Node 22). El campo "packageManager" del
+# package.json le dice a corepack qué versión de pnpm activar.
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
 RUN corepack enable
 
 # Copiamos solo los manifests para maximizar el caché de Docker.
 COPY package.json pnpm-lock.yaml ./
+# --frozen-lockfile garantiza que el lockfile no se mueva.
+# --config.confirmModulesPurge=false evita prompts interactivos.
 RUN pnpm install --frozen-lockfile
 
 
@@ -28,23 +31,17 @@ ENV PATH=$PNPM_HOME:$PATH
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Vars públicas (NEXT_PUBLIC_*) horneadas en el bundle de Next.js durante build.
-# Las pasamos como build-args desde docker compose (ver docker-compose.yml).
-ARG NEXT_PUBLIC_SUPABASE_URL
-ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-ARG NEXT_PUBLIC_WHATSAPP_NUMBER
-ARG NEXT_PUBLIC_BASE_URL
-ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
-ENV NEXT_PUBLIC_WHATSAPP_NUMBER=$NEXT_PUBLIC_WHATSAPP_NUMBER
-ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
-
+# .env.production se copia al build context (NO al image final) para que
+# Next.js lo lea automáticamente durante `next build` y hornee las
+# NEXT_PUBLIC_* en el bundle del cliente. Las server-side vars se inyectan
+# en runtime via env_file del docker-compose.yml.
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
 
 # ─── Stage 3: runner ───────────────────────────────────────────────────────────
 # Imagen final mínima: solo lo necesario para ejecutar `node server.js`.
+# NO incluye .env.production — secrets se inyectan en runtime via env_file.
 FROM node:22-alpine AS runner
 WORKDIR /app
 

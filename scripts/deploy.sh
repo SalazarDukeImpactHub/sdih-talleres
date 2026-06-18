@@ -46,13 +46,11 @@ git pull --ff-only origin "${BRANCH}"
 
 echo
 echo "[2/4] Build de la imagen Docker..."
-# --env-file es necesario para que docker compose sustituya los \${NEXT_PUBLIC_*}
-# en build args desde .env.production (sino quedarían como strings vacíos).
-docker compose --env-file .env.production build app
+docker compose build app
 
 echo
 echo "[3/4] Restart del container..."
-docker compose --env-file .env.production up -d
+docker compose up -d
 
 echo
 echo "[4/4] Limpieza de imágenes viejas..."

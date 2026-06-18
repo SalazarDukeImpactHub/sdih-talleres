@@ -9,11 +9,13 @@ build
 .git
 .gitignore
 
-# Env files — NUNCA dentro del image. Se inyectan via env_file en runtime.
+# Env files — el image FINAL no los incluye (multi-stage Dockerfile).
+# .env.production NO se excluye porque Next.js lo lee durante build (stage
+# builder) para hornear las NEXT_PUBLIC_* en el bundle. El stage runner
+# NO copia ese archivo, así que el image final queda limpio.
 .env
 .env.local
 .env.development
-.env.production
 .env*.local
 
 # Tests + artefactos

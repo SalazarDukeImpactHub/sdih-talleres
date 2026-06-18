@@ -7,6 +7,12 @@
 # del host hace reverse_proxy a este puerto siguiendo el mismo patrón que
 # engram-cloud:18080 y markitdown-hub:8001.
 #
+# Las variables del .env.production se consumen de DOS formas:
+#  - Durante BUILD: Next.js lee .env.production de la raíz del proyecto
+#    y hornea las NEXT_PUBLIC_* en el bundle del cliente.
+#  - En RUNTIME: env_file inyecta las server-side vars (SERVICE_ROLE_KEY,
+#    RESEND_API_KEY, etc) al proceso del container.
+#
 # Uso:
 #   1) Cargar variables en .env.production (ver docs/deploy.md)
 #   2) Agregar el bloque de talleres al /etc/caddy/Caddyfile (ver docs/deploy.md)
@@ -19,13 +25,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        # NEXT_PUBLIC_* se hornean en el bundle durante build. Para cambiarlas
-        # post-deploy hay que rebuildear (docker compose up -d --build).
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-        NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-}
-        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
     container_name: sdih-app
     restart: unless-stopped
     env_file: .env.production

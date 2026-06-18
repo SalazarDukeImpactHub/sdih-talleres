@@ -121,7 +121,7 @@ echo "     systemctl reload caddy"
 echo
 echo "  4) Primera build + start del container:"
 echo "     cd ${INSTALL_PATH}"
-echo "     docker compose --env-file .env.production up -d --build"
+echo "     docker compose up -d --build"
 echo
 echo "  5) Verificá:"
 echo "     curl -I https://talleres.salazardukeimpacthubteam.com"
