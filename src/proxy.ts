@@ -1,17 +1,18 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { updateSession } from "@/lib/supabase/proxy";
 
 /**
- * Middleware raíz para manejar sesión Supabase.
- * Se ejecuta en CADA request antes de ser procesado por Next.js.
+ * Proxy raíz (Next.js 16+) para manejar la sesión Supabase.
+ * Reemplaza al antiguo `middleware.ts`, que fue deprecado a favor de `proxy.ts`
+ * en Next.js 16. La API y los matchers son idénticos — sólo cambia el nombre.
  *
- * Responsabilidad acotada (design D-2):
+ * Responsabilidad acotada (design D-2 del auth-and-shell):
  * - Refrescar la sesión (cookies) en cada request
  * - Bloquear rutas protegidas sin sesión → silent redirect a /auth/login
  * - El chequeo de password_changed vive en Server Components/Actions,
- *   NO acá (Supabase SSR v0.12 no expone datos de public.users en middleware)
+ *   NO acá (Supabase SSR v0.12 no expone datos de public.users en proxy)
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // 1. Refrescar sesión Supabase y obtener el usuario REAL.
   // Nunca validar sesión por nombre de cookie: el nombre es
   // sb-<project-ref>-auth-token (dinámico por proyecto, a veces en chunks).
@@ -46,7 +47,7 @@ export async function middleware(request: NextRequest) {
 }
 
 /**
- * Configuración del matcher: define qué rutas pasan por el middleware.
+ * Configuración del matcher: define qué rutas pasan por el proxy.
  * Excluye archivos estáticos y assets.
  */
 export const config = {

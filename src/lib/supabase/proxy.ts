@@ -4,10 +4,10 @@ import type { User } from "@supabase/supabase-js";
 
 /**
  * Refresca la sesión de Supabase en cada request y devuelve el usuario actual.
- * Se invoca desde middleware.ts en la raíz de src/.
+ * Se invoca desde proxy.ts en la raíz de src/ (Next.js 16 — antes middleware.ts).
  * Sin esto, las cookies expiran y el usuario queda desautenticado.
  *
- * Devuelve { response, user } para que el middleware raíz pueda decidir
+ * Devuelve { response, user } para que el proxy raíz pueda decidir
  * redirects con el usuario REAL — nunca adivinando nombres de cookies
  * (el nombre real es sb-<project-ref>-auth-token y puede venir en chunks,
  * así que chequear cookies por nombre fijo es un bug garantizado).
