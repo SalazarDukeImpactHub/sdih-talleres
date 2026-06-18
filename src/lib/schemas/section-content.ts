@@ -50,6 +50,10 @@ const InicioContentSchema = z.object({
   title: z.string().describe("Workshop title or welcome heading"),
   description: z.string().describe("Brief description of workshop"),
   quick_links: z.array(QuickLinkSchema).describe("4 quick-link cards to jump to sections"),
+  // Opcional: link de YouTube para video de bienvenida. Acepta cualquier
+  // formato (watch, youtu.be, embed). Si no está, no se muestra video.
+  video_url: z.string().url().nullable().optional()
+    .describe("Optional YouTube URL for welcome video"),
 });
 
 /**
