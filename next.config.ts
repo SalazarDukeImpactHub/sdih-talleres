@@ -20,6 +20,16 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+
+  // Subir el límite de body de Server Actions a 10MB.
+  // Default Next.js: 1MB → bloquea covers de imagen reales (1500×800 JPG suele pesar 1.5-3MB).
+  // El código de uploadCover ya valida 5MB max — este límite es solo para que Next.js no corte
+  // antes de que llegue al validador.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
 };
 
 export default nextConfig;
