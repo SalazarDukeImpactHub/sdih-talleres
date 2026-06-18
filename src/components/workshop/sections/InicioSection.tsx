@@ -2,6 +2,7 @@ import React from "react";
 import { InicioContent } from "@/lib/schemas/section-content";
 import { Markdown } from "../Markdown";
 import { SectionIcon } from "../SectionIcon";
+import { VideoEmbed } from "../VideoEmbed";
 
 /**
  * InicioSection Component — Welcome/hero section with quick-links grid
@@ -35,6 +36,13 @@ export function InicioSection({ content, onLinkClick }: InitioSectionProps) {
           <Markdown>{content.description}</Markdown>
         </div>
       </div>
+
+      {/* Video (opcional) — sólo aparece si el admin definió video_url */}
+      {content.video_url && (
+        <div className="mb-12">
+          <VideoEmbed url={content.video_url} title={content.title} />
+        </div>
+      )}
 
       {/* Quick Links Grid */}
       <div className="grid grid-cols-2 gap-4 md:gap-6">
