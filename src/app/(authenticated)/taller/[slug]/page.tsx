@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { redirect } from "next/navigation";
 import { getExerciseAwareProgress } from "@/lib/actions/workshop-sections";
 import { WorkshopView } from "./WorkshopView";
+import { WhatsAppButton } from "@/components/workshop/WhatsAppButton";
 import type { ExerciseProgress } from "@/lib/schemas/exercise";
 
 /**
@@ -42,7 +43,7 @@ export default async function WorkshopPage({ params }: PageProps) {
   // 2. Fetch workshop by slug
   const { data: workshop, error: workshopError } = await supabase
     .from("workshops")
-    .select("id, title, slug, description")
+    .select("id, title, slug, description, whatsapp_message_template")
     .eq("slug", slug)
     .single();
 
@@ -147,16 +148,28 @@ export default async function WorkshopPage({ params }: PageProps) {
   // 9. Calculate exercise-aware progress (change 4b.7)
   const progressData = await getExerciseAwareProgress(user.id, workshop.id);
 
-  // 10. Pass to Client wrapper
+  // 10. Build WhatsApp message — usa template del workshop si existe, sino genérico
+  const userName = user.name || "alumna/o";
+  const rawTemplate = workshop.whatsapp_message_template;
+  const whatsappMessage = rawTemplate
+    ? rawTemplate
+        .replace(/\{nombre\}/g, userName)
+        .replace(/\{taller\}/g, workshop.title)
+    : `Hola Jennifer, soy ${userName} y tengo una consulta sobre ${workshop.title}.`;
+
+  // 11. Pass to Client wrapper + botón flotante WhatsApp
   return (
-    <WorkshopView
-      workshop={workshop}
-      sections={sections}
-      glossaryTerms={glossaryTerms}
-      visitedSectionIds={visitedSectionIds}
-      exercises={exercises}
-      exerciseProgress={exerciseProgress}
-      progressData={progressData}
-    />
+    <>
+      <WorkshopView
+        workshop={workshop}
+        sections={sections}
+        glossaryTerms={glossaryTerms}
+        visitedSectionIds={visitedSectionIds}
+        exercises={exercises}
+        exerciseProgress={exerciseProgress}
+        progressData={progressData}
+      />
+      <WhatsAppButton message={whatsappMessage} />
+    </>
   );
 }
