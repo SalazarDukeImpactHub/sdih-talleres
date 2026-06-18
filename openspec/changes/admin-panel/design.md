@@ -424,6 +424,33 @@ COMMIT;
 
 ---
 
+## D-15: Workshop CRUD solo metadata (NO content_json)
+
+**Decisión** (tomada durante slice 5b, 2026-06-17): el form admin solo maneja
+metadata del workshop (title, slug, description, instructor, date_live, duration_min,
+prerequisites, status, cover_image). El campo `content_json` queda FUERA del scope.
+
+**Divergencia design vs realidad detectada**:
+- D-4/D-9 originales asumían `workshops.content_json JSONB` con sections/exercises embebido.
+- En realidad, change 3 creó tabla relacional `sections` con FK a workshop + content_json
+  discriminado por tipo (ADR-001). Change 4 hizo lo mismo con `exercises`.
+- La tabla `workshops` nunca tuvo columna `content_json`. Agregarla duplicaría datos
+  normalizados en 3 tablas → doble fuente de verdad.
+
+**Implicancia 5b**: schema Zod sin content_json, INSERT/UPDATE sin content_json,
+form sin input hidden de content_json. Sections/exercises/glossary se administran
+en UI separada (slice futuro o vía Supabase dashboard mientras tanto).
+
+**Alternativas consideradas**:
+- ADD COLUMN content_json + dual-write: rechazado (doble fuente de verdad).
+- Migrar sections/exercises a JSONB embebido: rechazado (rompería changes 3 y 4
+  archivados; retrabajo enorme).
+
+**Trade-off aceptado**: Jennifer crea taller "vacío" desde admin, luego llena sections
+por otro canal. Brief §7.4 no requiere editor visual de sections en v1.
+
+---
+
 ## Open Issues
 
 1. Notification to students when key generated → deferred to change 6
