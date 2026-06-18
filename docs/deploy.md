@@ -118,7 +118,7 @@ caddy validate --config /etc/caddy/Caddyfile
 
 ```bash
 cd /opt/sdih-talleres
-docker compose up -d --build
+docker compose --env-file .env.production up -d --build
 ```
 
 El primer build tarda 3-5 minutos. Después:
@@ -291,7 +291,7 @@ docker compose logs app | tail -50
 `NEXT_PUBLIC_*` se hornean en el bundle durante build, así que solo cambiarlas en `.env.production` y restartear NO alcanza — hay que rebuildear:
 
 ```bash
-docker compose up -d --build
+docker compose --env-file .env.production up -d --build
 ```
 
 Las variables server-side (`SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `EMAIL_FROM`, `EMAIL_PROVIDER_MODE`) sí se aplican con solo restart.
