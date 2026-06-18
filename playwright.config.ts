@@ -43,10 +43,11 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 300000,
-    // Dummy WhatsApp number para que el componente WhatsAppButton renderice
-    // durante los tests. Jennifer carga el real en .env.local fuera de tests.
+    // Dummy WhatsApp number + mock email mode para tests.
+    // Jennifer carga RESEND_API_KEY + NEXT_PUBLIC_WHATSAPP_NUMBER reales en .env.local fuera de tests.
     env: {
       NEXT_PUBLIC_WHATSAPP_NUMBER: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "5491100000000",
+      EMAIL_PROVIDER_MODE: "mock",
     },
   },
 });

@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Playwright artefactos generados (HTML report trace, minified bundles).
+    // Sin esto, eslint intenta lintar codeMirrorModule-*.js minificados y
+    // explota con 164+ "errors" falsos. La regla ya estuvo en change 4 y
+    // se perdió en un merge — restaurada acá para que no vuelva a pasar.
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 
