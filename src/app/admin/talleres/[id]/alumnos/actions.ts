@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createStudentSchema } from "@/lib/schemas/user";
 import { generateAccessKeyString, hashAccessKey } from "@/lib/crypto/access-key";
+import { sendAccessKeyEmail } from "@/lib/email/send-access-key";
 
 /**
  * Server Actions para student management (change 5 slice 5c).
@@ -89,6 +90,41 @@ export async function createStudent(
         success: false,
         error: keyResult.error || "Error generando clave de acceso",
       };
+    }
+
+    // 4. Best-effort email con la clave de acceso. No abortar si falla —
+    // el modal del admin sigue mostrando la clave como fallback manual.
+    try {
+      const { data: workshopRow } = await admin
+        .from("workshops")
+        .select("title")
+        .eq("id", workshopId)
+        .single();
+
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+      const studentName = validated.email.split("@")[0];
+
+      const emailResult = await sendAccessKeyEmail({
+        to: validated.email,
+        name: studentName,
+        accessKey: keyResult.key!,
+        workshopTitle: workshopRow?.title || "tu taller",
+        loginEmail: validated.email,
+        passwordTemp: validated.passwordTemp,
+        baseUrl,
+      });
+
+      if (!emailResult.ok) {
+        console.warn(
+          `[createStudent] Email send failed (best-effort): ${emailResult.error}`
+        );
+      }
+    } catch (emailErr) {
+      console.warn(
+        `[createStudent] Email send threw (best-effort):`,
+        emailErr
+      );
     }
 
     return {
