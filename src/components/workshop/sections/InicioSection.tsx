@@ -1,6 +1,7 @@
 import React from "react";
 import { InicioContent } from "@/lib/schemas/section-content";
 import { Markdown } from "../Markdown";
+import { SectionIcon } from "../SectionIcon";
 
 /**
  * InicioSection Component — Welcome/hero section with quick-links grid
@@ -20,12 +21,7 @@ interface InitioSectionProps {
   onLinkClick?: (section: "aprendizaje" | "taller" | "instalacion" | "glosario") => void;
 }
 
-const LINK_ICONS: Record<string, string> = {
-  aprendizaje: "📚",
-  taller: "🛠️",
-  instalacion: "⚙️",
-  glosario: "📖",
-};
+// LINK_ICONS removido — ahora se usa el componente <SectionIcon /> con SVG inline.
 
 export function InicioSection({ content, onLinkClick }: InitioSectionProps) {
   return (
@@ -43,8 +39,6 @@ export function InicioSection({ content, onLinkClick }: InitioSectionProps) {
       {/* Quick Links Grid */}
       <div className="grid grid-cols-2 gap-4 md:gap-6">
         {content.quick_links.map((link, idx) => {
-          const icon = LINK_ICONS[link.target_section] || "→";
-
           return (
             <button
               key={idx}
@@ -59,8 +53,10 @@ export function InicioSection({ content, onLinkClick }: InitioSectionProps) {
               />
 
               {/* Content */}
-              <div className="relative z-10 flex flex-col items-center justify-center text-center gap-2">
-                <div className="text-3xl md:text-4xl">{icon}</div>
+              <div className="relative z-10 flex flex-col items-center justify-center text-center gap-3">
+                <div className="text-cyan group-hover:text-magenta transition-colors duration-300 group-hover:scale-110 transform">
+                  <SectionIcon type={link.target_section} className="h-10 w-10 md:h-12 md:w-12" />
+                </div>
                 <h3 className="text-base md:text-lg font-semibold text-text-primary group-hover:text-cyan transition-colors">
                   {link.label}
                 </h3>
