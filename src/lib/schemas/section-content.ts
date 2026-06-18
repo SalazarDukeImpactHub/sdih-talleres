@@ -76,6 +76,9 @@ const TallerContentSchema = z.object({
   title: z.string().describe("Section title"),
   instructions: z.string().describe("Instructions for exercises"),
   placeholder: z.string().optional().describe("Placeholder message if no exercises available"),
+  // Opcional: video de YouTube explicando el ejercicio.
+  video_url: z.string().url().nullable().optional()
+    .describe("Optional YouTube URL for exercise walkthrough video"),
 });
 
 /**
@@ -87,6 +90,9 @@ const InstalacionContentSchema = z.object({
   title: z.string().describe("Section title"),
   steps: z.array(StepSchema).min(1).describe("Array of installation steps"),
   success_message: z.string().optional().describe("Message shown after all steps completed"),
+  // Opcional: video de YouTube con tutorial de instalación paso a paso.
+  video_url: z.string().url().nullable().optional()
+    .describe("Optional YouTube URL for installation walkthrough video"),
 });
 
 /**
