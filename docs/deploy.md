@@ -10,7 +10,7 @@ Guía paso a paso para desplegar el portal de SDIH Talleres en el VPS de HostGat
 | Runtime | Docker + Docker Compose | Aísla y orquesta los servicios |
 | App | Next.js 16 standalone (Node 22 alpine) | Sirve el portal |
 | Reverse proxy | Caddy 2 (alpine) | HTTPS automático con Let's Encrypt |
-| Dominio | `salazardukeimpacthubteam.com` (DNS desde HostGator) | Apunta a la IP del VPS |
+| Dominio | `talleres.salazardukeimpacthubteam.com` (subdominio, DNS desde HostGator) | Apunta a la IP del VPS |
 | Datos | Supabase (externo) | Auth, Postgres, Storage |
 | Emails | Resend (externo) | Transaccionales |
 
@@ -20,17 +20,20 @@ Guía paso a paso para desplegar el portal de SDIH Talleres en el VPS de HostGat
 
 ### 1. DNS
 
-En tu panel de HostGator, los registros DNS del dominio deben apuntar al VPS:
+El portal vive en el **subdominio** `talleres.salazardukeimpacthubteam.com`. El dominio apex `salazardukeimpacthubteam.com` queda con su landing actual de HostGator.
+
+En tu panel de HostGator, agregá UN registro DNS:
 
 ```
-A     @       69.6.243.113
-A     www     69.6.243.113
+A     talleres     69.6.243.113
 ```
 
-La propagación tarda entre 5 min y unas horas. Probá con:
+(El `@` del apex queda apuntando a donde ya está hoy — no lo tocás.)
+
+La propagación tarda entre 5 min y unas horas. Verificá con:
 
 ```bash
-dig salazardukeimpacthubteam.com +short
+dig talleres.salazardukeimpacthubteam.com +short
 # debe devolver: 69.6.243.113
 ```
 
@@ -62,7 +65,7 @@ Pegá esto y completá los valores marcados:
 
 ```bash
 # ─── Dominio y TLS ─────────────────────────────────────────
-DOMAIN=salazardukeimpacthubteam.com
+DOMAIN=talleres.salazardukeimpacthubteam.com
 ACME_EMAIL=info@salazardukeimpacthub.com
 
 # ─── Supabase ──────────────────────────────────────────────
@@ -72,7 +75,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbG...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbG...
 
 # ─── App pública ───────────────────────────────────────────
-NEXT_PUBLIC_BASE_URL=https://salazardukeimpacthubteam.com
+NEXT_PUBLIC_BASE_URL=https://talleres.salazardukeimpacthubteam.com
 NEXT_PUBLIC_WHATSAPP_NUMBER=573136139790
 
 # ─── Resend ────────────────────────────────────────────────
@@ -103,10 +106,10 @@ El primer build tarda 3-5 minutos. Después:
 ```bash
 docker compose ps          # ambos containers deben estar Up
 docker compose logs -f     # logs en vivo (Ctrl+C para salir)
-curl -I https://salazardukeimpacthubteam.com   # debe devolver 200 o redirect
+curl -I https://talleres.salazardukeimpacthubteam.com   # debe devolver 200 o redirect
 ```
 
-Abrí el navegador en `https://salazardukeimpacthubteam.com` — debería cargar la landing.
+Abrí el navegador en `https://talleres.salazardukeimpacthubteam.com` — debería cargar la landing.
 
 ---
 

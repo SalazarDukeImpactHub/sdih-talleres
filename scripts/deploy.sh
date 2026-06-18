@@ -62,5 +62,5 @@ docker compose ps
 EOF
 
 echo
-echo "✅ Deploy completo. Verificá: https://salazardukeimpacthubteam.com"
+echo "✅ Deploy completo. Verificá: https://talleres.salazardukeimpacthubteam.com"
 echo "   Logs: ssh -p ${VPS_PORT} ${VPS_USER}@${VPS_HOST} 'cd ${REMOTE_PATH} && docker compose logs -f --tail=100'"

@@ -82,14 +82,14 @@ else
 	cat > .env.production <<'TPL'
 # Generado por server-setup.sh. EDITALO con los valores reales.
 
-DOMAIN=salazardukeimpacthubteam.com
+DOMAIN=talleres.salazardukeimpacthubteam.com
 ACME_EMAIL=info@salazardukeimpacthub.com
 
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
-NEXT_PUBLIC_BASE_URL=https://salazardukeimpacthubteam.com
+NEXT_PUBLIC_BASE_URL=https://talleres.salazardukeimpacthubteam.com
 NEXT_PUBLIC_WHATSAPP_NUMBER=573136139790
 
 RESEND_API_KEY=
@@ -115,4 +115,4 @@ echo "     cd ${INSTALL_PATH}"
 echo "     docker compose up -d --build"
 echo
 echo "  3) Verificá DNS y certificado:"
-echo "     curl -I https://salazardukeimpacthubteam.com"
+echo "     curl -I https://talleres.salazardukeimpacthubteam.com"
