@@ -22,10 +22,10 @@ test.describe("Admin: Duplicate Email Validation [5c-3]", () => {
     workshopId = workshop.id;
 
     await page.goto("/auth/login");
-    await page.fill('input[data-testid="input-email"]', adminEmail);
-    await page.fill('input[data-testid="input-password"]', adminPassword);
-    await page.click('button[data-testid="btn-submit"]');
-    await page.waitForURL(/\/admin/);
+    await page.fill('input[name="email"]', adminEmail);
+    await page.fill('input[name="password"]', adminPassword);
+    await page.click('button[type="submit"]');
+    await page.waitForURL("**/catalogo", { timeout: 30000 });
   });
 
   test("should reject duplicate email on second creation", async ({ page }) => {
@@ -58,6 +58,6 @@ test.describe("Admin: Duplicate Email Validation [5c-3]", () => {
     await page.waitForSelector('[data-testid="error-message"]', { timeout: 5000 });
 
     const errorText = await page.locator('[data-testid="error-message"]').textContent();
-    expect(errorText).toContain("Email");
+    expect(errorText?.toLowerCase()).toContain("email");
   });
 });

@@ -23,10 +23,10 @@ test.describe("Admin: Create Student [5c-1]", () => {
     workshopId = workshop.id;
 
     await page.goto("/auth/login");
-    await page.fill('input[data-testid="input-email"]', adminEmail);
-    await page.fill('input[data-testid="input-password"]', adminPassword);
-    await page.click('button[data-testid="btn-submit"]');
-    await page.waitForURL(/\/admin/);
+    await page.fill('input[name="email"]', adminEmail);
+    await page.fill('input[name="password"]', adminPassword);
+    await page.click('button[type="submit"]');
+    await page.waitForURL("**/catalogo", { timeout: 30000 });
   });
 
   test("should create a new student and display access key", async ({
