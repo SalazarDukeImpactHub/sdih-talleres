@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ProgressBar } from "./ProgressBar";
 import { SocialFooter } from "./SocialFooter";
+import { SectionIcon } from "./SectionIcon";
 
 /**
  * Sidebar Component — Client-side navigation for workshop sections
@@ -34,13 +35,8 @@ export interface SidebarProps {
   }>;
 }
 
-const SECTION_ICONS: Record<string, string> = {
-  inicio: "🏠",
-  aprendizaje: "📚",
-  taller: "🛠️",
-  instalacion: "⚙️",
-  glosario: "📖",
-};
+// SECTION_ICONS removido — ahora se usa el componente <SectionIcon type={type} />
+// que renderiza SVG inline oficiales de cada sección.
 
 const SECTION_LABELS: Record<string, string> = {
   inicio: "Inicio",
@@ -126,7 +122,7 @@ export function Sidebar({
             }`}
             aria-current={activeSection === type ? "page" : undefined}
           >
-            <span className="text-xl">{SECTION_ICONS[type]}</span>
+            <SectionIcon type={type as "inicio" | "aprendizaje" | "taller" | "instalacion" | "glosario"} className="h-5 w-5" />
             <span className="font-medium">{SECTION_LABELS[type]}</span>
           </button>
         ))}
@@ -200,7 +196,7 @@ export function Sidebar({
                 }`}
                 aria-current={activeSection === type ? "page" : undefined}
               >
-                <span className="text-xl">{SECTION_ICONS[type]}</span>
+                <SectionIcon type={type as "inicio" | "aprendizaje" | "taller" | "instalacion" | "glosario"} className="h-5 w-5" />
                 <span className="font-medium">{SECTION_LABELS[type]}</span>
               </button>
             ))}
