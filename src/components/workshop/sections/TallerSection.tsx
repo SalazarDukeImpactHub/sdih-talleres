@@ -5,6 +5,7 @@ import { TallerContent } from "@/lib/schemas/section-content";
 import { Exercise, ExerciseProgress } from "@/lib/schemas/exercise";
 import { ExerciseCard } from "../ExerciseCard";
 import { Markdown } from "../Markdown";
+import { VideoEmbed } from "../VideoEmbed";
 
 /**
  * TallerSection Component — Exercises section
@@ -74,6 +75,13 @@ export function TallerSection({
       <h1 className="text-4xl md:text-5xl font-bold font-display text-text-primary mb-4">
         {content.title}
       </h1>
+
+      {/* Video del taller (opcional) — sólo aparece si el admin definió video_url */}
+      {content.video_url && (
+        <div className="mb-8">
+          <VideoEmbed url={content.video_url} title={`${content.title} — video explicativo`} />
+        </div>
+      )}
 
       {/* Instructions */}
       <div className="bg-navy-700 border border-navy-600 rounded-lg p-6 md:p-8 mb-8">

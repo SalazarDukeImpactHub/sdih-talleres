@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { InstalacionContent } from "@/lib/schemas/section-content";
 import { Markdown } from "../Markdown";
+import { VideoEmbed } from "../VideoEmbed";
 
 /**
  * InstalacionSection Component — Installation/setup section with code blocks
@@ -48,6 +49,13 @@ export function InstalacionSection({ content }: InstalacionSectionProps) {
       <h1 className="text-4xl md:text-5xl font-bold font-display text-text-primary mb-8">
         {content.title}
       </h1>
+
+      {/* Video tutorial (opcional) — sólo aparece si el admin definió video_url */}
+      {content.video_url && (
+        <div className="mb-10">
+          <VideoEmbed url={content.video_url} title={`${content.title} — tutorial en video`} />
+        </div>
+      )}
 
       {/* Steps */}
       <div className="space-y-8">
