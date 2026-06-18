@@ -723,3 +723,41 @@ export async function createOrResetAdminUser() {
     throw err;
   }
 }
+
+/**
+ * seedWorkshop() — Crea un taller único para tests admin.
+ * No idempotent: crea uno nuevo cada vez (para aislar tests).
+ *
+ * @param props title, instructor, status
+ * @returns { id, title, status }
+ */
+export async function seedWorkshop(props: {
+  title: string;
+  instructor: string;
+  status: "disponible" | "en vivo" | "próximamente" | "completado";
+}) {
+  const admin = createAdminClient();
+
+  const workshopData = {
+    title: props.title,
+    description: `Auto-generated workshop for testing: ${Date.now()}`,
+    instructor: props.instructor,
+    status: props.status,
+    date_live: new Date().toISOString(),
+    duration_min: 120,
+    slug: `test-${Date.now()}`,
+    cover_image: null,
+  };
+
+  const { data, error } = await admin
+    .from("workshops")
+    .insert([workshopData])
+    .select("id, title, status")
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to seed workshop: ${error.message}`);
+  }
+
+  return data;
+}
