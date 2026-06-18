@@ -4,13 +4,16 @@
 # Bootstrap UNA SOLA VEZ del VPS AlmaLinux 9.7. Idempotente — podés
 # correrlo de nuevo y no rompe nada (skipea lo ya hecho).
 #
+# Asume que el VPS YA tiene:
+#   - Docker + Docker Compose plugin
+#   - Caddy corriendo en el host (escucha 80/443, ya tiene firewall abierto)
+#   - Otros sitios funcionando (engram, markitdown) con el mismo patrón
+#
 # Hace:
-#   1. Verifica Docker + Docker Compose plugin
-#   2. Abre el firewall (firewalld) para los puertos 80 y 443
-#      (el 22022 ya tiene que estar abierto, sino no podrías conectarte)
-#   3. Crea el directorio /opt/sdih-talleres
-#   4. Clona el repo desde GitHub si no está
-#   5. Crea .env.production a partir del template (vos lo editás después)
+#   1. Verifica Docker + Docker Compose + Caddy en host
+#   2. Crea el directorio /opt/sdih-talleres
+#   3. Clona el repo desde GitHub si no está
+#   4. Crea .env.production a partir del template (vos lo editás después)
 #
 # Uso desde el VPS:
 #   curl -sSL https://raw.githubusercontent.com/SalazarDukeImpactHub/sdih-talleres/master/scripts/server-setup.sh | bash
@@ -28,8 +31,8 @@ echo "  Install path : ${INSTALL_PATH}"
 echo "════════════════════════════════════════════════════════"
 echo
 
-# ─── 1. Verificar Docker ───────────────────────────────────────────────────────
-echo "[1/5] Verificando Docker..."
+# ─── 1. Verificar el stack base del VPS ───────────────────────────────────────
+echo "[1/4] Verificando stack base del VPS..."
 if ! command -v docker >/dev/null 2>&1; then
 	echo "✗ Docker no está instalado. Instalalo primero:"
 	echo "   dnf install -y docker"
@@ -44,27 +47,23 @@ fi
 echo "✓ Docker $(docker --version)"
 echo "✓ Compose $(docker compose version --short)"
 
-# ─── 2. Firewall: abrir 80/tcp y 443/tcp ───────────────────────────────────────
-echo
-echo "[2/5] Abriendo puertos en firewalld..."
-if command -v firewall-cmd >/dev/null 2>&1; then
-	firewall-cmd --permanent --add-service=http   || true
-	firewall-cmd --permanent --add-service=https  || true
-	firewall-cmd --reload
-	echo "✓ HTTP y HTTPS habilitados"
+if systemctl is-active --quiet caddy 2>/dev/null; then
+	echo "✓ Caddy corriendo en el host"
 else
-	echo "ℹ firewall-cmd no disponible — saltando (asumimos firewall ya configurado)"
+	echo "⚠ Caddy NO está corriendo en el host. Verificá con:"
+	echo "   systemctl status caddy"
+	echo "  Sin Caddy, https://talleres.salazardukeimpacthubteam.com NO va a responder."
 fi
 
-# ─── 3. Crear directorio ──────────────────────────────────────────────────────
+# ─── 2. Crear directorio ──────────────────────────────────────────────────────
 echo
-echo "[3/5] Creando ${INSTALL_PATH}..."
+echo "[2/4] Creando ${INSTALL_PATH}..."
 mkdir -p "${INSTALL_PATH}"
 cd "${INSTALL_PATH}"
 
-# ─── 4. Clone del repo (si no existe) ─────────────────────────────────────────
+# ─── 3. Clone del repo (si no existe) ─────────────────────────────────────────
 echo
-echo "[4/5] Setup del repo..."
+echo "[3/4] Setup del repo..."
 if [ ! -d ".git" ]; then
 	echo "  Clonando ${REPO_URL}..."
 	git clone "${REPO_URL}" .
@@ -73,23 +72,23 @@ else
 	git pull --ff-only origin master
 fi
 
-# ─── 5. .env.production ────────────────────────────────────────────────────────
+# ─── 4. .env.production placeholder ───────────────────────────────────────────
 echo
-echo "[5/5] .env.production..."
+echo "[4/4] .env.production..."
 if [ -f ".env.production" ]; then
 	echo "  ✓ .env.production ya existe — NO se sobrescribe"
 else
 	cat > .env.production <<'TPL'
 # Generado por server-setup.sh. EDITALO con los valores reales.
-
-DOMAIN=salazardukeimpacthubteam.com
-ACME_EMAIL=info@salazardukeimpacthub.com
+# Estas vars las consume el container de la app de Next.js (servicio `app`
+# en docker-compose.yml). El Caddy del host NO usa este archivo — su config
+# vive en /etc/caddy/Caddyfile.
 
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
-NEXT_PUBLIC_BASE_URL=https://salazardukeimpacthubteam.com
+NEXT_PUBLIC_BASE_URL=https://talleres.salazardukeimpacthubteam.com
 NEXT_PUBLIC_WHATSAPP_NUMBER=573136139790
 
 RESEND_API_KEY=
@@ -107,12 +106,22 @@ echo "  ✅ Bootstrap completo"
 echo "════════════════════════════════════════════════════════"
 echo
 echo "Próximos pasos:"
+echo
 echo "  1) Editá .env.production con los valores reales:"
 echo "     nano ${INSTALL_PATH}/.env.production"
 echo
-echo "  2) Primera build + start:"
+echo "  2) Agregá este bloque al final de /etc/caddy/Caddyfile:"
+echo
+echo "     talleres.salazardukeimpacthubteam.com {"
+echo "         reverse_proxy localhost:3001"
+echo "     }"
+echo
+echo "  3) Recargá Caddy para que tome el nuevo bloque:"
+echo "     systemctl reload caddy"
+echo
+echo "  4) Primera build + start del container:"
 echo "     cd ${INSTALL_PATH}"
 echo "     docker compose up -d --build"
 echo
-echo "  3) Verificá DNS y certificado:"
-echo "     curl -I https://salazardukeimpacthubteam.com"
+echo "  5) Verificá:"
+echo "     curl -I https://talleres.salazardukeimpacthubteam.com"

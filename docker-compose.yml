@@ -1,16 +1,17 @@
 # docker-compose.yml
 # Stack de producción para SDIH Talleres en VPS AlmaLinux.
-# - app: Next.js standalone, expuesto solo a la red interna `web`
-# - caddy: reverse proxy con TLS automático (Let's Encrypt)
+#
+# El VPS ya corre Caddy en el host (no en Docker) manejando 80/443 para
+# varios subdominios (engram.*, markitdown.*, talleres.*). Este compose
+# levanta SOLO la app de Next.js escuchando en 127.0.0.1:3001 — el Caddy
+# del host hace reverse_proxy a este puerto siguiendo el mismo patrón que
+# engram-cloud:18080 y markitdown-hub:8001.
 #
 # Uso:
-#   1) Cargar variables en .env.production (ver .env.production.example)
-#   2) docker compose up -d --build
-#   3) docker compose logs -f
-#
-# Estado persistente:
-#   - caddy_data: certificados TLS + estado ACME (NO borrar)
-#   - caddy_config: configuración runtime de Caddy
+#   1) Cargar variables en .env.production (ver docs/deploy.md)
+#   2) Agregar el bloque de talleres al /etc/caddy/Caddyfile (ver docs/deploy.md)
+#   3) docker compose up -d --build
+#   4) systemctl reload caddy
 
 services:
   app:
@@ -19,8 +20,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # NEXT_PUBLIC_* se hornean en el bundle durante build. Caddy/Docker no
-        # pueden inyectarlas en runtime para componentes cliente.
+        # NEXT_PUBLIC_* se hornean en el bundle durante build. Para cambiarlas
+        # post-deploy hay que rebuildear (docker compose up -d --build).
         NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
         NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-}
@@ -28,35 +29,8 @@ services:
     container_name: sdih-app
     restart: unless-stopped
     env_file: .env.production
-    expose:
-      - "3000"
-    networks:
-      - web
-
-  caddy:
-    image: caddy:2-alpine
-    container_name: sdih-caddy
-    restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - web
-    depends_on:
-      - app
-    environment:
-      - DOMAIN=${DOMAIN}
-      - ACME_EMAIL=${ACME_EMAIL}
-
-networks:
-  web:
-    driver: bridge
-
-volumes:
-  caddy_data:
-  caddy_config:
+      # Solo accesible desde el loopback del host. El Caddy del host
+      # le hace reverse_proxy. NO exponer al exterior — toda terminación
+      # TLS vive en el Caddy del host.
+      - "127.0.0.1:3001:3000"
