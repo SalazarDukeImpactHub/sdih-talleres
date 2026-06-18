@@ -1,0 +1,62 @@
+# docker-compose.yml
+# Stack de producción para SDIH Talleres en VPS AlmaLinux.
+# - app: Next.js standalone, expuesto solo a la red interna `web`
+# - caddy: reverse proxy con TLS automático (Let's Encrypt)
+#
+# Uso:
+#   1) Cargar variables en .env.production (ver .env.production.example)
+#   2) docker compose up -d --build
+#   3) docker compose logs -f
+#
+# Estado persistente:
+#   - caddy_data: certificados TLS + estado ACME (NO borrar)
+#   - caddy_config: configuración runtime de Caddy
+
+services:
+  app:
+    image: sdih-talleres:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* se hornean en el bundle durante build. Caddy/Docker no
+        # pueden inyectarlas en runtime para componentes cliente.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_WHATSAPP_NUMBER: ${NEXT_PUBLIC_WHATSAPP_NUMBER:-}
+        NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
+    container_name: sdih-app
+    restart: unless-stopped
+    env_file: .env.production
+    expose:
+      - "3000"
+    networks:
+      - web
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: sdih-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web
+    depends_on:
+      - app
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+
+networks:
+  web:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

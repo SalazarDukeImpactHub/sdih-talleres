@@ -1,0 +1,46 @@
+# Caddyfile — reverse proxy con TLS automático para SDIH Talleres.
+#
+# Caddy obtiene y renueva certificados de Let's Encrypt sin intervención
+# manual. ACME challenge usa HTTP-01 sobre el puerto 80 (que tiene que
+# estar abierto en el firewall del VPS).
+#
+# Variables consumidas desde docker-compose.yml -> environment:
+# - DOMAIN: el dominio del sitio (ej: salazardukeimpacthubteam.com)
+# - ACME_EMAIL: email para notificaciones de Let's Encrypt (renovación, etc)
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	# Reverse proxy a la app Next.js (servicio `app` en la red interna `web`).
+	reverse_proxy app:3000
+
+	# Headers de seguridad estándar.
+	header {
+		# HSTS: forzar HTTPS por 1 año, incluir subdominios.
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		# Prevenir MIME sniffing.
+		X-Content-Type-Options "nosniff"
+		# Bloquear iframe embedding (clickjacking).
+		X-Frame-Options "DENY"
+		# Referrer minimal.
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Ocultar versión de servidor.
+		-Server
+	}
+
+	# Compresión.
+	encode zstd gzip
+
+	# Logs estructurados (van a stdout del container, los lee `docker compose logs`).
+	log {
+		output stdout
+		format json
+	}
+}
+
+# www.<dominio> redirige al apex sin www.
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}
