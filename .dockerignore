@@ -1,0 +1,44 @@
+# Build outputs y caches
+.next
+node_modules
+out
+dist
+build
+
+# Git
+.git
+.gitignore
+
+# Env files — NUNCA dentro del image. Se inyectan via env_file en runtime.
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
+# Tests + artefactos
+tests
+playwright-report
+test-results
+playwright.config.ts
+
+# SDD / OpenSpec
+openspec
+docs
+
+# Logs y editor
+*.log
+.DS_Store
+.vscode
+.idea
+
+# Deploy artifacts
+scripts/deploy.sh
+scripts/server-setup.sh
+
+# Misc
+README.md
+CHANGELOG.md
+.prettierrc*
+.eslintrc*
+.prettierignore
