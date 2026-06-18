@@ -13,14 +13,14 @@
 #
 # Variables overridable por env del shell:
 #   VPS_HOST=69.6.243.113   # IP del VPS
-#   VPS_PORT=22022          # puerto SSH
+#   VPS_PORT=22             # puerto SSH (default 22; cambialo si lo movés)
 #   VPS_USER=root           # usuario SSH
 #   REMOTE_PATH=/opt/sdih-talleres  # ruta del repo en el VPS
 
 set -euo pipefail
 
 VPS_HOST="${VPS_HOST:-69.6.243.113}"
-VPS_PORT="${VPS_PORT:-22022}"
+VPS_PORT="${VPS_PORT:-22}"
 VPS_USER="${VPS_USER:-root}"
 REMOTE_PATH="${REMOTE_PATH:-/opt/sdih-talleres}"
 BRANCH="${BRANCH:-master}"
@@ -49,11 +49,11 @@ echo "[2/4] Build de la imagen Docker..."
 docker compose build app
 
 echo
-echo "[3/4] Restart de los containers..."
+echo "[3/4] Restart del container..."
 docker compose up -d
 
 echo
-echo "[4/4] Limpieza de imágenes viejas (sin -volumes para preservar caddy_data)..."
+echo "[4/4] Limpieza de imágenes viejas..."
 docker image prune -f
 
 echo
