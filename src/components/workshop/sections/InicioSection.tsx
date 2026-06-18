@@ -1,5 +1,6 @@
 import React from "react";
 import { InicioContent } from "@/lib/schemas/section-content";
+import { Markdown } from "../Markdown";
 
 /**
  * InicioSection Component — Welcome/hero section with quick-links grid
@@ -34,9 +35,9 @@ export function InicioSection({ content, onLinkClick }: InitioSectionProps) {
         <h1 className="text-4xl md:text-5xl font-bold font-display text-text-primary mb-4">
           {content.title}
         </h1>
-        <p className="text-lg text-text-secondary max-w-2xl">
-          {content.description}
-        </p>
+        <div className="text-lg max-w-2xl">
+          <Markdown>{content.description}</Markdown>
+        </div>
       </div>
 
       {/* Quick Links Grid */}

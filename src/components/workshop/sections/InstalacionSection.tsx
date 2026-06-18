@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { InstalacionContent } from "@/lib/schemas/section-content";
+import { Markdown } from "../Markdown";
 
 /**
  * InstalacionSection Component — Installation/setup section with code blocks
@@ -73,9 +74,9 @@ export function InstalacionSection({ content }: InstalacionSectionProps) {
                   {step.title}
                 </h3>
 
-                <p className="text-text-secondary mb-4">
-                  {step.description}
-                </p>
+                <div className="mb-4">
+                  <Markdown>{step.description}</Markdown>
+                </div>
 
                 {/* Code block */}
                 <div className="bg-navy-900 border border-navy-600 rounded-md overflow-hidden">

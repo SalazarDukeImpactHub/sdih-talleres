@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { AprendizajeContent } from "@/lib/schemas/section-content";
+import { Markdown } from "../Markdown";
 
 /**
  * AprendizajeSection Component — Learning carousel with slides, notes, and PDF
@@ -65,10 +66,10 @@ export function AprendizajeSection({ content }: AprendizajeSectionProps) {
             {currentSlide.title}
           </h2>
 
-          {/* Slide Body */}
-          <p className="text-base md:text-lg text-text-secondary mb-8 leading-relaxed">
-            {currentSlide.body}
-          </p>
+          {/* Slide Body — render markdown (bold, italic, listas, tablas) */}
+          <div className="text-base md:text-lg mb-8">
+            <Markdown>{currentSlide.body}</Markdown>
+          </div>
 
           {/* Notes Section (conditional) */}
           {currentSlide.notes && (
@@ -83,9 +84,9 @@ export function AprendizajeSection({ content }: AprendizajeSectionProps) {
 
               {notesOpen && (
                 <div
-                  className="mt-3 p-4 bg-navy-600/50 border border-navy-500 rounded text-text-secondary text-sm italic animate-[fadeIn_0.3s_ease-in]"
+                  className="mt-3 p-4 bg-navy-600/50 border border-navy-500 rounded text-sm italic animate-[fadeIn_0.3s_ease-in]"
                 >
-                  {currentSlide.notes}
+                  <Markdown>{currentSlide.notes}</Markdown>
                 </div>
               )}
             </div>
