@@ -1,9 +1,10 @@
 "use server";
 
+import crypto from "crypto";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createStudentSchema } from "@/lib/schemas/user";
-import { generateAccessKeyString } from "@/lib/crypto/access-key";
+import { generateAccessKeyString, hashAccessKey } from "@/lib/crypto/access-key";
 
 /**
  * Server Actions para student management (change 5 slice 5c).
@@ -123,12 +124,15 @@ export async function generateAccessKey(
   await requireAdmin();
 
   try {
-    // Generar clave alfanumérica
     const key = generateAccessKeyString();
+    const salt = crypto.randomUUID();
+    const hash = hashAccessKey(key, salt);
 
     const admin = await createAdminClient();
 
-    // Upsert en workshop_access (plaintext en 5c; hash agregado en 5d)
+    // 5d: hash + salt es la fuente de verdad; access_key plaintext se mantiene
+    // como fallback durante v1 (column NOT NULL del change 2). Post-v1 se dropea
+    // cuando todas las claves vivas hayan sido emitidas con hash.
     const { error } = await admin
       .from("workshop_access")
       .upsert(
@@ -136,7 +140,9 @@ export async function generateAccessKey(
           user_id: userId,
           workshop_id: workshopId,
           access_key: key,
-          expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // 90 days
+          access_key_hash: hash,
+          access_key_salt: salt,
+          expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
         },
         { onConflict: "user_id,workshop_id" }
       );

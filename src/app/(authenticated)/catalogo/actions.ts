@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth/get-current-user";
 import { accessKeySchema } from "@/lib/schemas/workshop";
+import { verifyAccessKey } from "@/lib/crypto/access-key";
 
 /**
  * Server Action fetchWorkshops — obtiene todos los talleres con estado de desbloqueo del usuario actual.
@@ -135,7 +136,7 @@ export async function redeemKey(
     // RLS filtra automáticamente (authenticated user solo ve sus rows)
     const { data: accessRow, error: selectError } = await supabase
       .from("workshop_access")
-      .select("id, access_key, redeemed_at, expires_at")
+      .select("id, access_key, access_key_hash, access_key_salt, redeemed_at, expires_at")
       .eq("user_id", user.id)
       .eq("workshop_id", workshopId)
       .single();
@@ -158,9 +159,22 @@ export async function redeemKey(
     }
 
     // 4. Si existe pero no canjeado: validar clave + expiración
+    // 5d: hash primero (path principal), plaintext como fallback legacy.
     if (accessRow) {
-      const isKeyValid =
-        accessRow.access_key.toUpperCase() === key.toUpperCase();
+      const normalized = key.toUpperCase();
+      let isKeyValid = false;
+
+      if (accessRow.access_key_hash && accessRow.access_key_salt) {
+        isKeyValid = verifyAccessKey(
+          normalized,
+          accessRow.access_key_hash,
+          accessRow.access_key_salt
+        );
+      }
+      if (!isKeyValid && accessRow.access_key) {
+        isKeyValid = accessRow.access_key.toUpperCase() === normalized;
+      }
+
       const isExpired = new Date(accessRow.expires_at) < new Date();
 
       if (!isKeyValid || isExpired) {

@@ -9,6 +9,8 @@
 
 import { createClient } from "@supabase/supabase-js";
 import ws from "ws";
+import crypto from "crypto";
+import { hashAccessKey } from "@/lib/crypto/access-key";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
@@ -207,29 +209,26 @@ export async function resetWorkshopsAndAccess() {
     }
 
     // 3. Create access rows: seed user unlocked to first 2 workshops (redeemed)
+    // 5d: cada seed key tiene hash + salt para que los tests prueben el path
+    // principal (hash). La clave plaintext se mantiene como fallback durante v1.
+    const makeAccess = (workshopId: string, key: string, redeemed: boolean) => {
+      const salt = crypto.randomUUID();
+      return {
+        user_id: SEED_USER.uuid,
+        workshop_id: workshopId,
+        access_key: key,
+        access_key_hash: hashAccessKey(key, salt),
+        access_key_salt: salt,
+        redeemed_at: redeemed ? new Date().toISOString() : null,
+        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+    };
+
     const accessToInsert = [
-      {
-        user_id: SEED_USER.uuid,
-        workshop_id: workshops[0].id,
-        access_key: "RAG-STARTER",
-        redeemed_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      },
-      {
-        user_id: SEED_USER.uuid,
-        workshop_id: workshops[1].id,
-        access_key: "LIVE-2024",
-        redeemed_at: new Date().toISOString(),
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      },
+      makeAccess(workshops[0].id, "RAG-STARTER", true),
+      makeAccess(workshops[1].id, "LIVE-2024", true),
       // 2b: Add unredeemed access for future-tech (para testing canje)
-      {
-        user_id: SEED_USER.uuid,
-        workshop_id: workshops[2].id,
-        access_key: "FUTURE-TECH-2024",
-        redeemed_at: null,
-        expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      },
+      makeAccess(workshops[2].id, "FUTURE-TECH-2024", false),
     ];
 
     const { error: accessError } = await admin
