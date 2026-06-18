@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { TallerContent } from "@/lib/schemas/section-content";
 import { Exercise, ExerciseProgress } from "@/lib/schemas/exercise";
 import { ExerciseCard } from "../ExerciseCard";
+import { Markdown } from "../Markdown";
 
 /**
  * TallerSection Component — Exercises section
@@ -76,9 +77,9 @@ export function TallerSection({
 
       {/* Instructions */}
       <div className="bg-navy-700 border border-navy-600 rounded-lg p-6 md:p-8 mb-8">
-        <p className="text-text-secondary text-base md:text-lg leading-relaxed">
-          {content.instructions}
-        </p>
+        <div className="text-base md:text-lg">
+          <Markdown>{content.instructions}</Markdown>
+        </div>
       </div>
 
       {/* Exercises or Placeholder */}
