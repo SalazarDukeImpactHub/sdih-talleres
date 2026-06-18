@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createOrResetAdminUser, supabaseAdmin } from "./_helpers/supabase-admin";
-import { seedWorkshop } from "./_helpers/workshop";
+import { createOrResetAdminUser, supabaseAdmin, seedWorkshop } from "./_helpers/supabase-admin";
 
 /**
  * E2E Spec [5c-1]: Create Student
@@ -12,12 +11,10 @@ test.describe("Admin: Create Student [5c-1]", () => {
   let workshopId: string;
 
   test.beforeEach(async ({ page }) => {
-    // Resetear admin user
     const admin = await createOrResetAdminUser();
     adminEmail = admin.email;
     adminPassword = admin.password;
 
-    // Crear taller test
     const workshop = await seedWorkshop({
       title: "Test Workshop",
       instructor: "Instructor Test",
@@ -25,7 +22,6 @@ test.describe("Admin: Create Student [5c-1]", () => {
     });
     workshopId = workshop.id;
 
-    // Login como admin
     await page.goto("/auth/login");
     await page.fill('input[data-testid="input-email"]', adminEmail);
     await page.fill('input[data-testid="input-password"]', adminPassword);
@@ -39,26 +35,20 @@ test.describe("Admin: Create Student [5c-1]", () => {
     await page.goto(`/admin/talleres/${workshopId}/alumnos`);
     await page.waitForSelector("table", { timeout: 5000 });
 
-    // Click "Nuevo Alumno"
     await page.click('button[data-testid="btn-new-student"]');
     await page.waitForSelector('[data-testid="create-student-modal"]');
 
-    // Llenar form
     const testEmail = `alumno-${Date.now()}@test.local`;
     const testPassword = "TempPassword123";
     await page.fill('input[data-testid="input-email"]', testEmail);
     await page.fill('input[data-testid="input-password"]', testPassword);
-
-    // Submit
     await page.click('button[data-testid="btn-create"]');
 
-    // Esperar clave
     await page.waitForSelector('[data-state="key-revealed"]', { timeout: 5000 });
 
     const keyText = await page.locator("code").first().textContent();
     expect(keyText).toBeTruthy();
 
-    // Verificar en DB
     const dbUser = await supabaseAdmin
       .from("users")
       .select("*")

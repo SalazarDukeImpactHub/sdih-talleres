@@ -214,8 +214,9 @@ export async function fetchStudents(workshopId: string): Promise<
     }
 
     // Transform response
-    const students = (data as WorkshopAccessRow[] || [])
-      .map((row) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const students = ((data as any) || [])
+      .map((row: WorkshopAccessRow) => {
         const now = new Date();
         const expiresAt = new Date(row.expires_at);
         const redeemedAt = row.redeemed_at ? new Date(row.redeemed_at) : null;

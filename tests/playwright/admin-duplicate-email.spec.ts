@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createOrResetAdminUser, supabaseAdmin } from "./_helpers/supabase-admin";
-import { seedWorkshop } from "./_helpers/workshop";
+import { createOrResetAdminUser, supabaseAdmin, seedWorkshop } from "./_helpers/supabase-admin";
 
 /**
  * E2E Spec [5c-3]: Duplicate Email Validation
@@ -33,7 +32,6 @@ test.describe("Admin: Duplicate Email Validation [5c-3]", () => {
     const testEmail = `alumno-${Date.now()}@test.local`;
     const testPassword = "TempPassword123";
 
-    // Crear primer alumno
     const { data: authUser } = await supabaseAdmin.auth.admin.createUser({
       email: testEmail,
       password: testPassword,
@@ -47,11 +45,9 @@ test.describe("Admin: Duplicate Email Validation [5c-3]", () => {
       password_changed: false,
     });
 
-    // Navegar a students page
     await page.goto(`/admin/talleres/${workshopId}/alumnos`);
     await page.waitForSelector("table");
 
-    // Click "Nuevo Alumno"
     await page.click('button[data-testid="btn-new-student"]');
     await page.waitForSelector('[data-testid="create-student-modal"]');
 
@@ -59,7 +55,6 @@ test.describe("Admin: Duplicate Email Validation [5c-3]", () => {
     await page.fill('input[data-testid="input-password"]', testPassword);
     await page.click('button[data-testid="btn-create"]');
 
-    // Esperar error message
     await page.waitForSelector('[data-testid="error-message"]', { timeout: 5000 });
 
     const errorText = await page.locator('[data-testid="error-message"]').textContent();

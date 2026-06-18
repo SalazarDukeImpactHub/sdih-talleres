@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createOrResetAdminUser, supabaseAdmin } from "./_helpers/supabase-admin";
-import { seedWorkshop } from "./_helpers/workshop";
+import { createOrResetAdminUser, supabaseAdmin, seedWorkshop } from "./_helpers/supabase-admin";
 
 /**
  * E2E Spec [5c-2]: Student Table Displays Progress
@@ -30,7 +29,6 @@ test.describe("Admin: Student Progress Display [5c-2]", () => {
   });
 
   test("should display student progress percentage", async ({ page }) => {
-    // Crear alumno en DB
     const { data: authUser } = await supabaseAdmin.auth.admin.createUser({
       email: `alumno-${Date.now()}@test.local`,
       password: "TestPassword123",
@@ -44,7 +42,6 @@ test.describe("Admin: Student Progress Display [5c-2]", () => {
       password_changed: false,
     });
 
-    // Crear acceso key
     await supabaseAdmin.from("workshop_access").insert({
       user_id: authUser?.user.id,
       workshop_id: workshopId,
@@ -52,14 +49,11 @@ test.describe("Admin: Student Progress Display [5c-2]", () => {
       expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
     });
 
-    // Navegar a students page
     await page.goto(`/admin/talleres/${workshopId}/alumnos`);
     await page.waitForSelector("table");
 
-    // Esperar que se cargue alumno
     await page.waitForSelector(`[data-testid="student-row"]`, { timeout: 5000 });
 
-    // Verificar que el % aparece
     const progressCell = page.locator("text=/\d+%/").first();
     await expect(progressCell).toBeVisible();
   });
