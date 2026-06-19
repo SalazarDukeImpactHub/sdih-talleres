@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState } from "react";
 import { signIn } from "@/app/(auth)/auth/login/actions";
 import { AuthCard } from "./AuthCard";
@@ -29,6 +30,18 @@ export function LoginForm() {
 
   return (
     <AuthCard className="sd-rise">
+      {/* Logo oficial Salazar Duke Impact Hub */}
+      <div className="flex justify-center mb-6">
+        <Image
+          src="/branding/logo-lockup.png"
+          alt="Salazar Duke Impact Hub"
+          width={220}
+          height={220}
+          priority
+          className="h-32 w-32 sm:h-36 sm:w-36 rounded-xl object-cover ring-1 ring-white/10"
+        />
+      </div>
+
       <form action={formAction} className="space-y-4">
         {/* Título */}
         <h1 className="text-2xl font-bold text-center mb-6 font-display">

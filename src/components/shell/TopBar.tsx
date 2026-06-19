@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "@/app/(authenticated)/_actions/sign-out";
 
@@ -32,14 +33,23 @@ export function TopBar({ user }: TopBarProps) {
     <header className="bg-navy-800 border-b border-navy-600 sticky top-0 z-50" data-testid="top-bar">
       <div className="max-w-full px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         <div className="flex items-center justify-between gap-4">
-          {/* Logo a la izquierda */}
+          {/* Logo oficial Salazar Duke Impact Hub */}
           <Link
             href="/catalogo"
-            className="flex items-center gap-2 text-xl font-bold text-text-primary font-display hover:text-cyan transition-colors"
+            className="flex items-center gap-2 sm:gap-3 group"
+            aria-label="Salazar Duke Impact Hub — ir al catálogo"
           >
-            {/* Isotipo cerebro simple (text-based en este cambio) */}
-            <span className="text-2xl">🧠</span>
-            <span className="hidden sm:inline">SDIH</span>
+            <Image
+              src="/branding/logo-brain.png"
+              alt=""
+              width={40}
+              height={40}
+              priority
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-md object-cover ring-1 ring-white/10 group-hover:ring-cyan/60 transition"
+            />
+            <span className="hidden sm:inline text-base sm:text-lg font-bold text-text-primary font-display group-hover:text-cyan transition-colors">
+              SALAZAR DUKE <span className="text-text-muted font-normal">· Impact Hub</span>
+            </span>
           </Link>
 
           {/* Nombre del usuario en el centro */}
