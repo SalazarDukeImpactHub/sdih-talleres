@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -52,9 +53,19 @@ export function AdminSidebar() {
           z-40 flex flex-col
         `}
       >
-        {/* Header */}
-        <div className="p-6 border-b border-navy-800">
-          <h1 className="text-white text-xl font-bold">Panel Admin</h1>
+        {/* Header con logo oficial */}
+        <div className="p-5 border-b border-navy-800 flex items-center gap-3">
+          <Image
+            src="/branding/logo-brain.png"
+            alt="Salazar Duke Impact Hub"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-md object-cover ring-1 ring-white/10"
+          />
+          <div className="leading-tight">
+            <p className="text-white text-sm font-bold font-display">SALAZAR DUKE</p>
+            <p className="text-gray-400 text-xs">Panel Admin</p>
+          </div>
         </div>
 
         {/* Navigation */}
