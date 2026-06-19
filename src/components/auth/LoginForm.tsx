@@ -32,14 +32,16 @@ export function LoginForm() {
     <AuthCard className="sd-rise">
       {/* Logo oficial Salazar Duke Impact Hub */}
       <div className="flex justify-center mb-6">
-        <Image
-          src="/branding/logo-lockup.png"
-          alt="Salazar Duke Impact Hub"
-          width={220}
-          height={220}
-          priority
-          className="h-32 w-32 sm:h-36 sm:w-36 rounded-xl object-cover ring-1 ring-white/10"
-        />
+        <span className="relative inline-block h-32 w-32 sm:h-36 sm:w-36 overflow-hidden rounded-xl ring-1 ring-white/10">
+          <Image
+            src="/branding/logo-lockup.png"
+            alt="Salazar Duke Impact Hub"
+            width={220}
+            height={220}
+            priority
+            className="absolute inset-0 h-full w-full object-cover scale-[1.18]"
+          />
+        </span>
       </div>
 
       <form action={formAction} className="space-y-4">

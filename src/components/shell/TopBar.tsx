@@ -39,14 +39,16 @@ export function TopBar({ user }: TopBarProps) {
             className="flex items-center gap-2 sm:gap-3 group"
             aria-label="Salazar Duke Impact Hub — ir al catálogo"
           >
-            <Image
-              src="/branding/logo-brain.png"
-              alt=""
-              width={40}
-              height={40}
-              priority
-              className="h-9 w-9 sm:h-10 sm:w-10 rounded-md object-cover ring-1 ring-white/10 group-hover:ring-cyan/60 transition"
-            />
+            <span className="relative inline-block h-9 w-9 sm:h-10 sm:w-10 overflow-hidden rounded-md ring-1 ring-white/10 group-hover:ring-cyan/60 transition">
+              <Image
+                src="/branding/logo-brain.png"
+                alt=""
+                width={56}
+                height={56}
+                priority
+                className="absolute inset-0 h-full w-full object-cover scale-[1.35]"
+              />
+            </span>
             <span className="hidden sm:inline text-base sm:text-lg font-bold text-text-primary font-display group-hover:text-cyan transition-colors">
               SALAZAR DUKE <span className="text-text-muted font-normal">· Impact Hub</span>
             </span>

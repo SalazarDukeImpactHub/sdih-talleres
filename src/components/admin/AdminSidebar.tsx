@@ -55,13 +55,15 @@ export function AdminSidebar() {
       >
         {/* Header con logo oficial */}
         <div className="p-5 border-b border-navy-800 flex items-center gap-3">
-          <Image
-            src="/branding/logo-brain.png"
-            alt="Salazar Duke Impact Hub"
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-md object-cover ring-1 ring-white/10"
-          />
+          <span className="relative inline-block h-10 w-10 overflow-hidden rounded-md ring-1 ring-white/10">
+            <Image
+              src="/branding/logo-brain.png"
+              alt="Salazar Duke Impact Hub"
+              width={56}
+              height={56}
+              className="absolute inset-0 h-full w-full object-cover scale-[1.35]"
+            />
+          </span>
           <div className="leading-tight">
             <p className="text-white text-sm font-bold font-display">SALAZAR DUKE</p>
             <p className="text-gray-400 text-xs">Panel Admin</p>
