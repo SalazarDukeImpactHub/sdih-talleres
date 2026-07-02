@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { AprendizajeContent } from "@/lib/schemas/section-content";
-import { Markdown } from "../Markdown";
+import { Markdown, InlineMarkdown } from "../Markdown";
 
 /**
  * AprendizajeSection — carrusel de diapositivas de aprendizaje.
@@ -132,9 +132,9 @@ export function AprendizajeSection({ content }: AprendizajeSectionProps) {
             {currentSlide.kicker}
           </div>
 
-          {/* Título */}
+          {/* Título — InlineMarkdown para no mostrar asteriscos de *cursiva* */}
           <h2 className="mb-6 text-2xl md:text-3xl font-bold leading-tight text-text-primary">
-            {currentSlide.title}
+            <InlineMarkdown>{currentSlide.title}</InlineMarkdown>
           </h2>
 
           {/* Cuerpo — medida acotada para lectura cómoda */}
