@@ -1,11 +1,11 @@
 import { fetchWorkshops } from "./actions";
-import { WorkshopCard } from "@/components/catalog/WorkshopCard";
+import { CatalogView } from "@/components/catalog/CatalogView";
 import { Suspense } from "react";
 
 /**
- * Página de catálogo — grid responsivo de talleres.
- * Server Component que fetcha talleres con estado de desbloqueo del usuario actual.
- * Grid layout: 1 col 360px, 2 col 768px, 3 col 1024px, 4 col 1440px.
+ * Página de catálogo — grid responsivo de talleres con filtro por categoría.
+ * Server Component que fetcha talleres con estado de desbloqueo del usuario actual
+ * y delega el filtrado por categoría a CatalogView (Client Component).
  */
 
 async function CatalogGrid() {
@@ -38,35 +38,22 @@ async function CatalogGrid() {
     date_live: string | null;
     duration_min: number | null;
     status: string; // DB puede retornar string que se parsea en componente
+    category: string | null;
     cover_image: string | null;
     is_unlocked: boolean;
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {workshops.map((workshop: Workshop) => (
-        <WorkshopCard
-          key={workshop.id}
-          id={workshop.id}
-          slug={workshop.slug}
-          title={workshop.title}
-          description={workshop.description}
-          instructor={workshop.instructor}
-          date_live={workshop.date_live}
-          duration_min={workshop.duration_min}
-          status={
-            workshop.status as
-              | "disponible"
-              | "en vivo"
-              | "próximamente"
-              | "completado"
-          }
-          cover_image={workshop.cover_image}
-          isUnlocked={workshop.is_unlocked}
-          isAccessRedeemed={workshop.is_unlocked}
-        />
-      ))}
-    </div>
+    <CatalogView
+      workshops={(workshops as Workshop[]).map((w) => ({
+        ...w,
+        status: w.status as
+          | "disponible"
+          | "en vivo"
+          | "próximamente"
+          | "completado",
+      }))}
+    />
   );
 }
 

@@ -15,6 +15,7 @@ interface Workshop {
   duration: number;
   prerequisites?: string;
   status: string;
+  category?: string | null;
   cover_image?: string;
 }
 
@@ -249,6 +250,33 @@ export function WorkshopForm({ mode, initialData, onSuccess }: WorkshopFormProps
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           data-testid="input-prerequisites"
         />
+      </div>
+
+      {/* Categoría */}
+      <div>
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+          Categoría
+        </label>
+        <input
+          type="text"
+          id="category"
+          name="category"
+          list="category-suggestions"
+          defaultValue={initialData?.category || ""}
+          maxLength={60}
+          placeholder="ej: IA y Tecnología"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          data-testid="input-category"
+        />
+        <datalist id="category-suggestions">
+          <option value="IA y Tecnología" />
+          <option value="Emprendimiento y Negocio" />
+          <option value="Bienestar y Salud Mental" />
+          <option value="Creatividad y Aprendizaje" />
+        </datalist>
+        <p className="mt-1 text-xs text-gray-500">
+          Agrupa el taller en el catálogo. Dejala vacía para quitarla.
+        </p>
       </div>
 
       {/* Status */}

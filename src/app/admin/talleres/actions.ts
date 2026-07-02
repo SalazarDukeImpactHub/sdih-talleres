@@ -147,6 +147,7 @@ export async function createWorkshop(
     const duration = parseInt(formData.get("duration") as string, 10);
     const prerequisites = formData.get("prerequisites") as string | undefined;
     const status = formData.get("status") as string;
+    const category = (formData.get("category") as string | null)?.trim();
 
     let date_live = dateRaw;
     if (dateRaw && !dateRaw.endsWith("Z") && !dateRaw.includes("+")) {
@@ -162,6 +163,7 @@ export async function createWorkshop(
       duration,
       prerequisites: prerequisites || undefined,
       status,
+      category: category || undefined,
     };
 
     const validation = createWorkshopSchema.safeParse(input);
@@ -193,6 +195,7 @@ export async function createWorkshop(
           duration_min: duration,
           prerequisites,
           status,
+          category: category || null,
         },
       ])
       .select("id")
@@ -253,6 +256,7 @@ export async function updateWorkshop(
     const duration = formData.get("duration") as string | undefined;
     const prerequisites = formData.get("prerequisites") as string | undefined;
     const status = formData.get("status") as string | undefined;
+    const categoryRaw = formData.get("category") as string | null;
 
     let date_live = dateRaw;
     if (dateRaw && !dateRaw.endsWith("Z") && !dateRaw.includes("+")) {
@@ -268,6 +272,7 @@ export async function updateWorkshop(
     if (duration !== undefined) input.duration = parseInt(duration, 10);
     if (prerequisites !== undefined) input.prerequisites = prerequisites;
     if (status !== undefined) input.status = status;
+    if (categoryRaw !== null && categoryRaw.trim()) input.category = categoryRaw.trim();
 
     const validation = updateWorkshopSchema.safeParse(input);
     if (!validation.success) {
@@ -295,6 +300,8 @@ export async function updateWorkshop(
     if (duration !== undefined) updateData.duration_min = parseInt(duration as string, 10);
     if (prerequisites !== undefined) updateData.prerequisites = prerequisites;
     if (status !== undefined) updateData.status = status;
+    // Categoría: string vacío = quitar categoría (NULL); ausente = no tocar
+    if (categoryRaw !== null) updateData.category = categoryRaw.trim() || null;
 
     // Update workshop
     const { error: updateError } = await supabase

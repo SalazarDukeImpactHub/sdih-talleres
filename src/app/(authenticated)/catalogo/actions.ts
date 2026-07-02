@@ -35,6 +35,7 @@ export async function fetchWorkshops() {
         duration_min,
         prerequisites,
         status,
+        category,
         cover_image,
         whatsapp_message_template,
         price_display,
@@ -63,6 +64,7 @@ export async function fetchWorkshops() {
       duration_min: number | null;
       prerequisites: string | null;
       status: string;
+      category: string | null;
       cover_image: string | null;
       whatsapp_message_template: string | null;
       price_display: string | null;
@@ -79,6 +81,7 @@ export async function fetchWorkshops() {
       duration_min: w.duration_min,
       prerequisites: w.prerequisites,
       status: w.status,
+      category: w.category,
       cover_image: w.cover_image,
       whatsapp_message_template: w.whatsapp_message_template,
       price_display: w.price_display,
