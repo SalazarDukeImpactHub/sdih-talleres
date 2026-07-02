@@ -26,8 +26,17 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  // 3. Para rutas protegidas, exigir sesión activa
-  const protectedRoutes = ["/catalogo", "/auth/change-password"];
+  // 3. Para rutas protegidas, exigir sesión activa.
+  // Incluye /admin y /taller como defensa-en-profundidad: los layouts ya
+  // guardan server-side, pero cortar en el borde evita render innecesario.
+  // El chequeo de ROL admin sigue viviendo en el layout/requireAdmin — el
+  // proxy no puede leer public.users (Supabase SSR no lo expone acá).
+  const protectedRoutes = [
+    "/catalogo",
+    "/auth/change-password",
+    "/admin",
+    "/taller",
+  ];
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
