@@ -1,168 +1,237 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AprendizajeContent } from "@/lib/schemas/section-content";
 import { Markdown } from "../Markdown";
 
 /**
- * AprendizajeSection Component — Learning carousel with slides, notes, and PDF
+ * AprendizajeSection — carrusel de diapositivas de aprendizaje.
  *
- * Design: D-4 (Client Component), D-8
- * - Single slide carousel (state: slideIndex)
- * - Slide content: title, body, kicker, optional notes
- * - Notes toggle button + fade-in animation
- * - Prev/next buttons (disabled at edges)
- * - Slide counter "1 of X"
- * - Optional PDF download button
- * - Animations: sdRise on mount, fade-in on notes toggle
- *
- * Props:
- * @param content Parsed AprendizajeContent from Zod schema
+ * Rediseño visual (v2):
+ * - Barra de progreso de lectura arriba (avance del carrusel)
+ * - Acento de color que ROTA por diapositiva → cada slide se ve distinto,
+ *   mitiga la sensación de "muro de texto" repetido
+ * - Medida de lectura acotada (prose) → líneas más cortas, menos densas
+ * - Navegación por teclado (← →) + scroll al tope al cambiar de slide
+ * - Kicker como pill de color, jerarquía de título más clara
  */
 
 interface AprendizajeSectionProps {
   content: AprendizajeContent;
 }
 
+// Paleta de acentos que rota por diapositiva. Cada uno trae las clases ya
+// resueltas (Tailwind no puede interpolar nombres dinámicos en build).
+const ACCENTS = [
+  {
+    text: "text-cyan",
+    bgSoft: "bg-cyan/10",
+    ring: "ring-cyan/40",
+    border: "border-cyan/40",
+    bar: "from-cyan to-cyan/40",
+    dot: "bg-cyan",
+    glow: "rgba(25,198,230,0.12)",
+  },
+  {
+    text: "text-magenta",
+    bgSoft: "bg-magenta/10",
+    ring: "ring-magenta/40",
+    border: "border-magenta/40",
+    bar: "from-magenta to-magenta/40",
+    dot: "bg-magenta",
+    glow: "rgba(217,70,239,0.12)",
+  },
+  {
+    text: "text-lime",
+    bgSoft: "bg-lime/10",
+    ring: "ring-lime/40",
+    border: "border-lime/40",
+    bar: "from-lime to-lime/40",
+    dot: "bg-lime",
+    glow: "rgba(163,230,53,0.12)",
+  },
+  {
+    text: "text-orange",
+    bgSoft: "bg-orange/10",
+    ring: "ring-orange/40",
+    border: "border-orange/40",
+    bar: "from-orange to-orange/40",
+    dot: "bg-orange",
+    glow: "rgba(255,122,26,0.12)",
+  },
+] as const;
+
 export function AprendizajeSection({ content }: AprendizajeSectionProps) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [notesOpen, setNotesOpen] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const totalSlides = content.slides.length;
   const currentSlide = content.slides[slideIndex];
   const isFirstSlide = slideIndex === 0;
   const isLastSlide = slideIndex === totalSlides - 1;
+  const accent = ACCENTS[slideIndex % ACCENTS.length];
+  const progress = totalSlides > 1 ? (slideIndex / (totalSlides - 1)) * 100 : 100;
 
-  const handlePrev = () => {
-    if (!isFirstSlide) {
-      setSlideIndex(slideIndex - 1);
-    }
+  const goTo = (i: number) => {
+    const next = Math.max(0, Math.min(totalSlides - 1, i));
+    setSlideIndex(next);
+    setNotesOpen(false);
   };
 
-  const handleNext = () => {
-    if (!isLastSlide) {
-      setSlideIndex(slideIndex + 1);
-    }
-  };
+  // Scroll al tope de la tarjeta al cambiar de slide (comodidad de lectura)
+  useEffect(() => {
+    cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [slideIndex]);
+
+  // Navegación por teclado
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goTo(slideIndex + 1);
+      if (e.key === "ArrowLeft") goTo(slideIndex - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slideIndex, totalSlides]);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
-      {/* Header */}
-      <h1 className="text-4xl md:text-5xl font-bold font-display text-text-primary mb-8">
-        {content.title}
-      </h1>
+    <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
+      {/* Header + barra de progreso */}
+      <div ref={cardRef} className="scroll-mt-6 mb-6">
+        <h1 className="text-3xl md:text-4xl font-bold font-display text-text-primary mb-4">
+          {content.title}
+        </h1>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-navy-600">
+          <div
+            className={`h-full rounded-full bg-gradient-to-r ${accent.bar} transition-all duration-500 ease-out`}
+            style={{ width: `${Math.max(progress, 4)}%` }}
+            aria-hidden="true"
+          />
+        </div>
+      </div>
 
-      {/* Carousel Container */}
-      <div className="bg-gradient-to-br from-navy-700 to-navy-800 border border-navy-600 rounded-lg p-8 md:p-12 mb-8 animate-[sdRise_0.6s_ease-out]">
-        {/* Slide Content */}
-        <div className="min-h-[300px] flex flex-col justify-between">
-          {/* Kicker */}
-          <div className="text-sm font-semibold text-cyan mb-4 uppercase tracking-wider">
+      {/* Tarjeta de diapositiva */}
+      <div
+        key={slideIndex}
+        className={`relative overflow-hidden rounded-2xl border ${accent.border} bg-gradient-to-br from-navy-700 to-navy-800 p-6 md:p-10 animate-[sdRise_0.4s_ease-out]`}
+      >
+        {/* Glow decorativo del acento */}
+        <div
+          className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full blur-3xl"
+          style={{ background: `radial-gradient(circle, ${accent.glow}, transparent 70%)` }}
+          aria-hidden="true"
+        />
+
+        <div className="relative">
+          {/* Kicker pill */}
+          <div
+            className={`mb-5 inline-flex items-center gap-2 rounded-full ${accent.bgSoft} px-3 py-1 text-xs font-bold uppercase tracking-wider ${accent.text}`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${accent.dot}`} />
             {currentSlide.kicker}
           </div>
 
-          {/* Slide Title */}
-          <h2 className="text-3xl md:text-4xl font-bold text-text-primary mb-6">
+          {/* Título */}
+          <h2 className="mb-6 text-2xl md:text-3xl font-bold leading-tight text-text-primary">
             {currentSlide.title}
           </h2>
 
-          {/* Slide Body — render markdown (bold, italic, listas, tablas) */}
-          <div className="text-base md:text-lg mb-8">
+          {/* Cuerpo — medida acotada para lectura cómoda */}
+          <div className="text-base md:text-lg">
             <Markdown>{currentSlide.body}</Markdown>
           </div>
 
-          {/* Notes Section (conditional) */}
+          {/* Notas (opcional) */}
           {currentSlide.notes && (
             <div className="mt-6">
               <button
                 onClick={() => setNotesOpen(!notesOpen)}
-                className="text-sm font-semibold text-magenta hover:text-cyan transition-colors mb-2"
+                className={`inline-flex items-center gap-1.5 text-sm font-semibold ${accent.text} transition-opacity hover:opacity-80`}
                 aria-expanded={notesOpen}
               >
-                {notesOpen ? "Ocultar notas" : "Ver notas"}
+                <span className={`transition-transform ${notesOpen ? "rotate-90" : ""}`}>▸</span>
+                {notesOpen ? "Ocultar notas" : "Ver notas del facilitador"}
               </button>
 
               {notesOpen && (
-                <div
-                  className="mt-3 p-4 bg-navy-600/50 border border-navy-500 rounded text-sm italic animate-[fadeIn_0.3s_ease-in]"
-                >
+                <div className="mt-3 rounded-lg border border-navy-500 bg-navy-600/40 p-4 text-sm animate-[fadeIn_0.3s_ease-in]">
                   <Markdown>{currentSlide.notes}</Markdown>
                 </div>
               )}
             </div>
           )}
+
+          {/* PDF (si existe) */}
+          {content.pdf_url && (
+            <div className="mt-6 border-t border-navy-500 pt-6">
+              <a
+                href={content.pdf_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`inline-flex items-center gap-2 rounded-lg border ${accent.border} px-4 py-2 text-sm font-semibold ${accent.text} transition-colors hover:bg-white/5`}
+              >
+                ↓ Descargar PDF
+              </a>
+            </div>
+          )}
         </div>
-
-        {/* Controls */}
-        <div className="mt-8 pt-8 border-t border-navy-500 flex items-center justify-between gap-4">
-          {/* Prev Button */}
-          <button
-            onClick={handlePrev}
-            disabled={isFirstSlide}
-            className={`px-4 py-2 rounded-md font-semibold transition-all duration-200 ${
-              isFirstSlide
-                ? "bg-navy-600 text-text-muted cursor-not-allowed opacity-50"
-                : "bg-cyan text-navy-900 hover:bg-magenta"
-            }`}
-            aria-label="Diapositiva anterior"
-          >
-            ← Anterior
-          </button>
-
-          {/* Slide Counter */}
-          <div className="text-center text-sm font-semibold text-text-secondary">
-            <span className="text-cyan">{slideIndex + 1}</span>
-            <span> de {totalSlides}</span>
-          </div>
-
-          {/* Next Button */}
-          <button
-            onClick={handleNext}
-            disabled={isLastSlide}
-            className={`px-4 py-2 rounded-md font-semibold transition-all duration-200 ${
-              isLastSlide
-                ? "bg-navy-600 text-text-muted cursor-not-allowed opacity-50"
-                : "bg-cyan text-navy-900 hover:bg-magenta"
-            }`}
-            aria-label="Siguiente diapositiva"
-          >
-            Siguiente →
-          </button>
-        </div>
-
-        {/* PDF Download Button (if available) */}
-        {content.pdf_url && (
-          <div className="mt-6 pt-6 border-t border-navy-500">
-            <a
-              href={content.pdf_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-magenta text-navy-900 rounded-md font-semibold hover:bg-cyan transition-colors"
-              aria-label="Descargar PDF"
-            >
-              <span>📥</span>
-              <span>Descargar PDF</span>
-            </a>
-          </div>
-        )}
       </div>
 
-      {/* Dot Indicators */}
-      <div className="flex justify-center gap-2 mt-8">
+      {/* Controles */}
+      <div className="mt-6 flex items-center justify-between gap-4">
+        <button
+          onClick={() => goTo(slideIndex - 1)}
+          disabled={isFirstSlide}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${
+            isFirstSlide
+              ? "cursor-not-allowed bg-navy-700 text-text-muted opacity-40"
+              : "bg-navy-700 text-text-primary hover:bg-navy-600"
+          }`}
+          aria-label="Diapositiva anterior"
+        >
+          ← Anterior
+        </button>
+
+        <span className="text-sm font-medium text-text-secondary">
+          <span className={accent.text}>{slideIndex + 1}</span> / {totalSlides}
+        </span>
+
+        <button
+          onClick={() => goTo(slideIndex + 1)}
+          disabled={isLastSlide}
+          className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-all ${
+            isLastSlide
+              ? "cursor-not-allowed bg-navy-700 text-text-muted opacity-40"
+              : "bg-cyan text-navy-900 hover:brightness-110"
+          }`}
+          aria-label="Siguiente diapositiva"
+        >
+          Siguiente →
+        </button>
+      </div>
+
+      {/* Indicadores de puntos — compactos, scroll horizontal si son muchos */}
+      <div className="mt-6 flex flex-wrap justify-center gap-1.5">
         {Array.from({ length: totalSlides }).map((_, i) => (
           <button
             key={i}
-            onClick={() => setSlideIndex(i)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            onClick={() => goTo(i)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
               i === slideIndex
-                ? "bg-cyan w-6"
-                : "bg-navy-600 hover:bg-navy-500"
+                ? `w-6 ${ACCENTS[i % ACCENTS.length].dot}`
+                : "w-1.5 bg-navy-600 hover:bg-navy-500"
             }`}
             aria-label={`Ir a diapositiva ${i + 1}`}
             aria-current={i === slideIndex ? "true" : undefined}
           />
         ))}
       </div>
+
+      {/* Hint de teclado (desktop) */}
+      <p className="mt-4 hidden text-center text-xs text-text-muted md:block">
+        Usá las flechas ← → del teclado para navegar
+      </p>
     </div>
   );
 }
