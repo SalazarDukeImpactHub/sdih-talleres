@@ -12,6 +12,8 @@ interface User {
 
 interface TopBarProps {
   user: User;
+  /** true si el usuario tiene role='admin' — muestra el acceso al panel */
+  isAdmin?: boolean;
 }
 
 /**
@@ -26,7 +28,7 @@ interface TopBarProps {
  * - Padding y font-size ajustados en mobile
  * - Altura mínima botones: 44px (touch-friendly)
  */
-export function TopBar({ user }: TopBarProps) {
+export function TopBar({ user, isAdmin = false }: TopBarProps) {
   const displayName = user.name || user.email;
 
   return (
@@ -60,6 +62,17 @@ export function TopBar({ user }: TopBarProps) {
               {displayName}
             </p>
           </div>
+
+          {/* Link al panel admin — solo visible para admins */}
+          {isAdmin && (
+            <Link
+              href="/admin/talleres"
+              className="flex-shrink-0 px-4 py-2 min-h-11 sm:min-h-12 flex items-center border border-cyan/50 text-cyan rounded font-semibold hover:bg-cyan/10 transition-colors text-xs sm:text-sm"
+              data-testid="admin-panel-link"
+            >
+              Panel Admin
+            </Link>
+          )}
 
           {/* Botón Cerrar sesión a la derecha */}
           <form action={signOut} className="flex-shrink-0">

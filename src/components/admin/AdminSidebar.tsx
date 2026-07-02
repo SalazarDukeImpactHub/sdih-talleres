@@ -24,7 +24,7 @@ export function AdminSidebar() {
 
   const navItems = [
     { label: "Talleres", href: "/admin/talleres" },
-    { label: "Claves", href: "/admin/claves", disabled: true },
+    { label: "Claves", href: "/admin/claves" },
   ];
 
   return (
@@ -79,19 +79,29 @@ export function AdminSidebar() {
               onClick={() => setIsOpen(false)}
               className={`
                 block px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                ${item.disabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}
                 ${
                   isActive(item.href)
                     ? "bg-cyan-500 text-white"
                     : "text-gray-200 hover:bg-navy-800"
                 }
               `}
-              aria-disabled={item.disabled}
             >
               {item.label}
             </Link>
           ))}
         </nav>
+
+        {/* Volver al catálogo (vista alumna) */}
+        <div className="px-4 pb-2">
+          <Link
+            href="/catalogo"
+            onClick={() => setIsOpen(false)}
+            className="block px-4 py-2 rounded-lg text-sm font-medium text-cyan-400 hover:bg-navy-800 transition-colors"
+            data-testid="back-to-catalog-link"
+          >
+            ← Ver catálogo
+          </Link>
+        </div>
 
         {/* Footer */}
         <div className="p-4 border-t border-navy-800 text-xs text-gray-400">
