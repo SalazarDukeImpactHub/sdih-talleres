@@ -21,6 +21,14 @@ export function RegisterForm() {
 
   return (
     <AuthCard className="sd-rise">
+      {/* Volver a la vitrina */}
+      <Link
+        href="/"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-text-secondary transition-colors hover:text-cyan"
+      >
+        ← Volver a los talleres
+      </Link>
+
       {/* Logo */}
       <div className="flex justify-center mb-6">
         <span className="relative inline-block h-24 w-24 overflow-hidden rounded-xl ring-1 ring-white/10">

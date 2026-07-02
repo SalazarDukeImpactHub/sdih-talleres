@@ -31,6 +31,14 @@ export function LoginForm() {
 
   return (
     <AuthCard className="sd-rise">
+      {/* Volver a la vitrina */}
+      <Link
+        href="/"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-text-secondary transition-colors hover:text-cyan"
+      >
+        ← Volver a los talleres
+      </Link>
+
       {/* Logo oficial Salazar Duke Impact Hub */}
       <div className="flex justify-center mb-6">
         <span className="relative inline-block h-32 w-32 sm:h-36 sm:w-36 overflow-hidden rounded-xl ring-1 ring-white/10">
