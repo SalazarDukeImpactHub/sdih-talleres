@@ -30,6 +30,10 @@ export const createWorkshopSchema = z.object({
     .optional(),
   status: z
     .enum(["disponible", "en vivo", "próximamente", "completado"]),
+  category: z
+    .string()
+    .max(60, "Categoría máximo 60 caracteres")
+    .optional(),
 });
 
 export const updateWorkshopSchema = createWorkshopSchema.partial().extend({
