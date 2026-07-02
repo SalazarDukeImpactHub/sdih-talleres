@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { CopyButton } from "./CopyButton";
 import { Exercise } from "@/lib/schemas/exercise";
 import { saveWithRetry } from "@/lib/client/exercises-retry";
+import { Markdown } from "./Markdown";
 
 /**
  * ExerciseCard Component
@@ -61,6 +61,7 @@ export function ExerciseCard({
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
+  const [promptOpen, setPromptOpen] = useState(false);
 
   const debouncedSaveTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -211,23 +212,36 @@ export function ExerciseCard({
         </div>
       </div>
 
-      {/* Objective with lightning icon */}
-      <div className="flex items-start gap-2">
-        <span className="text-xl flex-shrink-0">⚡</span>
-        <p className="text-sm text-gray-300">{exercise.objective}</p>
+      {/* Objetivo / actividad — siempre visible */}
+      <div className="flex items-start gap-2 rounded-lg bg-navy-800/60 p-3">
+        <span className="text-lg flex-shrink-0" aria-hidden="true">🎯</span>
+        <p className="text-sm leading-relaxed text-gray-200">{exercise.objective}</p>
       </div>
 
-      {/* Prompt block with CopyButton */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-semibold text-gray-300">Prompt</label>
-          <CopyButton text={exercise.prompt_text} label="Copiar prompt" />
-        </div>
-        <div className="bg-navy-800 rounded border border-navy-700 p-4 overflow-x-auto">
-          <pre className="text-sm text-gray-200 whitespace-pre-wrap break-words font-mono">
-            {exercise.prompt_text}
-          </pre>
-        </div>
+      {/* Prompt / instrucciones — plegable, renderizado con Markdown */}
+      <div className="rounded-lg border border-navy-700 overflow-hidden">
+        <button
+          onClick={() => setPromptOpen((v) => !v)}
+          className="flex w-full items-center justify-between gap-2 bg-navy-800 px-4 py-3 text-left transition-colors hover:bg-navy-700"
+          aria-expanded={promptOpen}
+          data-testid="toggle-prompt"
+        >
+          <span className="text-sm font-semibold text-cyan-400">
+            {promptOpen ? "Ocultar instrucciones" : "Ver instrucciones del ejercicio"}
+          </span>
+          <span
+            className={`text-cyan-400 transition-transform duration-200 ${promptOpen ? "rotate-90" : ""}`}
+            aria-hidden="true"
+          >
+            ▸
+          </span>
+        </button>
+
+        {promptOpen && (
+          <div className="border-t border-navy-700 bg-navy-900/60 p-4 animate-[fadeIn_0.2s_ease-in]">
+            <Markdown>{exercise.prompt_text}</Markdown>
+          </div>
+        )}
       </div>
 
       {/* Textarea for response */}

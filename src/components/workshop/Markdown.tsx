@@ -1,11 +1,24 @@
 "use client";
 
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CopyButton } from "./CopyButton";
 
 interface MarkdownProps {
   children: string;
   className?: string;
+}
+
+/** Aplana nodos de React a texto plano (para copiar bloques de código). */
+function nodeToText(node: React.ReactNode): string {
+  if (node == null) return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(nodeToText).join("");
+  if (React.isValidElement(node)) {
+    return nodeToText((node.props as { children?: React.ReactNode }).children);
+  }
+  return "";
 }
 
 /**
@@ -62,11 +75,20 @@ export function Markdown({ children, className = "" }: MarkdownProps) {
               </code>
             );
           },
-          pre: ({ children }) => (
-            <pre className="mb-4 overflow-x-auto rounded-xl border border-navy-600 bg-navy-900/80 p-4 font-mono text-sm leading-relaxed text-cyan-200 shadow-inner">
-              {children}
-            </pre>
-          ),
+          pre: ({ children }) => {
+            const raw = nodeToText(children).replace(/\n$/, "");
+            return (
+              <div className="group relative mb-4">
+                <pre className="overflow-x-auto rounded-xl border border-navy-600 bg-navy-900/80 p-4 pt-10 font-mono text-sm leading-relaxed text-cyan-200 shadow-inner">
+                  {children}
+                </pre>
+                {/* Botón copiar — para pegar el prompt/código tal cual */}
+                <div className="absolute right-1.5 top-1.5">
+                  <CopyButton text={raw} label="Copiar" />
+                </div>
+              </div>
+            );
+          },
           h1: ({ children }) => (
             <h1 className="mb-3 mt-6 text-2xl font-bold text-text-primary first:mt-0">
               {children}
