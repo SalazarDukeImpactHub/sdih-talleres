@@ -12,6 +12,8 @@ interface User {
 
 interface TopBarProps {
   user: User;
+  /** true si el usuario tiene role='admin' — muestra el acceso al panel */
+  isAdmin?: boolean;
 }
 
 /**
@@ -26,7 +28,7 @@ interface TopBarProps {
  * - Padding y font-size ajustados en mobile
  * - Altura mínima botones: 44px (touch-friendly)
  */
-export function TopBar({ user }: TopBarProps) {
+export function TopBar({ user, isAdmin = false }: TopBarProps) {
   const displayName = user.name || user.email;
 
   return (
@@ -39,14 +41,16 @@ export function TopBar({ user }: TopBarProps) {
             className="flex items-center gap-2 sm:gap-3 group"
             aria-label="Salazar Duke Impact Hub — ir al catálogo"
           >
-            <Image
-              src="/branding/logo-brain.png"
-              alt=""
-              width={40}
-              height={40}
-              priority
-              className="h-9 w-9 sm:h-10 sm:w-10 rounded-md object-cover ring-1 ring-white/10 group-hover:ring-cyan/60 transition"
-            />
+            <span className="relative inline-block h-9 w-9 sm:h-10 sm:w-10 overflow-hidden rounded-md ring-1 ring-white/10 group-hover:ring-cyan/60 transition">
+              <Image
+                src="/branding/logo-brain.png"
+                alt=""
+                width={56}
+                height={56}
+                priority
+                className="absolute inset-0 h-full w-full object-cover scale-[1.35]"
+              />
+            </span>
             <span className="hidden sm:inline text-base sm:text-lg font-bold text-text-primary font-display group-hover:text-cyan transition-colors">
               SALAZAR DUKE <span className="text-text-muted font-normal">· Impact Hub</span>
             </span>
@@ -58,6 +62,17 @@ export function TopBar({ user }: TopBarProps) {
               {displayName}
             </p>
           </div>
+
+          {/* Link al panel admin — solo visible para admins */}
+          {isAdmin && (
+            <Link
+              href="/admin/talleres"
+              className="flex-shrink-0 px-4 py-2 min-h-11 sm:min-h-12 flex items-center border border-cyan/50 text-cyan rounded font-semibold hover:bg-cyan/10 transition-colors text-xs sm:text-sm"
+              data-testid="admin-panel-link"
+            >
+              Panel Admin
+            </Link>
+          )}
 
           {/* Botón Cerrar sesión a la derecha */}
           <form action={signOut} className="flex-shrink-0">

@@ -26,10 +26,10 @@ export default async function AuthenticatedLayout({
     redirect("/auth/login");
   }
 
-  // 2. Leer flag password_changed
+  // 2. Leer flag password_changed + role (role habilita el link al panel admin)
   const { data: userData } = await supabase
     .from("users")
-    .select("password_changed, name")
+    .select("password_changed, name, role")
     .eq("id", user.id)
     .single();
 
@@ -37,13 +37,12 @@ export default async function AuthenticatedLayout({
     redirect("/auth/change-password");
   }
 
-  // 3. Pasar datos a TopBar vía context o props
-  // Por simplicidad en este change, TopBar hace su propio fetch de user
-  // Alternativa: useContext / context provider si se necesita optimizar en el futuro
-
   return (
     <div className="min-h-screen bg-navy-900 flex flex-col">
-      <TopBar user={{ id: user.id, email: user.email || "", name: userData?.name || "" }} />
+      <TopBar
+        user={{ id: user.id, email: user.email || "", name: userData?.name || "" }}
+        isAdmin={userData?.role === "admin"}
+      />
       <main className="flex-1">
         {children}
       </main>

@@ -24,7 +24,7 @@ export function AdminSidebar() {
 
   const navItems = [
     { label: "Talleres", href: "/admin/talleres" },
-    { label: "Claves", href: "/admin/claves", disabled: true },
+    { label: "Claves", href: "/admin/claves" },
   ];
 
   return (
@@ -55,13 +55,15 @@ export function AdminSidebar() {
       >
         {/* Header con logo oficial */}
         <div className="p-5 border-b border-navy-800 flex items-center gap-3">
-          <Image
-            src="/branding/logo-brain.png"
-            alt="Salazar Duke Impact Hub"
-            width={40}
-            height={40}
-            className="h-10 w-10 rounded-md object-cover ring-1 ring-white/10"
-          />
+          <span className="relative inline-block h-10 w-10 overflow-hidden rounded-md ring-1 ring-white/10">
+            <Image
+              src="/branding/logo-brain.png"
+              alt="Salazar Duke Impact Hub"
+              width={56}
+              height={56}
+              className="absolute inset-0 h-full w-full object-cover scale-[1.35]"
+            />
+          </span>
           <div className="leading-tight">
             <p className="text-white text-sm font-bold font-display">SALAZAR DUKE</p>
             <p className="text-gray-400 text-xs">Panel Admin</p>
@@ -77,19 +79,29 @@ export function AdminSidebar() {
               onClick={() => setIsOpen(false)}
               className={`
                 block px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                ${item.disabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}
                 ${
                   isActive(item.href)
                     ? "bg-cyan-500 text-white"
                     : "text-gray-200 hover:bg-navy-800"
                 }
               `}
-              aria-disabled={item.disabled}
             >
               {item.label}
             </Link>
           ))}
         </nav>
+
+        {/* Volver al catálogo (vista alumna) */}
+        <div className="px-4 pb-2">
+          <Link
+            href="/catalogo"
+            onClick={() => setIsOpen(false)}
+            className="block px-4 py-2 rounded-lg text-sm font-medium text-cyan-400 hover:bg-navy-800 transition-colors"
+            data-testid="back-to-catalog-link"
+          >
+            ← Ver catálogo
+          </Link>
+        </div>
 
         {/* Footer */}
         <div className="p-4 border-t border-navy-800 text-xs text-gray-400">

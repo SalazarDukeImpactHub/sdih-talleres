@@ -47,7 +47,7 @@ export async function signIn(
 
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("password_changed")
+      .select("password_changed, role")
       .eq("id", data.user.id)
       .single();
 
@@ -57,9 +57,14 @@ export async function signIn(
       };
     }
 
-    nextRoute = userData?.password_changed
-      ? "/catalogo"
-      : "/auth/change-password";
+    // Admins aterrizan directo en su panel; alumnas en el catálogo.
+    if (!userData?.password_changed) {
+      nextRoute = "/auth/change-password";
+    } else if (userData.role === "admin") {
+      nextRoute = "/admin/talleres";
+    } else {
+      nextRoute = "/catalogo";
+    }
   } catch (err) {
     console.error("[signIn] Error:", err);
     return {
