@@ -1,3 +1,7 @@
+// SEGURIDAD: este módulo usa SUPABASE_SERVICE_ROLE_KEY (bypassa RLS = acceso
+// total a la DB). El import "server-only" hace que el BUILD FALLE si alguien
+// lo importa desde un client component, evitando filtrar la key al bundle.
+import "server-only";
 import { createClient } from "@supabase/supabase-js";
 
 /**

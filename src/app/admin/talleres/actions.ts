@@ -62,9 +62,49 @@ export async function fetchWorkshopById(id: string) {
 }
 
 /**
+ * detectImageType() — Identifica JPG/PNG/WebP por sus magic bytes (firma real
+ * del archivo), no por el MIME declarado por el cliente (falsificable).
+ * @param bytes primeros ~12 bytes del archivo
+ * @returns { ext } canónico o null si no es una imagen soportada
+ */
+function detectImageType(bytes: Uint8Array): { ext: "jpg" | "png" | "webp" } | null {
+  // JPEG: FF D8 FF
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return { ext: "jpg" };
+  }
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  ) {
+    return { ext: "png" };
+  }
+  // WebP: "RIFF" (52 49 46 46) .... "WEBP" (57 45 42 50) en offset 8
+  if (
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50
+  ) {
+    return { ext: "webp" };
+  }
+  return null;
+}
+
+/**
  * uploadCover() — Sube imagen de portada a Supabase Storage bucket 'workshops'.
  * Path: {workshopId}/cover.{ext}
- * Requiere role='admin'.
+ * Requiere role='admin'. Valida el contenido por magic bytes (audit v1 · M3).
  *
  * @param workshopId - UUID del workshop
  * @param formData - FormData con 'cover' file
@@ -82,32 +122,42 @@ export async function uploadCover(
     return { success: false, error: "No file provided" };
   }
 
-  // Validate file type
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-  if (!allowedTypes.includes(file.type)) {
-    return {
-      success: false,
-      error: "Unsupported file type. Only JPG, PNG, and WebP are allowed.",
-    };
-  }
-
-  // Validate file size (5MB)
+  // Validate file size (5MB) — antes de leer bytes
   const maxSize = 5 * 1024 * 1024;
   if (file.size > maxSize) {
     return { success: false, error: "File too large. Maximum 5MB." };
   }
 
+  // Audit v1 · M3: validar el CONTENIDO REAL por magic bytes, no el MIME
+  // declarado (controlable por el cliente). Mapeo firma → extensión canónica.
+  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const detected = detectImageType(header);
+  if (!detected) {
+    return {
+      success: false,
+      error:
+        "El archivo no es una imagen válida (JPG, PNG o WebP). Verificá el archivo.",
+    };
+  }
+
   try {
     const supabase = await createAdminClient();
 
-    // Determine file extension
-    const ext = file.type.split("/")[1];
-    const path = `${workshopId}/cover.${ext}`;
+    // Extensión derivada de la firma real, no del MIME del cliente
+    const path = `${workshopId}/cover.${detected.ext}`;
+
+    // Content-Type explícito según la firma real (no el MIME del cliente)
+    const contentType =
+      detected.ext === "jpg"
+        ? "image/jpeg"
+        : detected.ext === "png"
+          ? "image/png"
+          : "image/webp";
 
     // Upload to storage
     const { error: uploadError } = await supabase.storage
       .from("workshops")
-      .upload(path, file, { upsert: true });
+      .upload(path, file, { upsert: true, contentType });
 
     if (uploadError) {
       throw uploadError;

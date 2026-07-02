@@ -166,16 +166,16 @@ export async function generateAccessKey(
 
     const admin = await createAdminClient();
 
-    // 5d: hash + salt es la fuente de verdad; access_key plaintext se mantiene
-    // como fallback durante v1 (column NOT NULL del change 2). Post-v1 se dropea
-    // cuando todas las claves vivas hayan sido emitidas con hash.
+    // Audit v1 · M1: la clave se guarda SOLO hasheada (hash + salt). Ya no se
+    // persiste el plaintext — el admin lo ve una vez en el modal y se comparte
+    // por fuera. La columna access_key quedó nullable (migración 0009).
     const { error } = await admin
       .from("workshop_access")
       .upsert(
         {
           user_id: userId,
           workshop_id: workshopId,
-          access_key: key,
+          access_key: null,
           access_key_hash: hash,
           access_key_salt: salt,
           expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),

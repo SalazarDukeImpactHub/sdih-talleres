@@ -10,10 +10,19 @@ export const loginSchema = z.object({
   password: z.string().min(8, "Mínimo 8 caracteres"),
 });
 
+// Audit v1 · L1 — complejidad mínima para la contraseña NUEVA:
+// 8+ caracteres, al menos una letra y un número. Se aplica solo al cambio
+// de contraseña (no al login, que valida contra lo ya guardado).
+const strongPassword = z
+  .string()
+  .min(8, "Mínimo 8 caracteres")
+  .regex(/[A-Za-z]/, "Debe incluir al menos una letra")
+  .regex(/[0-9]/, "Debe incluir al menos un número");
+
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(8, "Mínimo 8 caracteres"),
-    newPassword: z.string().min(8, "Mínimo 8 caracteres"),
+    newPassword: strongPassword,
     confirmPassword: z.string().min(8, "Mínimo 8 caracteres"),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
