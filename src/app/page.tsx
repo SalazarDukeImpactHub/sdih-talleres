@@ -1,38 +1,43 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { fetchPublicWorkshops } from "./vitrina-actions";
+import { Vitrina } from "@/components/catalog/Vitrina";
+
+export const dynamic = "force-dynamic";
 
 /**
- * Página root "/" — Server Component que redirige según sesión y password_changed.
+ * Página root "/" — vitrina pública + router de sesión.
  *
- * Lógica:
- * 1. Si no autenticado → redirect /auth/login
- * 2. Si autenticado + password_changed = false → redirect /auth/change-password
- * 3. Si autenticado + role = admin → redirect /admin/talleres
- * 4. Si autenticado + role = alumno → redirect /catalogo
- *
- * NO renderiza UI — es solo lógica de redirect.
+ * - Visitante SIN sesión → ve la vitrina pública (talleres, sin login).
+ * - Con sesión + password_changed = false → /auth/change-password
+ * - Con sesión + role = admin → /admin/talleres
+ * - Con sesión + role = alumno → /catalogo
  */
 export default async function Home() {
   const supabase = await createClient();
 
-  // 1. Obtener usuario actual
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 2. Si no autenticado → ir a login
+  // Sin sesión → vitrina pública
   if (!user) {
-    redirect("/auth/login");
+    const workshops = await fetchPublicWorkshops();
+    return (
+      <Vitrina
+        workshops={workshops}
+        whatsappNumber={process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}
+      />
+    );
   }
 
-  // 3. Si autenticado, leer flag password_changed + role
+  // Con sesión → llevar a su área según flag y rol
   const { data: userData } = await supabase
     .from("users")
     .select("password_changed, role")
     .eq("id", user.id)
     .single();
 
-  // 4. Redirigir según flag y rol: admins van directo a su panel
   if (!userData?.password_changed) {
     redirect("/auth/change-password");
   } else if (userData.role === "admin") {

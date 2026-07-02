@@ -10,6 +10,24 @@ export const loginSchema = z.object({
   password: z.string().min(8, "Mínimo 8 caracteres"),
 });
 
+// Autoregistro público — la alumna crea su propia cuenta.
+// Reusa la complejidad de contraseña (8+, letra + número).
+export const registerSchema = z
+  .object({
+    name: z.string().trim().min(2, "Ingresá tu nombre"),
+    email: z.string().email("Email inválido"),
+    password: z
+      .string()
+      .min(8, "Mínimo 8 caracteres")
+      .regex(/[A-Za-z]/, "Debe incluir al menos una letra")
+      .regex(/[0-9]/, "Debe incluir al menos un número"),
+    confirmPassword: z.string().min(8, "Mínimo 8 caracteres"),
+  })
+  .refine((d) => d.password === d.confirmPassword, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmPassword"],
+  });
+
 // Audit v1 · L1 — complejidad mínima para la contraseña NUEVA:
 // 8+ caracteres, al menos una letra y un número. Se aplica solo al cambio
 // de contraseña (no al login, que valida contra lo ya guardado).

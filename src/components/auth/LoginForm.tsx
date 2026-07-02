@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useActionState } from "react";
 import { signIn } from "@/app/(auth)/auth/login/actions";
 import { AuthCard } from "./AuthCard";
@@ -109,6 +110,13 @@ export function LoginForm() {
           Ingresá con Google
         </button>
       </form>
+
+      <p className="mt-6 text-center text-sm text-text-secondary">
+        ¿No tenés cuenta?{" "}
+        <Link href="/auth/registro" className="font-semibold text-cyan hover:underline">
+          Registrate
+        </Link>
+      </p>
     </AuthCard>
   );
 }
