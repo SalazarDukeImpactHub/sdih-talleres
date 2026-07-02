@@ -45,6 +45,8 @@ export default async function EditWorkshopPage({ params }: PageProps) {
               duration: workshop.duration_min,
               prerequisites: workshop.prerequisites,
               status: workshop.status,
+              category: workshop.category,
+              price_display: workshop.price_display,
               cover_image: workshop.cover_image,
             }}
           />
