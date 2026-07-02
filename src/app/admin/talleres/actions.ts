@@ -285,14 +285,11 @@ export async function updateWorkshop(
     const supabase = await createAdminClient();
 
     const updateData: Record<string, unknown> = {};
+    // El slug es INMUTABLE después de la creación: regenerarlo al editar
+    // rompe los links compartidos (/taller/{slug}) y cualquier SQL que
+    // referencie el slug. Solo se genera en createWorkshop.
     if (title !== undefined) {
       updateData.title = title;
-      updateData.slug = title
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
     }
     if (description !== undefined) updateData.description = description;
     if (instructor !== undefined) updateData.instructor = instructor;
