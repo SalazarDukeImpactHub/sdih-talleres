@@ -10,6 +10,41 @@ interface MarkdownProps {
   className?: string;
 }
 
+/**
+ * InlineMarkdown — renderiza markdown INLINE (negrita, cursiva, código, links)
+ * sin envolver en párrafo ni agregar bloques. Para títulos y textos cortos que
+ * traen *cursiva* o **negrita** en el contenido y no deben mostrar los asteriscos.
+ */
+export function InlineMarkdown({ children }: { children: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        p: ({ children }) => <>{children}</>,
+        strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+        em: ({ children }) => <em className="italic">{children}</em>,
+        code: ({ children }) => (
+          <code className="rounded bg-cyan/10 px-1 py-0.5 font-mono text-[0.9em] text-cyan">
+            {children}
+          </code>
+        ),
+        a: ({ children, href }) => (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline decoration-cyan/40 underline-offset-2"
+          >
+            {children}
+          </a>
+        ),
+      }}
+    >
+      {children}
+    </ReactMarkdown>
+  );
+}
+
 /** Aplana nodos de React a texto plano (para copiar bloques de código). */
 function nodeToText(node: React.ReactNode): string {
   if (node == null) return "";

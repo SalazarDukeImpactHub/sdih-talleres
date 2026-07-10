@@ -21,7 +21,8 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // 2. Rutas públicas — permitir acceso sin validación de sesión
-  const publicRoutes = ["/", "/auth/login", "/restricted"];
+  // (incluye la vitrina "/" y el autoregistro)
+  const publicRoutes = ["/", "/auth/login", "/auth/registro", "/restricted"];
   if (publicRoutes.includes(pathname)) {
     return response;
   }

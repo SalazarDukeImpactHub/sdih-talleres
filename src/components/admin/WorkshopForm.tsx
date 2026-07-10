@@ -16,6 +16,7 @@ interface Workshop {
   prerequisites?: string;
   status: string;
   category?: string | null;
+  price_display?: string | null;
   cover_image?: string;
 }
 
@@ -276,6 +277,27 @@ export function WorkshopForm({ mode, initialData, onSuccess }: WorkshopFormProps
         </datalist>
         <p className="mt-1 text-xs text-gray-500">
           Agrupa el taller en el catálogo. Dejala vacía para quitarla.
+        </p>
+      </div>
+
+      {/* Precio (texto libre para mostrar) */}
+      <div>
+        <label htmlFor="price_display" className="block text-sm font-medium text-gray-700">
+          Precio
+        </label>
+        <input
+          type="text"
+          id="price_display"
+          name="price_display"
+          defaultValue={initialData?.price_display || ""}
+          maxLength={40}
+          placeholder="ej: $50.000 COP · USD 30 · Gratis"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          data-testid="input-price"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Se muestra en la vitrina pública. Texto libre (podés poner moneda o
+          &ldquo;Gratis&rdquo;). Dejalo vacío para no mostrar precio.
         </p>
       </div>
 

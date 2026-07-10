@@ -34,6 +34,11 @@ export const createWorkshopSchema = z.object({
     .string()
     .max(60, "Categoría máximo 60 caracteres")
     .optional(),
+  // Precio como texto libre para display: "$50.000 COP", "USD 30", "Gratis", etc.
+  price_display: z
+    .string()
+    .max(40, "Precio máximo 40 caracteres")
+    .optional(),
 });
 
 export const updateWorkshopSchema = createWorkshopSchema.partial().extend({

@@ -198,6 +198,7 @@ export async function createWorkshop(
     const prerequisites = formData.get("prerequisites") as string | undefined;
     const status = formData.get("status") as string;
     const category = (formData.get("category") as string | null)?.trim();
+    const price = (formData.get("price_display") as string | null)?.trim();
 
     let date_live = dateRaw;
     if (dateRaw && !dateRaw.endsWith("Z") && !dateRaw.includes("+")) {
@@ -214,6 +215,7 @@ export async function createWorkshop(
       prerequisites: prerequisites || undefined,
       status,
       category: category || undefined,
+      price_display: price || undefined,
     };
 
     const validation = createWorkshopSchema.safeParse(input);
@@ -246,6 +248,7 @@ export async function createWorkshop(
           prerequisites,
           status,
           category: category || null,
+          price_display: price || null,
         },
       ])
       .select("id")
@@ -307,6 +310,7 @@ export async function updateWorkshop(
     const prerequisites = formData.get("prerequisites") as string | undefined;
     const status = formData.get("status") as string | undefined;
     const categoryRaw = formData.get("category") as string | null;
+    const priceRaw = formData.get("price_display") as string | null;
 
     let date_live = dateRaw;
     if (dateRaw && !dateRaw.endsWith("Z") && !dateRaw.includes("+")) {
@@ -323,6 +327,7 @@ export async function updateWorkshop(
     if (prerequisites !== undefined) input.prerequisites = prerequisites;
     if (status !== undefined) input.status = status;
     if (categoryRaw !== null && categoryRaw.trim()) input.category = categoryRaw.trim();
+    if (priceRaw !== null && priceRaw.trim()) input.price_display = priceRaw.trim();
 
     const validation = updateWorkshopSchema.safeParse(input);
     if (!validation.success) {
@@ -349,6 +354,8 @@ export async function updateWorkshop(
     if (status !== undefined) updateData.status = status;
     // Categoría: string vacío = quitar categoría (NULL); ausente = no tocar
     if (categoryRaw !== null) updateData.category = categoryRaw.trim() || null;
+    // Precio: string vacío = quitar (NULL); ausente = no tocar
+    if (priceRaw !== null) updateData.price_display = priceRaw.trim() || null;
 
     // Update workshop
     const { error: updateError } = await supabase
